@@ -30,7 +30,6 @@
         // },
         {
             "name": "Debug Android",
-            "program": "${workspaceRoot}/.vscode/launchReactNative.js",
             "type": "reactnative",
             "request": "launch",
             "platform": "android",
@@ -39,7 +38,6 @@
         },
         {
             "name": "iOS Device",
-            "program": "${workspaceRoot}/.vscode/launchReactNative.js",
             "type": "reactnative",
             "request": "launch",
             "platform": "ios",
@@ -53,7 +51,6 @@
         },
         {
             "name": "Debug iPhone 8",
-            "program": "${workspaceRoot}/.vscode/launchReactNative.js",
             "type": "reactnative",
             "request": "launch",
             "platform": "ios",
@@ -63,7 +60,6 @@
         },
        {
             "name": "Debug iPhone 10",
-            "program": "${workspaceRoot}/.vscode/launchReactNative.js",
             "type": "reactnative",
             "request": "launch",
             "platform": "ios",
