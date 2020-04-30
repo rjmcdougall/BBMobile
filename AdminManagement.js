@@ -21,20 +21,6 @@ export default class AdminManagement extends Component {
 
 	render() {
  
-		var blockMasterBackgroundColor;
- 
-		if (this.props.boardState.bm == null) {
-			blockMasterBackgroundColor = "grey";
-		}
-		else { 
-			if (this.props.boardState.bm == 0) {
-				blockMasterBackgroundColor = "skyblue";
-			}
-			else {
-				blockMasterBackgroundColor = "green";
-			}
-		}
-
 		return (
 			<View style={StyleSheet.container}>
 				<ScrollView>
@@ -70,9 +56,24 @@ export default class AdminManagement extends Component {
 								await this.props.sendCommand("BlockMaster", !this.props.boardState.bm);
 								return true;
 							}}
-							style={[{ backgroundColor: blockMasterBackgroundColor }]}
+							style={[{ backgroundColor: (this.props.boardState.bm) ? "green" : "skyblue"  }]}
 							background={Touchable.Ripple("blue")}>
 							<Text style={StyleSheet.buttonTextCenter}> Block Master Remote
+							</Text>
+						</Touchable>
+					</View>
+					<View style={{ height: 10 }}></View>
+					<View style={StyleSheet.button}>
+						<Touchable
+							onPress={async () => {
+								var i = 1;
+								console.log("rd " + this.props.boardState.rd);
+								await this.props.sendCommand("SetRotatingDisplay", !this.props.boardState.rd);
+								return true;
+							}}
+							style={[{ backgroundColor: (this.props.boardState.rd) ? "green" : "skyblue"  }]}
+							background={Touchable.Ripple("blue")}>
+							<Text style={StyleSheet.buttonTextCenter}> Rotating Display
 							</Text>
 						</Touchable>
 					</View>
