@@ -44,6 +44,7 @@
             "sourceMaps": true,
             "target": "device",
             "cwd": "${workspaceRoot}",
+            
             "runArguments": [
                 "--device",
                 "iPhone"
