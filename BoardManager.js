@@ -507,7 +507,7 @@ export default class BoardManager extends Component {
 						this.l(this.state.currentCommand + " timeout", true);
 						return;
 					}
-				},  100000);
+				},  30000);
 
 				this.setState({currentCommandTimeout: commandTimeout,
 					currentCommand: command + " " + arg});
