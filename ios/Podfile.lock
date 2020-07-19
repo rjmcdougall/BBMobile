@@ -1,4 +1,5 @@
 PODS:
+  - "@react-native-mapbox-gl-mapbox-static (5.8.0)"
   - boost-for-react-native (1.63.0)
   - DoubleConversion (1.1.6)
   - FBLazyVector (0.61.5)
@@ -187,8 +188,19 @@ PODS:
   - React-jsinspector (0.61.5)
   - react-native-ble-manager (7.3.1):
     - React
-  - react-native-mapbox-gl (7.2.0):
-    - Mapbox-iOS-SDK (~> 5.6)
+  - react-native-mapbox-gl (8.0.0):
+    - "@react-native-mapbox-gl-mapbox-static (~> 5.7)"
+    - Mapbox-iOS-SDK (~> 5.7)
+    - React
+    - react-native-mapbox-gl/DynamicLibrary (= 8.0.0)
+    - react-native-mapbox-gl/StaticLibraryFixer (= 8.0.0)
+  - react-native-mapbox-gl/DynamicLibrary (8.0.0):
+    - "@react-native-mapbox-gl-mapbox-static (~> 5.7)"
+    - Mapbox-iOS-SDK (~> 5.7)
+    - React
+  - react-native-mapbox-gl/StaticLibraryFixer (8.0.0):
+    - "@react-native-mapbox-gl-mapbox-static (~> 5.7)"
+    - Mapbox-iOS-SDK (~> 5.7)
     - React
   - react-native-slider (3.0.0):
     - React
@@ -273,6 +285,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   https://github.com/cocoapods/specs.git:
+    - "@react-native-mapbox-gl-mapbox-static"
     - boost-for-react-native
     - Mapbox-iOS-SDK
     - MapboxMobileEvents
@@ -342,6 +355,7 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
+  "@react-native-mapbox-gl-mapbox-static": e247172bc43f47757f47d6cec1b325b1ab3e9287
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   DoubleConversion: 5805e889d232975c086db112ece9ed034df7a0b2
   FBLazyVector: cb37b5590a27600f0a889222d7c1f019625f4168
@@ -360,7 +374,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 752f034d0f007d1141a1c52ba9ef3fd9668fbfa7
   React-jsinspector: 044105eea064aec81adc5e4d777a8f6589e7d094
   react-native-ble-manager: 18c35501264993847449cab7d82361e110e2253d
-  react-native-mapbox-gl: dc798ba278e8bb7acb6f8de77cf39434b7ca7df2
+  react-native-mapbox-gl: 71e2085aa348e36f4a33d6c841623ddccef6a601
   react-native-slider: cb7f3bbc9a56d4abb4cd13571fff013452ec6c7e
   React-RCTActionSheet: 49433f6e3659ba5d3ee650e44b9c18743ef9a7fc
   React-RCTAnimation: 12f86a4e3542032329366b03bca2cc254a7c64a9
@@ -377,6 +391,6 @@ SPEC CHECKSUMS:
   RNVectorIcons: 66af4d5c8ff4f584c7b7cd9c4b0780920f27fce2
   Yoga: 6af72bedeaea291a3a3717772d6d41836f23a1b9
 
-PODFILE CHECKSUM: 40c5f8b37578e09372a2e22826c3eefee2dfb7b0
+PODFILE CHECKSUM: 89c5cd0d2a64d3ce7827218365cf997a6eae0967
 
 COCOAPODS: 1.5.3
