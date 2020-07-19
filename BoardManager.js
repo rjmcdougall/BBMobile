@@ -773,20 +773,20 @@ export default class BoardManager extends Component {
 
 		if (!this.state.isMonitor)
 			return (
-				<View style={{ flex: 1 }}>
+				<View style={{ flex: 1, backgroundColor: "white" }}>
 					<View style={{ flexDirection: "row" }}>
 						{(!this.props.userPrefs.isDevilsHand) ?
-							<View style={{ margin: 5, paddingTop: 10 }}>
-								<Image style={{ width: 45, height: 40, }} source={require("./images/BurnerBoardIcon-1026.png")} />
+							<View style={{ margin: 2 }}>
+								<Image style={{ width: 50, height: 46 }} source={require("./images/BurnerBoardIcon-1026.png")} />
 							</View>
 							: <View></View>
 						}
-						<View style={{ flex: 1, paddingTop: 5 }}>
+						<View style={{ flex: 1, margin: 2}}>
 							<BatteryController key={this.state.connectedPeripheral.name + "bat"} id={this.state.connectedPeripheral.name + "bat"} b={this.state.boardState.b} />
 						</View>
 						{(this.props.userPrefs.isDevilsHand) ?
-							<View style={{ margin: 5, paddingTop: 10 }}>
-								<Image style={{ width: 45, height: 40, }} source={require("./images/BurnerBoardIcon-1026.png")} />
+							<View style={{ margin: 2}}>
+								<Image style={{ width: 50, height: 46, }} source={require("./images/BurnerBoardIcon-1026.png")} />
 							</View>
 							: <View></View>
 						}
