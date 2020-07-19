@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { View, Text } from "react-native";
 import PropTypes from "prop-types";
 import StateBuilder from "./StateBuilder";
-import Picker from "react-native-wheel-picker";
+import Picker from "@gregfrench/react-native-wheel-picker";
 import StyleSheet from "./StyleSheet";
 import Constants from "./Constants";
 

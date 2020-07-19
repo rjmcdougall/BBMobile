@@ -204,7 +204,7 @@ PODS:
     - React
   - react-native-safe-area-context (3.0.0):
     - React
-  - react-native-slider (3.0.0):
+  - react-native-slider (3.0.3):
     - React
   - React-RCTActionSheet (0.61.5):
     - React-Core/RCTActionSheetHeaders (= 0.61.5)
