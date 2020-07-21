@@ -3,13 +3,14 @@
   "version": "5.7.0",
   "private": true,
   "devDependencies": {
-    "babel-eslint": "^10.1.0",
-    "eslint": "^7.4.0",
-    "eslint-config-google": "^0.14.0",
-    "eslint-plugin-react": "^7.20.3",
-    "eslint-plugin-react-native": "^3.8.1",
-    "metro-react-native-babel-preset": "^0.60.0",
-    "react-native-scripts": "^2.0.1"
+    "@babel/core": "^7.8.4",
+    "@babel/runtime": "^7.8.4",
+    "@react-native-community/eslint-config": "^1.1.0",
+    "babel-jest": "^25.1.0",
+    "eslint": "^6.5.1",
+    "jest": "^25.1.0",
+    "metro-react-native-babel-preset": "^0.59.0",
+    "react-test-renderer": "16.13.1"
   },
   "main": "./node_modules/react-native-scripts/build/bin/crna-entry.js",
   "scripts": {
@@ -32,7 +33,7 @@
     "deprecated-react-native-listview": "0.0.6",
     "jetifier": "^1.6.6",
     "react": "^16.13.1",
-    "react-native": "^0.61.5",
+    "react-native": "0.63.1",
     "react-native-ble-manager": "^7.3.1",
     "react-native-cli": "^2.0.1",
     "react-native-flip-toggle-button": "^1.0.8",
@@ -40,5 +41,8 @@
     "react-native-platform-touchable": "^1.1.1",
     "react-native-safe-area-context": "^3.0.0",
     "react-native-vector-icons": "^6.6.0"
+  },
+  "jest": {
+    "preset": "react-native"
   }
 }
