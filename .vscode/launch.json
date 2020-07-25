@@ -34,7 +34,11 @@
             "request": "launch",
             "platform": "android",
             "sourceMaps": true,
-            "cwd": "${workspaceRoot}"
+            "cwd": "${workspaceRoot}",
+            "runArguments": [
+                "--deviceId",
+                "ZY326RC9HL",
+            ]
         },
         {
             "name": "iOS Device",
@@ -44,7 +48,6 @@
             "sourceMaps": true,
             "target": "device",
             "cwd": "${workspaceRoot}",
-            
             "runArguments": [
                 "--device",
                 "iPhone"
