@@ -35,10 +35,6 @@
             "platform": "android",
             "sourceMaps": true,
             "cwd": "${workspaceRoot}",
-            "runArguments": [
-                "--deviceId",
-                "ZY326RC9HL",
-            ]
         },
         {
             "name": "iOS Device",
