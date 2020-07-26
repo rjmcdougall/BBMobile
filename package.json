@@ -21,7 +21,7 @@
     "postversion": "react-native-version --never-amend"
   },
   "dependencies": {
-    "@gregfrench/react-native-wheel-picker": "^1.2.3",
+    "@gregfrench/react-native-wheel-picker": "^1.2.5",
     "@mapbox/geo-viewport": "^0.4.0",
     "@react-native-community/async-storage": "^1.11.0",
     "@react-native-community/slider": "^3.0.3",
