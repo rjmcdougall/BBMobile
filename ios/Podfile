@@ -8,6 +8,10 @@ target 'BBMobile' do
 
   use_react_native!(:path => config["reactNativePath"])
 
+  target 'BBMobileTests' do
+    inherit! :complete
+    # Pods for testing
+  end
 
   # Enables Flipper.
   #
@@ -16,5 +20,14 @@ target 'BBMobile' do
   use_flipper!
   post_install do |installer|
     flipper_post_install(installer)
+  end
+end
+
+target 'BBMobile-tvOS' do
+  # Pods for BBMobile-tvOS
+
+  target 'BBMobile-tvOSTests' do
+    inherit! :search_paths
+    # Pods for testing
   end
 end

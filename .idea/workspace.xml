@@ -1,11 +1,89 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="cbf8dbf6-69c1-4063-9f09-e74fddd4c25b" name="Default Changelist" comment="">
+    <list default="true" id="bab87d4e-96b3-4c05-bd5c-70c7b8a0df26" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.babelrc" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.eslintrc.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.expo/packager-info.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.expo/settings.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.flowconfig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.vscode/.react/index.bundle" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.vscode/.react/index.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vscode/settings.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.watchmanconfig" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/.project" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/.settings/org.eclipse.buildship.core.prefs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/PLAY STORE" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/.classpath" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/.project" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/.settings/org.eclipse.buildship.core.prefs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/BUCK" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/BUCK" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/proguard-rules.pro" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/proguard-rules.pro" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/assets/fonts/AntDesign.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/assets/fonts/Entypo.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/assets/fonts/EvilIcons.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/assets/fonts/Feather.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/assets/fonts/FontAwesome.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/assets/fonts/FontAwesome5_Brands.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/assets/fonts/FontAwesome5_Regular.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/assets/fonts/FontAwesome5_Solid.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/assets/fonts/Fontisto.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/assets/fonts/Foundation.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/assets/fonts/Ionicons.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/assets/fonts/MaterialCommunityIcons.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/assets/fonts/MaterialIcons.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/assets/fonts/Octicons.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/assets/fonts/SimpleLineIcons.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/assets/fonts/Zocial.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/java/com/bbmobile/ContentResolverModule.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/java/com/bbmobile/ContentResolverPackage.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/java/com/bbmobile/MainActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/java/com/bbmobile/MainActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/java/com/bbmobile/MainApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/java/com/bbmobile/MainApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/java/com/bbmobile/ReactNativeFlipper.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/drawable-land-hdpi/screen.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/drawable-land-mdpi/screen.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/drawable-land-xhdpi/screen.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/drawable-land-xxhdpi/screen.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/mipmap-hdpi/ic_launcher.png" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/res/mipmap-hdpi/ic_launcher.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/mipmap-mdpi/ic_launcher.png" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/res/mipmap-mdpi/ic_launcher.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/res/mipmap-xhdpi/ic_launcher.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/res/mipmap-xxhdpi/ic_launcher.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/res/values/styles.xml" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/res/values/styles.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/web_hi_res_512.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/android/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/android/gradle.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" afterPath="$PROJECT_DIR$/android/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/android/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/gradlew" beforeDir="false" afterPath="$PROJECT_DIR$/android/gradlew" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/gradlew.bat" beforeDir="false" afterPath="$PROJECT_DIR$/android/gradlew.bat" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/android/settings.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.json" beforeDir="false" afterPath="$PROJECT_DIR$/app.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/debug.keystore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/helper scripts/refresh references.sh" beforeDir="false" afterPath="$PROJECT_DIR$/helper scripts/refresh references.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ios/BBMobile-Bridging-Header.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ios/BBMobile.xcodeproj/project.pbxproj" beforeDir="false" afterPath="$PROJECT_DIR$/ios/BBMobile.xcodeproj/project.pbxproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ios/BBMobile.xcodeproj/project.xcworkspace/contents.xcworkspacedata" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ios/BBMobile.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ios/BBMobile.xcodeproj/project.xcworkspace/xcuserdata/d.wilson.xcuserdatad/UserInterfaceState.xcuserstate" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ios/BBMobile.xcodeproj/xcshareddata/xcschemes/BBMobile.xcscheme" beforeDir="false" afterPath="$PROJECT_DIR$/ios/BBMobile.xcodeproj/xcshareddata/xcschemes/BBMobile.xcscheme" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ios/BBMobile.xcodeproj/xcuserdata/d.wilson.xcuserdatad/xcschemes/xcschememanagement.plist" beforeDir="false" afterPath="$PROJECT_DIR$/ios/BBMobile.xcodeproj/xcuserdata/d.wilson.xcuserdatad/xcschemes/xcschememanagement.plist" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ios/BBMobile.xcworkspace/xcshareddata/WorkspaceSettings.xcsettings" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ios/BBMobile.xcworkspace/xcuserdata/d.wilson.xcuserdatad/UserInterfaceState.xcuserstate" beforeDir="false" afterPath="$PROJECT_DIR$/ios/BBMobile.xcworkspace/xcuserdata/d.wilson.xcuserdatad/UserInterfaceState.xcuserstate" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ios/BBMobile.xcworkspace/xcuserdata/d.wilson.xcuserdatad/WorkspaceSettings.xcsettings" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ios/BBMobile/BBMobile.entitlements" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ios/BBMobile/Base.lproj/LaunchScreen.xib" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ios/BBMobile/Images.xcassets/Contents.json" beforeDir="false" afterPath="$PROJECT_DIR$/ios/BBMobile/Images.xcassets/Contents.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ios/BBMobile/Info.plist" beforeDir="false" afterPath="$PROJECT_DIR$/ios/BBMobile/Info.plist" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ios/File.swift" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ios/GoogleService-Info.plist" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ios/Podfile" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Podfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ios/Podfile.lock" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Podfile.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
@@ -18,8 +96,7 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectId" id="1evTvVVUd9fOAQ9ESRLYzEcCqQT" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectId" id="1fFISznMOUYqrDUzTAhGS3mM1uU" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showExcludedFiles" value="true" />
@@ -28,7 +105,6 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="android.sdk.path" value="$USER_HOME$/Library/Android/sdk" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="AndroidSdkUpdater" />
   </component>
   <component name="SvnConfiguration">
@@ -36,11 +112,11 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="cbf8dbf6-69c1-4063-9f09-e74fddd4c25b" name="Default Changelist" comment="" />
-      <created>1583029694910</created>
+      <changelist id="bab87d4e-96b3-4c05-bd5c-70c7b8a0df26" name="Default Changelist" comment="" />
+      <created>1595807417200</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1583029694910</updated>
+      <updated>1595807417200</updated>
     </task>
     <servers />
   </component>

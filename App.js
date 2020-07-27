@@ -3,7 +3,7 @@ import BoardManager from "./BoardManager";
 import StateBuilder from "./StateBuilder";
 import Cache from "./Cache";
 import Constants from "./Constants";
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from "react-native-safe-area-context";
 export default class App extends React.Component {
 
 	constructor() {
@@ -25,6 +25,8 @@ export default class App extends React.Component {
 				userPrefs: p,
 			});
 		}
+
+		console.log("hermes " + !!global.HermesInternal);
 	}
 
 	async setUserPrefs(userPrefs) {
@@ -38,7 +40,7 @@ export default class App extends React.Component {
 
 	render() {
 
-		return <SafeAreaView edges={["top"]} style={{flex: 1, backgroundColor: "black" }}> 
+		return <SafeAreaView edges={["top"]} style={{ flex: 1, backgroundColor: "black" }}>
 			<BoardManager setUserPrefs={this.setUserPrefs} userPrefs={this.state.userPrefs} />
 		</SafeAreaView>;
 	}

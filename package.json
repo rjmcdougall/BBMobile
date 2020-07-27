@@ -1,24 +1,13 @@
 {
   "name": "BBMobile",
-  "version": "5.7.0",
+  "version": "6.0.0",
   "private": true,
-  "devDependencies": {
-    "@babel/core": "^7.8.4",
-    "@babel/runtime": "^7.8.4",
-    "@react-native-community/eslint-config": "^1.1.0",
-    "babel-jest": "^25.1.0",
-    "eslint": "^6.5.1",
-    "jest": "^25.1.0",
-    "metro-react-native-babel-preset": "^0.59.0",
-    "react-test-renderer": "16.13.1"
-  },
-  "main": "./node_modules/react-native-scripts/build/bin/crna-entry.js",
   "scripts": {
-    "start": "react-native-scripts start",
-    "eject": "react-native-scripts eject",
-    "android": "react-native-scripts android",
-    "ios": "react-native-scripts ios",
-    "postversion": "react-native-version --never-amend"
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "start": "react-native start",
+    "test": "jest",
+    "lint": "eslint ."
   },
   "dependencies": {
     "@gregfrench/react-native-wheel-picker": "^1.2.5",
@@ -31,8 +20,7 @@
     "charenc": "0.0.2",
     "convert-string": "^0.1.0",
     "deprecated-react-native-listview": "0.0.6",
-    "jetifier": "^1.6.6",
-    "react": "^16.13.1",
+    "react": "16.13.1",
     "react-native": "0.63.1",
     "react-native-ble-manager": "^7.3.1",
     "react-native-cli": "^2.0.1",
@@ -41,6 +29,16 @@
     "react-native-platform-touchable": "^1.1.1",
     "react-native-safe-area-context": "^3.1.1",
     "react-native-vector-icons": "^6.6.0"
+  },
+  "devDependencies": {
+    "@babel/core": "7.10.5",
+    "@babel/runtime": "7.10.5",
+    "@react-native-community/eslint-config": "1.1.0",
+    "babel-jest": "25.5.1",
+    "eslint": "6.8.0",
+    "jest": "25.5.4",
+    "metro-react-native-babel-preset": "0.59.0",
+    "react-test-renderer": "16.13.1"
   },
   "jest": {
     "preset": "react-native"

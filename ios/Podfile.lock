@@ -256,7 +256,7 @@ PODS:
     - "@react-native-mapbox-gl-mapbox-static (~> 5.7)"
     - Mapbox-iOS-SDK (~> 5.7)
     - React
-  - react-native-safe-area-context (3.0.0):
+  - react-native-safe-area-context (3.1.1):
     - React
   - react-native-slider (3.0.3):
     - React
@@ -504,7 +504,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 2e28bb487e42dda6c94dbfa0c648d1343767a0fb
   react-native-ble-manager: 73a2c5d7ca510866d2bdf67d56bec42bd76c004f
   react-native-mapbox-gl: 77b87a1dd2d7b41b6b77018c0f3bed5f8ee55c81
-  react-native-safe-area-context: 0c8309cac646c50767bfddef8dc6f5ef4a6b5c14
+  react-native-safe-area-context: 4c3249e4840225c61fcd215b136af0a737bccb79
   react-native-slider: b733e17fdd31186707146debf1f04b5d94aa1a93
   React-RCTActionSheet: 1702a1a85e550b5c36e2e03cb2bd3adea053de95
   React-RCTAnimation: ddda576010a878865a4eab83a78acd92176ef6a1
@@ -522,6 +522,6 @@ SPEC CHECKSUMS:
   Yoga: d5bd05a2b6b94c52323745c2c2b64557c8c66f64
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 7b73a4bb170ccdc1e8ea6bda2738347888afe475
+PODFILE CHECKSUM: 11d96699f87a3c25387073d806d5489d0ad13ce0
 
 COCOAPODS: 1.8.4
