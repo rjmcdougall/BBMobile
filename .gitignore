@@ -9,3 +9,9 @@
 /android/.gradle/
 /android/.idea/
 android/app/build/
+android/local.properties
+
+#vscode
+.vscode/.react/debuggerWorker.js
+.vscode/.react/index.bundle
+.vscode/.react/index.map

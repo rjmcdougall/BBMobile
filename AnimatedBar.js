@@ -46,6 +46,7 @@ class AnimatedBar extends Component {
 				Animated.timing(this.state.animation, {
 					toValue: this.props.progress,
 					duration: this.props.duration,
+					useNativeDriver: false
 				}).start();
 			} else {
 				this.state.animation.setValue(this.props.progress);
