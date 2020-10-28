@@ -132,8 +132,8 @@ android {
         applicationId "com.bbmobile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 56
-        versionName "6.0.0"
+        versionCode 57
+        versionName "6.1"
     }
     splits {
         abi {
