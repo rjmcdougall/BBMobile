@@ -238,7 +238,7 @@ PODS:
     - React-cxxreact (= 0.63.4)
     - React-jsi (= 0.63.4)
   - React-jsinspector (0.63.4)
-  - react-native-ble-manager (7.3.1):
+  - react-native-ble-manager (7.4.2):
     - React
   - react-native-mapbox-gl (8.1.0):
     - "@react-native-mapbox-gl-mapbox-static (~> 5.9.0)"
@@ -503,7 +503,7 @@ SPEC CHECKSUMS:
   React-jsi: a0418934cf48f25b485631deb27c64dc40fb4c31
   React-jsiexecutor: 93bd528844ad21dc07aab1c67cb10abae6df6949
   React-jsinspector: 58aef7155bc9a9683f5b60b35eccea8722a4f53a
-  react-native-ble-manager: 73a2c5d7ca510866d2bdf67d56bec42bd76c004f
+  react-native-ble-manager: dfac830e02b29de0147b103a4ed21ad2c618ee71
   react-native-mapbox-gl: eec7e5be5b874cfceb79fcfe24d595411015153a
   react-native-safe-area-context: 344b969c45af3d8464d36e8dea264942992ef033
   react-native-slider: e99fc201cefe81270fc9d81714a7a0f5e566b168
