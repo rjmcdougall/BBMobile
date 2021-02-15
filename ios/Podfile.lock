@@ -257,8 +257,8 @@ PODS:
     - Mapbox-iOS-SDK (~> 5.9.0)
     - React
     - React-Core
-  - react-native-safe-area-context (3.1.1):
-    - React
+  - react-native-safe-area-context (3.1.9):
+    - React-Core
   - react-native-slider (3.0.3):
     - React
   - React-RCTActionSheet (0.63.4):
@@ -505,7 +505,7 @@ SPEC CHECKSUMS:
   React-jsinspector: 58aef7155bc9a9683f5b60b35eccea8722a4f53a
   react-native-ble-manager: dfac830e02b29de0147b103a4ed21ad2c618ee71
   react-native-mapbox-gl: eec7e5be5b874cfceb79fcfe24d595411015153a
-  react-native-safe-area-context: 344b969c45af3d8464d36e8dea264942992ef033
+  react-native-safe-area-context: b6e0e284002381d2ff29fa4fff42b4d8282e3c94
   react-native-slider: e99fc201cefe81270fc9d81714a7a0f5e566b168
   React-RCTActionSheet: 89a0ca9f4a06c1f93c26067af074ccdce0f40336
   React-RCTAnimation: 1bde3ecc0c104c55df246eda516e0deb03c4e49b
