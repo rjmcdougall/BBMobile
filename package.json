@@ -14,7 +14,7 @@
     "@mapbox/geo-viewport": "^0.4.1",
     "@react-native-community/async-storage": "^1.11.0",
     "@react-native-community/slider": "^3.0.3",
-    "@react-native-mapbox-gl/maps": "^8.1.0",
+    "@react-native-mapbox-gl/maps": "^8.3.0",
     "async-mutex": "^0.3.0",
     "buffer": "^6.0.3",
     "charenc": "0.0.2",

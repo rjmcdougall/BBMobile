@@ -3,6 +3,7 @@ require_relative '../node_modules/@react-native-community/cli-platform-ios/nativ
 
 platform :ios, '10.0'
 
+ 
 target 'BBMobile' do
   config = use_native_modules!
 
@@ -13,12 +14,17 @@ target 'BBMobile' do
     # Pods for testing
   end
 
+  pre_install do |installer|
+    $RNMBGL.pre_install(installer)
+  end
+  
   # Enables Flipper.
   #
   # Note that if you have use_frameworks! enabled, Flipper will not work and
   # you should disable these next few lines.
   use_flipper!({ 'Flipper' => '0.74.0' })
   post_install do |installer|
+    $RNMBGL.post_install(installer)
     flipper_post_install(installer)
   end
 end

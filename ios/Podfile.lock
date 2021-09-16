@@ -1,5 +1,4 @@
 PODS:
-  - "@react-native-mapbox-gl-mapbox-static (5.9.0)"
   - boost-for-react-native (1.63.0)
   - CocoaAsyncSocket (7.6.5)
   - DoubleConversion (1.1.6)
@@ -240,20 +239,17 @@ PODS:
   - React-jsinspector (0.63.4)
   - react-native-ble-manager (7.4.2):
     - React
-  - react-native-mapbox-gl (8.1.0):
-    - "@react-native-mapbox-gl-mapbox-static (~> 5.9.0)"
+  - react-native-mapbox-gl (8.3.0):
     - Mapbox-iOS-SDK (~> 5.9.0)
     - React
     - React-Core
-    - react-native-mapbox-gl/DynamicLibrary (= 8.1.0)
-    - react-native-mapbox-gl/StaticLibraryFixer (= 8.1.0)
-  - react-native-mapbox-gl/DynamicLibrary (8.1.0):
-    - "@react-native-mapbox-gl-mapbox-static (~> 5.9.0)"
+    - react-native-mapbox-gl/DynamicLibrary (= 8.3.0)
+    - react-native-mapbox-gl/StaticLibraryFixer (= 8.3.0)
+  - react-native-mapbox-gl/DynamicLibrary (8.3.0):
     - Mapbox-iOS-SDK (~> 5.9.0)
     - React
     - React-Core
-  - react-native-mapbox-gl/StaticLibraryFixer (8.1.0):
-    - "@react-native-mapbox-gl-mapbox-static (~> 5.9.0)"
+  - react-native-mapbox-gl/StaticLibraryFixer (8.3.0):
     - Mapbox-iOS-SDK (~> 5.9.0)
     - React
     - React-Core
@@ -389,7 +385,6 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
-    - "@react-native-mapbox-gl-mapbox-static"
     - boost-for-react-native
     - CocoaAsyncSocket
     - Flipper
@@ -474,7 +469,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  "@react-native-mapbox-gl-mapbox-static": 83c0e0ba33597bb694735ffb136d3d96780af37d
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   DoubleConversion: cde416483dac037923206447da6e1454df403714
@@ -504,7 +498,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 93bd528844ad21dc07aab1c67cb10abae6df6949
   React-jsinspector: 58aef7155bc9a9683f5b60b35eccea8722a4f53a
   react-native-ble-manager: dfac830e02b29de0147b103a4ed21ad2c618ee71
-  react-native-mapbox-gl: eec7e5be5b874cfceb79fcfe24d595411015153a
+  react-native-mapbox-gl: 94ddd813fd5d4fdab9ca9d45ce108125480cfffd
   react-native-safe-area-context: b6e0e284002381d2ff29fa4fff42b4d8282e3c94
   react-native-slider: e99fc201cefe81270fc9d81714a7a0f5e566b168
   React-RCTActionSheet: 89a0ca9f4a06c1f93c26067af074ccdce0f40336
@@ -523,6 +517,6 @@ SPEC CHECKSUMS:
   Yoga: 4bd86afe9883422a7c4028c00e34790f560923d6
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: f931ae4eae6dfa671061f0031133bf0c8e579c73
+PODFILE CHECKSUM: 35698b7ba5e6ef5ea799a9d30b6e35211a8ce90c
 
 COCOAPODS: 1.10.1
