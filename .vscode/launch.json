@@ -67,6 +67,15 @@
             "sourceMaps": true,
             "cwd": "${workspaceRoot}"
         },
+        {
+            "name": "Debug iPhone 11",
+            "type": "reactnative",
+            "request": "launch",
+            "platform": "ios",
+            "target": "iPhone 11",
+            "sourceMaps": true,
+            "cwd": "${workspaceRoot}"
+        },
         
     ]
 }
