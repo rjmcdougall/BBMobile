@@ -10,7 +10,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@gregfrench/react-native-wheel-picker": "^1.2.5",
+    "@gregfrench/react-native-wheel-picker": "1.2.9",
     "@mapbox/geo-viewport": "^0.4.1",
     "@react-native-community/async-storage": "^1.11.0",
     "@react-native-community/slider": "^4.1.7",
