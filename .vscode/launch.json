@@ -46,7 +46,7 @@
             "cwd": "${workspaceRoot}",
             "runArguments": [
                 "--device",
-                "iPhone"
+                "Dans iPhone"
             ],
         },
         {
