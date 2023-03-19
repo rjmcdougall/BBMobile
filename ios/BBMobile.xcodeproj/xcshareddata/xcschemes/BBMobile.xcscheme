@@ -58,7 +58,7 @@
             BuildableName = "BBMobile.app"
             BlueprintName = "BBMobile"
             ReferencedContainer = "container:BBMobile.xcodeproj">
-        </BuildableReference>
+         </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
    <ProfileAction
