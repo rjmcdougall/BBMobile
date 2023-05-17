@@ -24,8 +24,6 @@ var bleMutex;
 // eslint-disable-next-line no-unused-vars
 var cr = new ContentResolver();
 
-YellowBox.ignoreWarnings(["Setting a timer"]);
-
 import { stringToBytes } from "convert-string";
 
 const BleManagerModule = NativeModules.BleManager;
@@ -500,7 +498,6 @@ export default class BoardManager extends Component {
 
 				this.l("lock and request " + command + " on device " + this.state.connectedPeripheral.name, false);
 
-				console.ignoredYellowBox = ["Setting a timer"];
 				var commandTimeout = setTimeout( () => {
 					if (mutex.isLocked()) {
 						bleMutex();
