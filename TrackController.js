@@ -1,12 +1,12 @@
 import React, { Component } from "react";
-import { View, Text } from "react-native";
+import { View, Text, ScrollView } from "react-native";
 import PropTypes from "prop-types";
 import StateBuilder from "./StateBuilder";
-import Picker from "@gregfrench/react-native-wheel-picker";
+import WheelPicker from "react-native-wheely";
 import StyleSheet from "./StyleSheet";
 import Constants from "./Constants";
 
-var PickerItem = Picker.Item;
+var PickerItem = WheelPicker.Item;
 
 export default class TrackController extends Component {
 	constructor(props) {
@@ -15,13 +15,13 @@ export default class TrackController extends Component {
 		if (this.props.mediaType == "Audio") {
 			this.state = {
 				tracks: [{ localName: "loading..." }],
-				selectedTrack: 29999,
+				selectedTrack: 0,
 			};
 		}
 		else if (this.props.mediaType == "Video") {
 			this.state = {
 				tracks: [{ localName: "loading..." }],
-				selectedTrack: 29999,
+				selectedTrack: 0,
 			};
 		}
 	}
@@ -88,13 +88,23 @@ export default class TrackController extends Component {
 		});
 	}
 
+	getWheelyItems(){
+	 
+		var i = this.state.tracks.map((elem, index) => {
+		   return elem.localName 
+		})
+
+		return i;
+		
+   }
+
 	render() {
-
+		 
 		return (
-
+ 
 			<View style={{ margin: 2, backgroundColor: "skyblue" }}>
 				<View style={{
-					flex: 1,
+					flex: 2,
 					flexDirection: "row",
 				}}>
 					<View>
@@ -104,7 +114,16 @@ export default class TrackController extends Component {
 				<View style={StyleSheet.container}>
 					<View style={StyleSheet.container}>
 
-						<Picker style={{ height: 150 }}
+					<WheelPicker style={{ height: 150 }}
+					itemStyle={{ color: "black", fontWeight: "bold", fontSize: 26, height: 140 }}
+      selectedIndex={this.state.selectedTrack}
+      options={["1"]}
+      onChange={async (value) => {
+		console.log(value);
+	  }}
+
+    /> 
+						{/* <Picker style={{ height: 150 }}
 							selectedValue={this.state.selectedTrack}
 							itemStyle={{ color: "black", fontWeight: "bold", fontSize: 26, height: 140 }}
 							onValueChange={async (value) => {
@@ -126,13 +145,12 @@ export default class TrackController extends Component {
 									console.log(error);
 								}
 
-							}}>
-
+							}}> 
 							{this.state.tracks.map((elem, index) => (
 								<PickerItem label={elem.algorithm ? elem.algorithm : elem.localName} value={index} key={index} />
 							))}
 
-						</Picker>
+						</Picker> */}
 					</View>
 				</View>
 			</View>

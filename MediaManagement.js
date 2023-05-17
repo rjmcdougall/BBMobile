@@ -4,6 +4,7 @@ import React, {
 import {
 	View,
 	ScrollView,
+	FlatList,
 } from "react-native";
 import VolumeController from "./VolumeController";
 import TrackController from "./TrackController";
@@ -18,12 +19,22 @@ export default class MediaManagement extends Component {
 
 	render() {
 		return (
-			<View>
-				<ScrollView>
+			<View
+			style={[
+			  {
+				flex:1,
+				flexDirection: 'column',
+			  },
+				]}>
+				<View style={{ flex: 1}}>
 					<VolumeController pointerEvents={this.props.pointerEvents} sendCommand={this.props.sendCommand} boardState={this.props.boardState} />
+				</View>
+				<View style={{ flex: 4}}>
 					<TrackController pointerEvents={this.props.pointerEvents} sendCommand={this.props.sendCommand} audio={this.props.audio} video={this.props.video} boardState={this.props.boardState} mediaType="Audio" />
+				</View>
+				<View style={{ flex: 4}}>
 					<TrackController pointerEvents={this.props.pointerEvents} sendCommand={this.props.sendCommand} audio={this.props.audio} video={this.props.video} boardState={this.props.boardState} mediaType="Video" />
-				</ScrollView>
+				</View>
 			</View>
 		);
 	}

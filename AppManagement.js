@@ -10,7 +10,7 @@ import {
 import Touchable from "react-native-platform-touchable";
 import PropTypes from "prop-types";
 import StyleSheet from "./StyleSheet";
-import Mapbox from "@react-native-mapbox-gl/maps";
+import Mapbox from "@rnmapbox/maps";
 import Constants from "./Constants";
 
 Mapbox.setAccessToken(

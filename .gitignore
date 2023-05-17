@@ -15,3 +15,5 @@ android/local.properties
 .vscode/.react/debuggerWorker.js
 .vscode/.react/index.bundle
 .vscode/.react/index.map
+
+vendor/bundle/ruby/2.6.0

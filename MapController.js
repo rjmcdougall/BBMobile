@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Text, View } from "react-native";
-import Mapbox from "@react-native-mapbox-gl/maps";
+import Mapbox from "@rnmapbox/maps";
 import StateBuilder from "./StateBuilder";
 import PropTypes from "prop-types";
 import Touchable from "react-native-platform-touchable";
