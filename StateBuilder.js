@@ -33,8 +33,8 @@ var bDevices = [{ name: "loading...", address: "loading...", isPaired: false, }]
 var bWifi = [];
 
 var bBoardState = {
-	acn: 9999, // audio channel number
-	vcn: 9999,
+	acn: 0, // audio channel number
+	vcn: 0, // video channel number
 	v: -1, // volume
 	b: 0, // battery level
 	am: 0, // audio master

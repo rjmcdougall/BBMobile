@@ -11,74 +11,61 @@ var PickerItem = WheelPicker.Item;
 export default class TrackController extends Component {
 	constructor(props) {
 		super(props);
-
-		if (this.props.mediaType == "Audio") {
-			this.state = {
-				tracks: [{ localName: "loading..." }],
-				selectedTrack: 0,
-			};
-		}
-		else if (this.props.mediaType == "Video") {
-			this.state = {
-				tracks: [{ localName: "loading..." }],
-				selectedTrack: 0,
-			};
-		}
 	}
 
-	// nasty hack. the wheel picker is two different platform-specific controls
-	// which have quirks on how they handle updates after state change events.
-	static getDerivedStateFromProps(props, state) {
-		if (Constants.IS_ANDROID && props.mediaType == "Audio"){
-			return {
-				selectedTrack: props.boardState.acn,
-				tracks: props.audio,
-			};
-		}
-		else if (Constants.IS_ANDROID && props.mediaType == "Video"){
-			return {
-				selectedTrack: props.boardState.vcn,
-				tracks: props.video,
-			};
-		}
-		else if (Constants.IS_IOS && props.mediaType == "Audio"){
-			// if the state track has never been set before.
-			if(state.selectedTrack==29999 || state.selectedTrack == 9999){
-				// if the props track is a real track.
-				if (props.boardState.acn<9999){
-					return {
-						selectedTrack: props.boardState.acn,
-						tracks: props.audio,
-					};
-				}
-				else {
-					return state;
-				}				
-			}
-			else {
-				return state;
-			}
-		}
-		else if (Constants.IS_IOS && props.mediaType == "Video"){
-			// if the state track has never been set before.
-			if(state.selectedTrack==29999 || state.selectedTrack == 9999){
-				// if the props track is a real track.
-				if (props.boardState.vcn<9999){
-					console.log(props.boardState.vcn + "Found video for the first time!!!");
-					return {
-						selectedTrack: props.boardState.vcn,
-						tracks: props.video,
-					};
-				}
-				else {
-					return state;
-				}				
-			}
-			else {
-				return state;
-			}
-		}
-	}
+	// // nasty hack. the wheel picker is two different platform-specific controls
+	// // which have quirks on how they handle updates after state change events.
+	// static getDerivedStateFromProps(props, state) {
+	// 	if (Constants.IS_ANDROID && props.mediaType == "Audio"){
+	// 		return {
+	// 			selectedTrack: props.boardState.acn,
+	// 			tracks: props.audio,
+	// 		};
+	// 	}
+	// 	else if (Constants.IS_ANDROID && props.mediaType == "Video"){
+	// 		return {
+	// 			selectedTrack: props.boardState.vcn,
+	// 			tracks: props.video,
+	// 		};
+	// 	}
+	// 	else if (Constants.IS_IOS && props.mediaType == "Audio"){
+	// 		// if the state track has never been set before.
+	// 		if(state.selectedTrack==29999 || state.selectedTrack == 9999){
+	// 			// if the props track is a real track.
+	// 			if (props.boardState.acn<9999){
+	// 				return {
+	// 					selectedTrack: props.boardState.acn,
+	// 					tracks: props.audio,
+	// 				};
+	// 			}
+	// 			else {
+	// 				return state;
+	// 			}				
+	// 		}
+	// 		else {
+	// 			return state;
+	// 		}
+	// 	}
+	// 	else if (Constants.IS_IOS && props.mediaType == "Video"){
+	// 		// if the state track has never been set before.
+	// 		if(state.selectedTrack==29999 || state.selectedTrack == 9999){
+	// 			// if the props track is a real track.
+	// 			if (props.boardState.vcn<9999){
+	// 				console.log(props.boardState.vcn + "Found video for the first time!!!");
+	// 				return {
+	// 					selectedTrack: props.boardState.vcn,
+	// 					tracks: props.video,
+	// 				};
+	// 			}
+	// 			else {
+	// 				return state;
+	// 			}				
+	// 		}
+	// 		else {
+	// 			return state;
+	// 		}
+	// 	}
+	// }
 
 	findTrackNo(tracks, val) {
 		return tracks.find(function (item, i) {
@@ -88,20 +75,31 @@ export default class TrackController extends Component {
 		});
 	}
 
-	getWheelyItems(){
-	 
-		var i = this.state.tracks.map((elem, index) => {
-		   return elem.localName 
-		})
+	getSelectedIndex() {
+		console.log(this.props.boardState.acn);
+		console.log(this.props.boardState.vcn);
+		// if(this.props.mediaType == "Audio")
+		// 	return this.props.boardState.acn;
+		// else if (this.props.mediaType == "Video")
+		// 	return this.props.boardState.avn;
+	}
 
-		return i;
-		
-   }
+	getWheelyItems() {
+		if (this.props.mediaType == "Audio") {
+			let it = this.props.audio.map(obj => obj.localName);
+			return it;
+		}
+
+		else if (this.props.mediaType == "Video") {
+			let it = this.props.video.map(obj => obj.algorithm ? obj.algorithm : obj.localName);
+			return it;
+		}
+	}
 
 	render() {
-		 
+
 		return (
- 
+
 			<View style={{ margin: 2, backgroundColor: "skyblue" }}>
 				<View style={{
 					flex: 2,
@@ -112,46 +110,20 @@ export default class TrackController extends Component {
 					</View>
 				</View>
 				<View style={StyleSheet.container}>
-					<View style={StyleSheet.container}>
-
-					<WheelPicker style={{ height: 150 }}
-					itemStyle={{ color: "black", fontWeight: "bold", fontSize: 26, height: 140 }}
-      selectedIndex={this.state.selectedTrack}
-      options={["1"]}
-      onChange={async (value) => {
-		console.log(value);
-	  }}
-
-    /> 
-						{/* <Picker style={{ height: 150 }}
-							selectedValue={this.state.selectedTrack}
-							itemStyle={{ color: "black", fontWeight: "bold", fontSize: 26, height: 140 }}
-							onValueChange={async (value) => {
-
-								try {
-									if (this.state.tracks[0] == "loading..." || this.state.tracks[0] == null) {
-										console.log("TrackController: dont call update if its a component load");
-										return;
-									}
-									if (this.state.selectedTrack == value) {
-										console.log("TrackController: dont call update if its not a real change");
-										return;
-									}
-	
-									this.setState({ selectedTrack: value });
-									await this.props.sendCommand(this.props.mediaType, value);	
-								}
-								catch(error) {
-									console.log(error);
-								}
-
-							}}> 
-							{this.state.tracks.map((elem, index) => (
-								<PickerItem label={elem.algorithm ? elem.algorithm : elem.localName} value={index} key={index} />
-							))}
-
-						</Picker> */}
-					</View>
+					<WheelPicker
+						itemTextStyle={{ color: "black", fontSize: 26 }}
+						selectedIndex={0}
+						options={this.getWheelyItems()}
+						onChange={async (value) => {
+							try {
+								await this.props.sendCommand(this.props.mediaType, value);
+								console.log("Selected track: " + value)
+							}
+							catch (error) {
+								console.log(error);
+							}
+						}}
+					/>
 				</View>
 			</View>
 		);
