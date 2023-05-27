@@ -48,6 +48,7 @@ var bBoardState = {
 	p: "", // configured password
 	r: false, //crisis mode
 	rd: false, //rotating display
+	dm: 0, // display mode (which areas in BBV4 we should show and which we should black out.)
 };
 
 exports.blankWifi = function() {

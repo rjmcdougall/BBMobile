@@ -3,9 +3,8 @@ import {
 	View,
 	ScrollView,
 	Text,
-} from "react-native";
-import WifiController from "./WifiController";
-import DeviceController from "./DeviceController";
+	TextInput
+} from "react-native";  
 import Touchable from "react-native-platform-touchable";
 import PropTypes from "prop-types";
 import StyleSheet from "./StyleSheet";
@@ -20,7 +19,7 @@ export default class AdminManagement extends Component {
 	}
 
 	render() {
- 
+
 		return (
 			<View style={StyleSheet.container}>
 				<ScrollView>
@@ -31,7 +30,7 @@ export default class AdminManagement extends Component {
 								await this.props.sendCommand("EnableGTFO", !this.props.boardState.g);
 								return true;
 							}}
-							style={[{ backgroundColor: (this.props.boardState.g) ? "green" : "skyblue"  }]}
+							style={[{ backgroundColor: (this.props.boardState.g) ? "green" : "skyblue" }]}
 							background={Touchable.Ripple("blue")}>
 							<Text style={StyleSheet.buttonTextCenter}> GTFO </Text>
 						</Touchable>
@@ -43,7 +42,7 @@ export default class AdminManagement extends Component {
 								await this.props.sendCommand("EnableMaster", !this.props.boardState.am);
 								return true;
 							}}
-							style={[{ backgroundColor: (this.props.boardState.am) ? "green" : "skyblue"  }]}
+							style={[{ backgroundColor: (this.props.boardState.am) ? "green" : "skyblue" }]}
 							background={Touchable.Ripple("blue")}>
 							<Text style={StyleSheet.buttonTextCenter}> Master Remote
 							</Text>
@@ -56,7 +55,7 @@ export default class AdminManagement extends Component {
 								await this.props.sendCommand("BlockMaster", !this.props.boardState.bm);
 								return true;
 							}}
-							style={[{ backgroundColor: (this.props.boardState.bm) ? "green" : "skyblue"  }]}
+							style={[{ backgroundColor: (this.props.boardState.bm) ? "green" : "skyblue" }]}
 							background={Touchable.Ripple("blue")}>
 							<Text style={StyleSheet.buttonTextCenter}> Block Master Remote
 							</Text>
@@ -71,16 +70,51 @@ export default class AdminManagement extends Component {
 								await this.props.sendCommand("SetRotatingDisplay", !this.props.boardState.rd);
 								return true;
 							}}
-							style={[{ backgroundColor: (this.props.boardState.rd) ? "green" : "skyblue"  }]}
+							style={[{ backgroundColor: (this.props.boardState.rd) ? "green" : "skyblue" }]}
 							background={Touchable.Ripple("blue")}>
 							<Text style={StyleSheet.buttonTextCenter}> Rotating Display
 							</Text>
 						</Touchable>
 					</View>
 					<View style={{ height: 50 }}></View>
-					<WifiController wifi={this.props.wifi} boardState={this.props.boardState} sendCommand={this.props.sendCommand} />
-					<View style={{ height: 50 }}></View>
-					<DeviceController devices={this.props.devices} boardState={this.props.boardState} mediaType="Device" sendCommand={this.props.sendCommand} />
+					<View style={{
+						margin: 10,
+						padding: 10,
+						borderColor: "black",
+						borderWidth: 2
+					}}>
+						<Text style={StyleSheet.smallButtonTextCenter}>
+							Display Sections
+						</Text>
+						<View style={{
+							flex: 1,
+						}}>
+							<View style={{ height: 40 }}>
+								<TextInput keyboardType="number-pad"
+									style={{ height: 40, width: 200, borderColor: "gray", borderWidth: 1 }}
+									value={0}
+									onChangeText={async (value) => {
+										this.setState({ displayMode: value });
+										console.log(this.state);
+									}}
+								/>
+								<Text style={StyleSheet.label}>Display Sections</Text>
+
+							</View>
+						</View>
+
+						<View style={StyleSheet.button}>
+							<Touchable
+								onPress={async () => {
+									console.log("pressed for " + this.state.displayMode);
+									await this.props.sendCommand("DisplayMode", this.state.displayMode);
+								}}
+								background={Touchable.Ripple("blue")}>
+								<Text style={StyleSheet.smallButtonTextCenter}>Update</Text>
+							</Touchable>
+						</View>
+
+					</View>
 					<View style={{ height: 50 }}></View>
 					<View style={StyleSheet.button}>
 						<Touchable
@@ -88,7 +122,7 @@ export default class AdminManagement extends Component {
 								await this.props.sendCommand("SetCrisis", !this.props.boardState.r);
 								return true;
 							}}
-							style={[{ backgroundColor: (this.props.boardState.r) ? "red" : "skyblue"  }]}
+							style={[{ backgroundColor: (this.props.boardState.r) ? "red" : "skyblue" }]}
 							background={Touchable.Ripple("blue")}>
 							<Text style={StyleSheet.buttonTextCenter}> EMERGENCY!
 							</Text>
