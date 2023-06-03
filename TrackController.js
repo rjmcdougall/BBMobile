@@ -100,16 +100,12 @@ export default class TrackController extends Component {
 
 		return (
 
-			<View style={{ margin: 2, backgroundColor: "skyblue" }}>
-				<View style={{
-					flex: 2,
-					flexDirection: "row",
-				}}>
-					<View>
+			<View style={{flex:1}}>
+				<View style={{flex: 1}}> 
 						<Text style={StyleSheet.rowText}>{this.props.mediaType} Track</Text>
-					</View>
+					
 				</View>
-				<View style={StyleSheet.container}>
+				<View style={{flex: 5}}>
 					<WheelPicker
 						itemTextStyle={{ color: "black", fontSize: 26 }}
 						selectedIndex={0}

@@ -12,17 +12,17 @@ export default class VolumeController extends React.Component {
 	render() {
 
 		return (
-			<View style={{ flex: 1, margin: 2, backgroundColor: "skyblue", height: 80 }}>
+			<View style={{ flex: 2, margin: 2, backgroundColor: "skyblue"}}>
 				<View style={{
 					flex: 1,
 					flexDirection: "row",
 					justifyContent: "space-between",
 
 				}}>
-					<View style={{ height: 30 }}><Text style={StyleSheet.rowText}>Volume</Text></View>
-					<View style={{ height: 30 }}><Text style={StyleSheet.rowText}>{this.props.boardState.v}</Text></View>
+					<View style={{ height: 40 }}><Text style={StyleSheet.rowText}>Volume</Text></View>
+					<View style={{ height: 40 }}><Text style={StyleSheet.rowText}>{this.props.boardState.v}</Text></View>
 				</View>
-				<View style={{ flex: 1, height: 40, margin: 20 }}>
+				<View style={{ flex: 4, margin: 20 }}>
 					<Slider value={this.props.boardState.v}
 						trackStyle={StyleSheet.sliderTrack}
 						thumbStyle={StyleSheet.sliderThumb}

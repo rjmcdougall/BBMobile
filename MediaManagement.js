@@ -26,7 +26,7 @@ export default class MediaManagement extends Component {
 				flexDirection: 'column',
 			  },
 				]}>
-				<View style={{ flex: 2}}>
+				<View style={{ flex: 1}}>
 					<VolumeController pointerEvents={this.props.pointerEvents} sendCommand={this.props.sendCommand} boardState={this.props.boardState} />
 				</View>
 				<View style={{ flex: 4}}>
