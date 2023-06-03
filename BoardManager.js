@@ -771,6 +771,7 @@ export default class BoardManager extends Component {
 		if (!this.state.isMonitor)
 			return (
 				<View style={{ flex: 1, backgroundColor: "white" }}>
+					<View style={{ backgroundColor:"black",height:50 }}></View>
 					<View style={{ flexDirection: "row" }}>
 						{(!this.props.userPrefs.isDevilsHand) ?
 							<View style={{ margin: 2 }}>
