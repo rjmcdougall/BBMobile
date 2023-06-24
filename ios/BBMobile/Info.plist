@@ -57,6 +57,8 @@
 	<string>Used to connect to the burner board from the phone using BLE</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Used for burner map</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>used for map in burner mobile</string>
 </dict>
