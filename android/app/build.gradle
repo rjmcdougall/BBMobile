@@ -133,6 +133,10 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
+    packagingOptions {
+        jniLibs.pickFirsts += "**/libc++_shared.so"
+    }
+
     defaultConfig {
         applicationId "com.bbmobile"
         minSdkVersion rootProject.ext.minSdkVersion
