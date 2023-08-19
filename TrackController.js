@@ -87,11 +87,13 @@ export default class TrackController extends Component {
 	getWheelyItems() {
 		if (this.props.mediaType == "Audio") {
 			let it = this.props.audio.map(obj => obj.localName);
+			it.unshift("---");
 			return it;
 		}
 
 		else if (this.props.mediaType == "Video") {
 			let it = this.props.video.map(obj => obj.algorithm ? obj.algorithm : obj.localName);
+			it.unshift("---");
 			return it;
 		}
 	}
@@ -112,8 +114,8 @@ export default class TrackController extends Component {
 						options={this.getWheelyItems()}
 						onChange={async (value) => {
 							try {
-								await this.props.sendCommand(this.props.mediaType, value);
-								console.log("Selected track: " + value)
+								await this.props.sendCommand(this.props.mediaType, value-1);
+								console.log("Selected track: " + value-1);
 							}
 							catch (error) {
 								console.log(error);
