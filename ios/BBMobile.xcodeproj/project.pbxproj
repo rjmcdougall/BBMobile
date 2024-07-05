@@ -492,6 +492,7 @@
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = BBMobile/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BBMobile;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -522,6 +523,7 @@
 				DEVELOPMENT_TEAM = CHLAWX3BBF;
 				INFOPLIST_FILE = BBMobile/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BBMobile;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
