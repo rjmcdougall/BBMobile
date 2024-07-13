@@ -1204,13 +1204,13 @@ PODS:
     - React-Core
   - RNFS (2.20.0):
     - React-Core
-  - rnmapbox-maps (10.1.27):
+  - rnmapbox-maps (10.1.28):
     - MapboxMaps (~> 10.18.2)
     - React
     - React-Core
-    - rnmapbox-maps/DynamicLibrary (= 10.1.27)
+    - rnmapbox-maps/DynamicLibrary (= 10.1.28)
     - Turf
-  - rnmapbox-maps/DynamicLibrary (10.1.27):
+  - rnmapbox-maps/DynamicLibrary (10.1.28):
     - MapboxMaps (~> 10.18.2)
     - React
     - React-Core
@@ -1506,7 +1506,7 @@ SPEC CHECKSUMS:
   RNCAsyncStorage: 826b603ae9c0f88b5ac4e956801f755109fa4d5c
   RNCPicker: b7873ba797dc586bfaf3307d737cbdc620a9ff3e
   RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
-  rnmapbox-maps: 96476b4cb703f9b1cfea97b87ed7da180189d8a0
+  rnmapbox-maps: fe8c3204993ed3678f2c31b4b6ba55474e0c5899
   RNVectorIcons: 2a2f79274248390b80684ea3c4400bd374a15c90
   SocketRocket: abac6f5de4d4d62d24e11868d7a2f427e0ef940d
   Turf: aa2ede4298009639d10db36aba1a7ebaad072a5e

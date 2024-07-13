@@ -14,7 +14,7 @@
     "@react-native-async-storage/async-storage": "^1.18.1",
     "@react-native-community/slider": "^4.4.2",
     "@react-native-picker/picker": "^2.4.10",
-    "@rnmapbox/maps": "^10.0.6",
+    "@rnmapbox/maps": "^10.1.28",
     "async-mutex": "^0.3.2",
     "buffer": "^6.0.3",
     "charenc": "^0.0.2",
