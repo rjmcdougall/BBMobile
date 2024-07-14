@@ -38,7 +38,7 @@
         },
         {
             "name": "iOS Device",
-            "type": "reactnative",
+            "type": "reactnativedirect",
             "request": "launch",
             "platform": "ios",
             "sourceMaps": true,
@@ -50,11 +50,11 @@
             ],
         },
         {
-            "name": "Debug iPhone 12",
-            "type": "reactnative",
+            "name": "Debug iPhone 15",
+            "type": "reactnativedirect",
             "request": "launch",
             "platform": "ios",
-            "target": "iPhone 12",
+            "target": "iPhone 15",
             "cwd": "${workspaceRoot}"
         },
         
