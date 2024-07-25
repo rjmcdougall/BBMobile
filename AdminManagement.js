@@ -76,46 +76,24 @@ export default class AdminManagement extends Component {
 							</Text>
 						</Touchable>
 					</View>
-					<View style={{ height: 50 }}></View>
-					<View style={{
-						margin: 10,
-						padding: 10,
-						borderColor: "black",
-						borderWidth: 2
-					}}>
-						<Text style={StyleSheet.smallButtonTextCenter}>
-							Display Sections
-						</Text>
-						<View style={{
-							flex: 1,
-						}}>
-							<View style={{ height: 40 }}>
-								<TextInput keyboardType="number-pad"
-									style={{ height: 40, width: 200, borderColor: "gray", borderWidth: 1 }}
-									value={0}
-									onChangeText={async (value) => {
-										this.setState({ displayMode: value });
-										console.log(this.state);
-									}}
-								/>
-								<Text style={StyleSheet.label}>Display Sections</Text>
-
-							</View>
-						</View>
-
+					<View style={{ height: 10 }}></View>
+					<View style={{ display: this.props.userPrefs.unlockCode=="6161b2838ffa6ce17b84db3b45b4f8437855ecf43e75de2d1ad0008eaae91aa0" ? 'flex' : 'none' }}>
 						<View style={StyleSheet.button}>
 							<Touchable
 								onPress={async () => {
-									console.log("pressed for " + this.state.displayMode);
-									await this.props.sendCommand("DisplayMode", this.state.displayMode);
+									var i = 1;
+									console.log("fm " + this.props.boardState.fm);
+									await this.props.sendCommand("FunMode", !this.props.boardState.fm);
+									return true;
 								}}
+								style={[{ backgroundColor: (this.props.boardState.rd) ? "green" : "skyblue" }]}
 								background={Touchable.Ripple("blue")}>
-								<Text style={StyleSheet.smallButtonTextCenter}>Update</Text>
+								<Text style={StyleSheet.buttonTextCenter}> Fun Mode
+								</Text>
 							</Touchable>
 						</View>
-
 					</View>
-					<View style={{ height: 50 }}></View>
+					<View style={{ height: 150 }}></View>
 					<View style={StyleSheet.button}>
 						<Touchable
 							onPress={async () => {

@@ -8,6 +8,8 @@ var bEmptyUserPrefs = {
 	isMonitor: false,
 	locationHistoryMinutes: "1",
 	offlineMapPercentage: 0,
+	unlockCode: "",
+	visibleUnlockCode: ""
 };
 
 var bMap = {
@@ -48,7 +50,7 @@ var bBoardState = {
 	p: "", // configured password
 	r: false, //crisis mode
 	rd: false, //rotating display
-	dm: 0, // display mode (which areas in BBV4 we should show and which we should black out.)
+	fm: false, // fun happens here
 };
 
 exports.blankWifi = function() {

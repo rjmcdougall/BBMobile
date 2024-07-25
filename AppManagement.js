@@ -12,6 +12,7 @@ import PropTypes from "prop-types";
 import StyleSheet from "./StyleSheet";
 import Mapbox from "@rnmapbox/maps";
 import Constants from "./Constants";
+import {sha256} from 'js-sha256';
 
 Mapbox.setAccessToken(
 	"sk.eyJ1IjoiZGFuaWVsa2VpdGh3IiwiYSI6ImNqdzhlbHUwZTJvdmUzenFramFmMTQ4bXIifQ.9EXJnBcsrsKyS-veb_dlNg"
@@ -185,6 +186,21 @@ export default class AppManagement extends Component {
 									this.setState({ p: p });
 								}}
 								value={this.props.userPrefs.locationHistoryMinutes}
+							/>
+						</View>
+						<View style={{ height: 40 }}>
+							<Text style={StyleSheet.rowText}>Other Input</Text>
+						</View>
+						<View style={{ height: 40 }}>
+							<TextInput keyboardType="default"
+								style={{ height: 40, width: 200, borderColor: "gray", borderWidth: 1 }}
+								onChangeText={async (visibleUnlockCode) => {
+									this.props.userPrefs.unlockCode = sha256(visibleUnlockCode);
+									this.props.userPrefs.visibleUnlockCode = visibleUnlockCode;
+											
+									this.props.setUserPrefs(this.props.userPrefs);
+								}}
+								value={this.props.userPrefs.visibleUnlockCode}
 							/>
 						</View>
 					</View>
