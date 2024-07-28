@@ -65,8 +65,8 @@ export default class TrackController extends Component {
 							numberOfVisibleRows={5} 
 							onChange={async (value) => {
 								try {
-									await this.props.sendCommand(this.props.mediaType, (value + 1));
-									console.log("Selected track: " + (value + 1));
+									await this.props.sendCommand(this.props.mediaType, (value));
+									console.log("Selected track: " + (value));
 								}
 								catch (error) {
 									console.log(error);
