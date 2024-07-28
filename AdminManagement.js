@@ -86,7 +86,7 @@ export default class AdminManagement extends Component {
 									await this.props.sendCommand("FunMode", !this.props.boardState.fm);
 									return true;
 								}}
-								style={[{ backgroundColor: (this.props.boardState.rd) ? "green" : "skyblue" }]}
+								style={[{ backgroundColor: (this.props.boardState.fm) ? "green" : "skyblue" }]}
 								background={Touchable.Ripple("blue")}>
 								<Text style={StyleSheet.buttonTextCenter}> Fun Mode
 								</Text>
