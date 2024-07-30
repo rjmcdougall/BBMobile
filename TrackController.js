@@ -57,7 +57,7 @@ export default class TrackController extends Component {
 				<View style={{flex: 5}}>
 					<GestureHandlerRootView>
 						<WheelPicker
-							initialValue={0}
+							initialValue={this.getSelectedIndex()}
 							activeTextColor={Colors.blue30}
 							inactiveTextColor={Colors.black}
 							items={this.getWheelyItems()}
