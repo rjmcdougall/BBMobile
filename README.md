@@ -9,4 +9,4 @@ npx react-native bundle --platform android --dev false --entry-file index.js --b
 # Create Android debug build
 cd android && ./gradlew assembleDebug
 #  instsll on phone
-adb install ./android/app/build/outputs/apk/debug/app-debug.apk
+adb install /app/build/outputs/apk/debug/app-debug.apk
