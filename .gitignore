@@ -10,6 +10,8 @@
 /android/.idea/
 android/app/build/
 android/local.properties
+android/app/src/main/res/
+android/app/src/main/assets/
 
 #vscode
 .vscode/.react/debuggerWorker.js
@@ -17,3 +19,4 @@ android/local.properties
 .vscode/.react/index.map
 
 vendor/bundle/ruby/2.6.0
+
