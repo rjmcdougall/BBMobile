@@ -92,6 +92,21 @@ export default class AdminManagement extends Component {
 								</Text>
 							</Touchable>
 						</View>
+						<View style={{ height: 10 }}></View>
+						<View style={StyleSheet.button}>
+							<Touchable
+								onPress={async () => {
+									var i = 1;
+									console.log("bar " + this.props.boardState.bar);
+									await this.props.sendCommand("BlockAutoRotation", !this.props.boardState.bar);
+									return true;
+								}}
+								style={[{ backgroundColor: (this.props.boardState.bar) ? "green" : "skyblue" }]}
+								background={Touchable.Ripple("blue")}>
+								<Text style={StyleSheet.buttonTextCenter}> Block Auto Rotation
+								</Text>
+							</Touchable>
+						</View>
 					</View>
 					<View style={{ height: 150 }}></View>
 					<View style={StyleSheet.button}>

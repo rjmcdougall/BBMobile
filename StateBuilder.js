@@ -51,6 +51,7 @@ var bBoardState = {
 	r: false, //crisis mode
 	rd: false, //rotating display
 	fm: false, // fun happens here
+	bar: false, // block auto rotation
 };
 
 exports.blankWifi = function() {
