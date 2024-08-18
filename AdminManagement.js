@@ -108,7 +108,7 @@ export default class AdminManagement extends Component {
 							</Touchable>
 						</View>
 					</View>
-					<View style={{ height: 150 }}></View>
+					<View style={{ height: 80 }}></View>
 					<View style={StyleSheet.button}>
 						<Touchable
 							onPress={async () => {
