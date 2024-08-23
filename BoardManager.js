@@ -142,6 +142,20 @@ export default class BoardManager extends Component {
 					});
 				}
 			});
+ 
+			PermissionsAndroid.requestMultiple([
+				PermissionsAndroid.PERMISSIONS.BLUETOOTH_ADVERTISE,
+				PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT,
+				PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,
+				PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+			]).then((result) => {
+				if (result) {
+				console.log('User accept')
+				} else {
+				console.log('User refuse')
+				}
+			})
+			 
 		}
 
 		// if there is a default BleDevice saved, scan and attempt to load that board.
