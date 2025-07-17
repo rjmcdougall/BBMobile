@@ -14,6 +14,7 @@ import MapController from "./MapController";
 import BatteryController from "./BatteryController";
 import StyleSheet from "./StyleSheet";
 import DiscoverController from "./DiscoverController";
+import StatsControl from "./StatsControl";
 import PropTypes from "prop-types";
 import { Buffer } from "buffer";
 import ContentResolver from "./ContentResolver";
@@ -813,6 +814,7 @@ export default class BoardManager extends Component {
 								{(this.state.showScreen == Constants.APP_MANAGEMENT) ? <AppManagement updateMonitor={this.updateMonitor} clearCache={this.clearCache} setUserPrefs={this.props.setUserPrefs} userPrefs={this.props.userPrefs} /> : <View></View>}
 								{(this.state.showScreen == Constants.MAP) ? <MapController isMonitor={this.state.isMonitor} updateMonitor = {this.updateMonitor} userPrefs={this.props.userPrefs} boardState={this.state.boardState} locations={this.state.locations} setMap={this.setMap} map={this.state.map} boardData={this.state.boardData} setUserPrefs={this.props.setUserPrefs} /> : <View></View>}
 								{(this.state.showScreen == Constants.DISCOVER) ? <DiscoverController startScan={this.startScan} boardBleDevices={this.state.boardBleDevices} scanning={this.state.scanning} boardData={this.state.boardData} onSelectPeripheral={this.onSelectPeripheral} /> : <View></View>}
+								{(this.state.showScreen == Constants.STATS_CONTROL) ? <StatsControl pointerEvents={enableControls} boardState={this.state.boardState} sendCommand={this.sendCommand} /> : <View></View>}
 							</View>
 							<View style={StyleSheet.footer}>
 								<Touchable

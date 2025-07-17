@@ -69,6 +69,15 @@ export default class LeftNav extends React.Component {
 						<MaterialCommunityIcon name="magnify" size={40} color="black" />
 					</Touchable>
 				</View>
+				<View style={[{ backgroundColor: this.props.showScreen == Constants.STATS_CONTROL ? "green" : "lightblue" }]}>
+					<Touchable
+						onPress={() => {
+							this.props.onNavigate(Constants.STATS_CONTROL);
+						}}
+						style={StyleSheet.icon}>
+						<MaterialCommunityIcon name="chart-bar" size={40} color="black" />
+					</Touchable>
+				</View>
 			</View>
 		);
 	}

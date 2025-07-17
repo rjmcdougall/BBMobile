@@ -52,6 +52,9 @@ var bBoardState = {
 	rd: false, //rotating display
 	fm: false, // fun happens here
 	bar: false, // block auto rotation
+	pv: 0, // power-volts
+	pc: 0, // power-amps
+	pt: 0, // block auto rotation
 };
 
 exports.blankWifi = function() {
