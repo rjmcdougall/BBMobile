@@ -15,6 +15,7 @@
     "@react-native-community/cli": "latest",
     "@react-native-community/slider": "^4.5.2",
     "@react-native-picker/picker": "^2.7.7",
+    "@types/react": "^19.1.0",
     "@rnmapbox/maps": "^10.1.39.patch",
     "async-mutex": "^0.3.2",
     "buffer": "^6.0.3",
