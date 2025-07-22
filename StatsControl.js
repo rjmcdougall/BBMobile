@@ -39,7 +39,7 @@ const StatsControl = ({ pointerEvents, boardState, sendCommand }) => {
         </View>
         <View style={{ flexDirection: 'row', marginBottom: 15 }}>
           <Text style={{ fontSize: 18, fontWeight: 'bold', width: 180, textAlign: 'left' }}>Music Leader:</Text>
-          <Text style={{ fontSize: 18, flex: 1, textAlign: 'left' }}>{boardState?.am || 'N/A'}</Text>
+          <Text style={{ fontSize: 18, flex: 1, textAlign: 'left' }}>{boardState?.as || 'N/A'}</Text>
         </View>
         <View style={{ flexDirection: 'row', marginBottom: 15 }}>
           <Text style={{ fontSize: 18, fontWeight: 'bold', width: 180, textAlign: 'left' }}>Music Age:</Text>
@@ -47,7 +47,7 @@ const StatsControl = ({ pointerEvents, boardState, sendCommand }) => {
         </View>
         <View style={{ flexDirection: 'row', marginBottom: 15 }}>
           <Text style={{ fontSize: 18, fontWeight: 'bold', width: 180, textAlign: 'left' }}>Music Cluster Size:</Text>
-          <Text style={{ fontSize: 18, flex: 1, textAlign: 'left' }}>{boardState?.ab || 'N/A'}</Text>
+          <Text style={{ fontSize: 18, flex: 1, textAlign: 'left' }}>{boardState?.an || 'N/A'}</Text>
         </View>
       </View>
       

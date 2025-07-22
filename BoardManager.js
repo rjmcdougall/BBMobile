@@ -733,6 +733,8 @@ export default class BoardManager extends Component {
 					&& this.completionPercentage() == 100) {
 					try {
 						await this.sendCommand("Location", this.props.userPrefs.locationHistoryMinutes);
+						this.sleep(1000);
+						await this.sendCommand("getstate", this.props.userPrefs.locationHistoryMinutes);
 					}
 					catch (error) {
 						this.l("Location Loop Failed:" + error, true, null);
