@@ -17,9 +17,6 @@ export default class MapController extends Component {
 		super(props);
 		this.state = {
 			flyTo: 0,
-			meButtonColor: "skyblue",
-			boardsButtonColor: "skyblue",
-			manButtonColor: "skyblue",
 			showBubble: false,
 			followUserLocation: false,
 			isFetchingAndroidPermission: Constants.IS_ANDROID,
@@ -28,9 +25,9 @@ export default class MapController extends Component {
 
 		this.onPressCircle = this.onPressCircle.bind(this);
 		this.lastHeardBoardDate = this.lastHeardBoardDate.bind(this);
-
-
 		this.onUserLocationUpdate = this.onUserLocationUpdate.bind(this);
+		this.calculateDistance = this.calculateDistance.bind(this);
+		this.updateMapBasedOnLocation = this.updateMapBasedOnLocation.bind(this);
 	}
 
 	async componentDidMount() {
@@ -43,14 +40,72 @@ export default class MapController extends Component {
 		}
 	}
 
-	onUserLocationUpdate(location) {
+	// Calculate distance between two coordinates in miles using Haversine formula
+	calculateDistance(lat1, lon1, lat2, lon2) {
+		const R = 3959; // Earth's radius in miles
+		const dLat = this.toRadians(lat2 - lat1);
+		const dLon = this.toRadians(lon2 - lon1);
+		const a = 
+			Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+			Math.cos(this.toRadians(lat1)) * Math.cos(this.toRadians(lat2)) *
+			Math.sin(dLon / 2) * Math.sin(dLon / 2);
+		const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+		const distance = R * c;
+		return distance;
+	}
 
+	toRadians(degrees) {
+		return degrees * (Math.PI / 180);
+	}
+
+	updateMapBasedOnLocation(userLocation) {
+		// Only auto-switch if map mode is set to 'auto'
+		if (this.props.userPrefs.mapMode !== 'auto') {
+			return;
+		}
+
+		const distance = this.calculateDistance(
+			userLocation[1], // latitude
+			userLocation[0], // longitude
+			Constants.MAN_LOCATION[1], // Burning Man latitude
+			Constants.MAN_LOCATION[0]  // Burning Man longitude
+		);
+
+		// If more than 100 miles from Burning Man, center on user location
+		// Otherwise, center on Burning Man
+		const newCenter = distance > 100 ? userLocation : Constants.MAN_LOCATION;
+		const newZoom = distance > 100 ? 13 : 13;
+
+		this.props.setMap({
+			center: newCenter,
+			zoom: newZoom,
+			userLocation: userLocation
+		});
+	}
+
+	onUserLocationUpdate(location) {
 		if (location) {
-			this.props.setMap({
-				center: this.props.map.center,
-				zoom: this.props.map.zoom,
-				userLocation: [location.coords.longitude, location.coords.latitude]
-			});
+			const userLocation = [location.coords.longitude, location.coords.latitude];
+			
+			// Update map based on location and user preferences
+			if (this.props.userPrefs.mapMode === 'me') {
+				// Always center on user
+				this.props.setMap({
+					center: userLocation,
+					zoom: 13,
+					userLocation: userLocation
+				});
+			} else if (this.props.userPrefs.mapMode === 'playa') {
+				// Always center on Burning Man
+				this.props.setMap({
+					center: Constants.MAN_LOCATION,
+					zoom: 13,
+					userLocation: userLocation
+				});
+			} else {
+				// Auto mode - use distance algorithm
+				this.updateMapBasedOnLocation(userLocation);
+			}
 		}
 	}
 
@@ -226,60 +281,6 @@ export default class MapController extends Component {
 						<Text>battery: {this.state.boardPicked.b}%</Text>
 					</Bubble>
 				) : <View />}
-				{(!this.props.isMonitor) ?
-					<View style={StyleSheet.horizontalButtonBar}>
-						<View style={StyleSheet.horizonralButton}>
-							<Touchable
-								onPress={async () => {
-									try {
-										var followUserLocation = !this.state.followUserLocation;
-										this.props.setMap({
-											center: this.props.map.userLocation,
-											zoom: 13,
-											userLocation: this.props.map.userLocation
-										});
-										this.setState({
-											meButtonColor: (followUserLocation) ? "green" : "skyblue",
-											followUserLocation: followUserLocation,
-										});
-									}
-									catch (error) {
-										console.log(error);
-									}
-								}}
-								style={[{ backgroundColor: this.state.meButtonColor }]}
-								background={Touchable.Ripple("blue")}>
-								<Text style={StyleSheet.buttonTextCenter}>Me</Text>
-							</Touchable>
-						</View>
-						<View style={StyleSheet.horizonralButton}>
-							<Touchable
-								onPress={async () => {
-									try {
-										this.setState({
-											manButtonColor: "green",
-										});
-										this.props.setMap({
-											center: Constants.MAN_LOCATION,
-											zoom: 13,
-											userLocation: this.props.map.userLocation
-										});
-										await this.sleep(1000);
-										this.setState({ manButtonColor: "skyblue" });
-									}
-									catch (error) {
-										console.log(error);
-									}
-								}}
-								style={[{ backgroundColor: this.state.manButtonColor }]}
-								background={Touchable.Ripple("blue")}>
-								<Text style={StyleSheet.buttonTextCenter}>Playa</Text>
-							</Touchable>
-						</View>
-
-
-					</View>
-					: <View />}
 
 			</View>
 		);

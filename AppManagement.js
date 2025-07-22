@@ -119,6 +119,46 @@ export default class AppManagement extends Component {
 							<Text style={StyleSheet.buttonTextCenter}> Left Handed</Text>
 						</Touchable>
 					</View>
+					<View style={{ height: 10 }}></View>
+					<View style={StyleSheet.button}>
+						<Text style={StyleSheet.rowText}>Map Mode</Text>
+					</View>
+					<View style={{ height: 5 }}></View>
+					<View style={StyleSheet.horizontalButtonBar}>
+						<View style={StyleSheet.horizonralButton}>
+							<Touchable
+								onPress={async () => {
+									this.props.userPrefs.mapMode = 'me';
+									this.props.setUserPrefs(this.props.userPrefs);
+								}}
+								style={[{ backgroundColor: (this.props.userPrefs.mapMode === 'me') ? "green" : "skyblue" }]}
+								background={Touchable.Ripple("blue")}>
+								<Text style={StyleSheet.buttonTextCenter}>Me</Text>
+							</Touchable>
+						</View>
+						<View style={StyleSheet.horizonralButton}>
+							<Touchable
+								onPress={async () => {
+									this.props.userPrefs.mapMode = 'playa';
+									this.props.setUserPrefs(this.props.userPrefs);
+								}}
+								style={[{ backgroundColor: (this.props.userPrefs.mapMode === 'playa') ? "green" : "skyblue" }]}
+								background={Touchable.Ripple("blue")}>
+								<Text style={StyleSheet.buttonTextCenter}>Playa</Text>
+							</Touchable>
+						</View>
+						<View style={StyleSheet.horizonralButton}>
+							<Touchable
+								onPress={async () => {
+									this.props.userPrefs.mapMode = 'auto';
+									this.props.setUserPrefs(this.props.userPrefs);
+								}}
+								style={[{ backgroundColor: (this.props.userPrefs.mapMode === 'auto' || !this.props.userPrefs.mapMode) ? "green" : "skyblue" }]}
+								background={Touchable.Ripple("blue")}>
+								<Text style={StyleSheet.buttonTextCenter}>Auto</Text>
+							</Touchable>
+						</View>
+					</View>
 					{(Constants.IS_ANDROID) ?
 						<View>
 							<View style={{ height: 10 }}></View>

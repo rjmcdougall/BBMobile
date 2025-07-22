@@ -9,7 +9,8 @@ var bEmptyUserPrefs = {
 	locationHistoryMinutes: "1",
 	offlineMapPercentage: 0,
 	unlockCode: "",
-	visibleUnlockCode: ""
+	visibleUnlockCode: "",
+	mapMode: "auto"
 };
 
 var bMap = {
