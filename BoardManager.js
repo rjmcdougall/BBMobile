@@ -189,8 +189,11 @@ export default class BoardManager extends Component {
 
 	cancelCommand() {
 		clearTimeout(this.state.currentCommandTimeout);
-		this.l(this.state.currentCommand + " data found, release lock", false);
-		bleMutex();
+		this.l(this.state.currentCommand + " data found, release lock (mutex locked: " + mutex.isLocked() + ")", false);
+		if (bleMutex) {
+			bleMutex();
+			bleMutex = null;
+		}
 	}
 
 	handleNewData(newData) {
@@ -211,6 +214,8 @@ export default class BoardManager extends Component {
 						tmpData.copy(tmpDataBuffer, 0, 0, tmpDataLen);
 						rxBuffers.push(tmpDataBuffer);
 					}
+					this.l("logging state buffer:", false);
+					this.l(Buffer.concat(rxBuffers).toString("ascii"), false);
 					try {
 						var newMessage = Buffer.concat(rxBuffers);
 						var newState = JSON.parse(newMessage.toString("ascii"));
@@ -248,7 +253,10 @@ export default class BoardManager extends Component {
 			this.l("handleNewData error: " + error, true, newMessage);
 			rxBuffers = [];
 			this.setState({ rxBuffers: rxBuffers });
-			console.log("release lock");
+			if (mutex.isLocked()) {
+				this.l("handleNewData error - releasing mutex (locked: " + mutex.isLocked() + ")", true);
+				this.cancelCommand();
+			}
 		}
 	}
 
@@ -496,7 +504,6 @@ export default class BoardManager extends Component {
 				this.l("Get State Error: " + error, true);
 			}
 
-
 		}
 	}
  
@@ -509,16 +516,20 @@ export default class BoardManager extends Component {
 
 			try {
 
-				bleMutex = await mutex.acquire();
+		this.l("trying lock and request " + command + " on device " + this.state.connectedPeripheral.name + " (mutex locked: " + mutex.isLocked() + ")", false);
+		bleMutex = await mutex.acquire();
 
-				this.l("lock and request " + command + " on device " + this.state.connectedPeripheral.name, false);
+		this.l("locked and request " + command + " on device " + this.state.connectedPeripheral.name + " (mutex locked: " + mutex.isLocked() + ")", false);
 
 				var commandTimeout = setTimeout( () => {
-					if (mutex.isLocked()) {
+				if (mutex.isLocked()) {
+					this.l(this.state.currentCommand + " timeout (mutex locked: " + mutex.isLocked() + ")", true);
+					if (bleMutex) {
 						bleMutex();
-						this.l(this.state.currentCommand + " timeout", true);
-						return;
+						bleMutex = null;
 					}
+					return;
+				}
 				},  30000);
 
 				this.setState({currentCommandTimeout: commandTimeout,
@@ -537,16 +548,20 @@ export default class BoardManager extends Component {
 
 			}
 			catch (error) {
-				if (mutex.isLocked()) 
+				if (mutex.isLocked()) {
+					this.l("SendCommand error - releasing mutex (locked: " + mutex.isLocked() + ")", true);
 					this.cancelCommand();
+				}
 
 				// eslint-disable-next-line require-atomic-updates
 				bm.state.connectedPeripheral.connectionStatus = Constants.DISCONNECTED;
-				bm.l(error + " errored. releaseing lock.", true);
+				bm.l("SendCommand failed for '" + command + "' with arg '" + arg + "': " + error, true);
 			}
 			return true;
 		}
 		else {
+			console.log("SendCommand blocked - not connected. Status:", this.state.connectedPeripheral.connectionStatus);
+			this.l("Command '" + command + "' blocked - device not connected", true);
 			return false;
 		}
 	}
@@ -734,6 +749,16 @@ export default class BoardManager extends Component {
 		if (this.state.video.length > 0) completionPercent += 25;
 		if (this.state.audio.length > 0) completionPercent += 25;
 		if (this.state.boardState.v != -1) completionPercent += 25;
+		
+		// Debug logging
+		if (completionPercent < 100) {
+			console.log("Controls disabled - completion:", completionPercent, 
+				"boardData:", this.state.boardData.length, 
+				"video:", this.state.video.length, 
+				"audio:", this.state.audio.length, 
+				"boardState.v:", this.state.boardState.v);
+		}
+		
 		return completionPercent;
 	}
 	render() {

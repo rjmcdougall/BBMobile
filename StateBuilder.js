@@ -53,8 +53,11 @@ var bBoardState = {
 	fm: false, // fun happens here
 	bar: false, // block auto rotation
 	pv: 0, // power-volts
-	pc: 0, // power-amps
+	pw: 0, // power-watts
 	pt: 0, // block auto rotation
+	as: "unknown", // audio server
+	ah: 0, // lastheard ago
+	an: 0 // number of audio peers
 };
 
 exports.blankWifi = function() {

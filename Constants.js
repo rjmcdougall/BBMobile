@@ -5,9 +5,17 @@ import geoViewport from "@mapbox/geo-viewport";
 exports.debug = false;
 
 //sime features are android specific.  the monitor is android only.'
-exports.IS_ANDROID = Platform.OS === "android";
-exports.IS_IOS = Platform.OS === "ios";
-exports.HAS_ANDROID_VERSION = Platform.Version >= 23;
+try {
+  exports.IS_ANDROID = Platform.OS === "android";
+  exports.IS_IOS = Platform.OS === "ios";
+  exports.HAS_ANDROID_VERSION = Platform.Version >= 23;
+} catch (error) {
+  console.warn("Platform constants error:", error);
+  // Fallback values
+  exports.IS_ANDROID = false;
+  exports.IS_IOS = false;
+  exports.HAS_ANDROID_VERSION = false;
+}
 
 //UUIDs
 exports.bbUUID = "58fdc6ee-15d1-11e8-b642-0ed5f89f718b";
