@@ -1,6 +1,15 @@
 import React, { Component } from "react";
 import { View, NativeEventEmitter, NativeModules, ScrollView,PermissionsAndroid, AppState, Text, Image, YellowBox } from "react-native";
-import BleManager from "react-native-ble-manager";
+//import BleManager from "react-native-ble-manager";
+import BleManager, {
+  BleDisconnectPeripheralEvent,
+  BleManagerDidUpdateValueForCharacteristicEvent,
+  BleScanCallbackType,
+  BleScanMatchMode,
+  BleScanMode,
+  Peripheral,
+  PeripheralInfo,
+} from 'react-native-ble-manager';
 import Cache from "./Cache";
 import MediaManagement from "./MediaManagement";
 import AdminManagement from "./AdminManagement";
@@ -345,7 +354,16 @@ export default class BoardManager extends Component {
 				});
 
 				this.l("Scanning with automatic connect: " + automaticallyConnect, false, null);
-				await BleManager.scan([Constants.bbUUID], 5, true);
+				await BleManager.scan([Constants.bbUUID], 5, true, {
+        matchMode: BleScanMatchMode.Aggressive,
+        scanMode: BleScanMode.Balanced,
+        callbackType: BleScanCallbackType.AllMatches,
+      });
+// scan([], 2, true, {
+//        matchMode: BleScanMatchMode.Aggressive,
+//        scanMode: BleScanMode.Balanced,
+//        callbackType: BleScanCallbackType.AllMatches,
+//      })
 			}
 			catch (error) {
 				this.l("Failed to Scan: " + error, true, null);
@@ -426,9 +444,15 @@ export default class BoardManager extends Component {
 			if (newMedia.btdevs) {
 				this.setState({ devices: newMedia.btdevs });
 			}
-			if (newMedia.locations) {
-				this.setState({ locations: newMedia.locations });
+		if (newMedia.locations) {
+			this.setState({ locations: newMedia.locations });
+		}
+		if (newMedia.messages) {
+			// Forward messages to MapController if it exists
+			if (this.mapControllerRef && this.mapControllerRef.addReceivedMessages) {
+				this.mapControllerRef.addReceivedMessages(newMedia.messages);
 			}
+		}
 		}
 		catch (error) {
 			this.l("Error Updating Media State " + error, true, null);
@@ -565,6 +589,30 @@ export default class BoardManager extends Component {
 			return false;
 		}
 	}
+	async fetchMessages() {
+		if (this.state.connectedPeripheral.connectionStatus == Constants.CONNECTED) {
+			try {
+				await this.sendCommand("getmessages", "");
+				// Messages will be handled in updateBLEState when response comes back
+			} catch (error) {
+				this.l("Failed to fetch messages: " + error, true);
+			}
+		}
+	}
+
+	async sendMessageToBLE(message) {
+		if (this.state.connectedPeripheral.connectionStatus == Constants.CONNECTED) {
+			try {
+				await this.sendCommand("sendmessage", message);
+				return true;
+			} catch (error) {
+				this.l("Failed to send message: " + error, true);
+				return false;
+			}
+		}
+		return false;
+	}
+
 	onSelectAudioTrack = async function (idx) {
 		await this.sendCommand("Audio", idx);
 	}
@@ -735,6 +783,8 @@ export default class BoardManager extends Component {
 						await this.sendCommand("Location", this.props.userPrefs.locationHistoryMinutes);
 						this.sleep(1000);
 						await this.sendCommand("getstate", this.props.userPrefs.locationHistoryMinutes);
+						this.sleep(500);
+						await this.sendCommand("getmessages", this.props.userPrefs.locationHistoryMinutes);
 					}
 					catch (error) {
 						this.l("Location Loop Failed:" + error, true, null);
@@ -839,7 +889,7 @@ export default class BoardManager extends Component {
 								{(this.state.showScreen == Constants.DIAGNOSTIC) ? <Diagnostic pointerEvents={enableControls} logLines={this.state.logLines} boardState={this.state.boardState} /> : <View></View>}
 								{(this.state.showScreen == Constants.ADMINISTRATION) ? <AdminManagement wifi={this.state.wifi} devices={this.state.devices} setUserPrefs={this.props.setUserPrefs} userPrefs={this.props.userPrefs} pointerEvents={enableControls} boardState={this.state.boardState} sendCommand={this.sendCommand} /> : <View></View>}
 								{(this.state.showScreen == Constants.APP_MANAGEMENT) ? <AppManagement updateMonitor={this.updateMonitor} clearCache={this.clearCache} setUserPrefs={this.props.setUserPrefs} userPrefs={this.props.userPrefs} /> : <View></View>}
-								{(this.state.showScreen == Constants.MAP) ? <MapController isMonitor={this.state.isMonitor} updateMonitor = {this.updateMonitor} userPrefs={this.props.userPrefs} boardState={this.state.boardState} locations={this.state.locations} setMap={this.setMap} map={this.state.map} boardData={this.state.boardData} setUserPrefs={this.props.setUserPrefs} /> : <View></View>}
+								{(this.state.showScreen == Constants.MAP) ? <MapController ref={ref => this.mapControllerRef = ref} isMonitor={this.state.isMonitor} updateMonitor = {this.updateMonitor} userPrefs={this.props.userPrefs} boardState={this.state.boardState} locations={this.state.locations} setMap={this.setMap} map={this.state.map} boardData={this.state.boardData} setUserPrefs={this.props.setUserPrefs} sendMessageToBLE={this.sendMessageToBLE.bind(this)} fetchMessages={this.fetchMessages.bind(this)} /> : <View></View>}
 								{(this.state.showScreen == Constants.DISCOVER) ? <DiscoverController startScan={this.startScan} boardBleDevices={this.state.boardBleDevices} scanning={this.state.scanning} boardData={this.state.boardData} onSelectPeripheral={this.onSelectPeripheral} /> : <View></View>}
 								{(this.state.showScreen == Constants.STATS_CONTROL) ? <StatsControl pointerEvents={enableControls} boardState={this.state.boardState} sendCommand={this.sendCommand} /> : <View></View>}
 							</View>
@@ -872,7 +922,7 @@ export default class BoardManager extends Component {
 			return (
 				<View style={StyleSheet.monitorContainer}>
 					<View style={StyleSheet.monitorMap}>
-						<MapController isMonitor={this.state.isMonitor} updateMonitor={this.updateMonitor} userPrefs={this.props.userPrefs} setUserPrefs={this.props.setUserPrefs} boardState={this.state.boardState} locations={this.state.locations} setMap={this.setMap} map={this.state.map} boardData={this.state.boardData} />
+						<MapController ref={ref => this.mapControllerRef = ref} isMonitor={this.state.isMonitor} updateMonitor={this.updateMonitor} userPrefs={this.props.userPrefs} setUserPrefs={this.props.setUserPrefs} boardState={this.state.boardState} locations={this.state.locations} setMap={this.setMap} map={this.state.map} boardData={this.state.boardData} sendMessageToBLE={this.sendMessageToBLE.bind(this)} fetchMessages={this.fetchMessages.bind(this)} />
 					</View>
 					<View style={StyleSheet.batteryList}>
 						<ScrollView>

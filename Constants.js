@@ -51,6 +51,7 @@ exports.USER_PREFS = "UserPrefs";
 exports.AUDIOPREFIX = "Audio_";
 exports.VIDEOPREFIX = "Video_";
 exports.BTDEVICESPREFIX = "BTDevice_";
+exports.MESSAGES = "Messages";
 
 //Map Configuration
 exports.PLAYA_BOUNDS = function() {
