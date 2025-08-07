@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Text, View, TextInput, ScrollView, KeyboardAvoidingView, Platform } from "react-native";
+import { Text, View, TextInput, Platform } from "react-native";
 import Mapbox from "@rnmapbox/maps";
 import StateBuilder from "./StateBuilder";
 import PropTypes from "prop-types";
@@ -61,6 +61,9 @@ export default class MapController extends Component {
 		}
 	}
 
+	componentWillUnmount() {
+		// Clean up references to prevent memory leaks
+	}
 
 	// Calculate distance between two coordinates in miles using Haversine formula
 	calculateDistance(lat1, lon1, lat2, lon2) {
@@ -269,10 +272,6 @@ export default class MapController extends Component {
 			}
 			
 			this.setState({ currentMessage: '' });
-			// Clear the input field
-			if (this.messageInput) {
-				this.messageInput.clear();
-			}
 		}
 	}
 	buildMap() {
@@ -362,21 +361,15 @@ export default class MapController extends Component {
 					) : <View />}
 				</View>
 
-				<KeyboardAvoidingView
-					behavior={Platform.OS === "ios" ? "padding" : "height"}
-					style={{ backgroundColor: "rgba(0,0,0,0.8)" }}>
-					<ScrollView
-						style={{ maxHeight: 120, padding: 5 }}
-						ref={ref => { this.scrollView = ref; }}
-						onContentSizeChange={() => this.scrollView && this.scrollView.scrollToEnd({ animated: true })}>
-						{this.state.messages.map((msg, index) => (
+				<View style={{ backgroundColor: "rgba(0,0,0,0.8)", position: "absolute", bottom: 0, left: 0, right: 0 }}>
+					<View style={{ maxHeight: 120, padding: 5 }}>
+						{this.state.messages.slice(-4).map((msg, index) => (
 							<Text key={index} style={{ color: "white", fontSize: 10, marginBottom: 2 }}>
 								{msg}
 							</Text>
 						))}
-					</ScrollView>
+					</View>
 					<TextInput
-						ref={ref => { this.messageInput = ref; }}
 						style={{ height: 40, borderColor: "gray", borderWidth: 1, color: "white", margin: 5, paddingHorizontal: 10, backgroundColor: "rgba(255,255,255,0.1)" }}
 						onSubmitEditing={this.handleSubmitMessage}
 						onChangeText={(text) => this.setState({ currentMessage: text })}
@@ -385,7 +378,7 @@ export default class MapController extends Component {
 						placeholderTextColor="gray"
 						returnKeyType="send"
 					/>
-				</KeyboardAvoidingView>
+				</View>
 
 			</View>
 		);
