@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Text, View, TextInput, Platform } from "react-native";
+import { Text, View, TextInput, Platform, TouchableOpacity, Modal, ScrollView } from "react-native";
 import Mapbox from "@rnmapbox/maps";
 import StateBuilder from "./StateBuilder";
 import PropTypes from "prop-types";
@@ -24,6 +24,8 @@ export default class MapController extends Component {
 			isAndroidPermissionGranted: false,
 			messages: [],
 			currentMessage: '',
+			audioModalVisible: false,
+			videoModalVisible: false,
 		};
 
 		this.onPressCircle = this.onPressCircle.bind(this);
@@ -33,6 +35,10 @@ export default class MapController extends Component {
 		this.updateMapBasedOnLocation = this.updateMapBasedOnLocation.bind(this);
 		this.addMessage = this.addMessage.bind(this);
 		this.handleSubmitMessage = this.handleSubmitMessage.bind(this);
+		this.getAudioPickerItems = this.getAudioPickerItems.bind(this);
+		this.getVideoPickerItems = this.getVideoPickerItems.bind(this);
+		this.getSelectedAudioIndex = this.getSelectedAudioIndex.bind(this);
+		this.getSelectedVideoIndex = this.getSelectedVideoIndex.bind(this);
 	}
 
 	async componentDidMount() {
@@ -271,8 +277,40 @@ export default class MapController extends Component {
 				}
 			}
 			
-			this.setState({ currentMessage: '' });
+		this.setState({ currentMessage: '' });
 		}
+	}
+
+	getSelectedAudioIndex() {
+		return this.props.boardState && this.props.boardState.acn >= 0 ? this.props.boardState.acn : 0;
+	}
+
+	getSelectedVideoIndex() {
+		return this.props.boardState && this.props.boardState.vcn >= 0 ? this.props.boardState.vcn : 0;
+	}
+
+	getAudioPickerItems() {
+		if (this.props.audio) {
+			return this.props.audio.map((obj, index) => {
+				return {
+					label: obj.localName ? obj.localName.replace(".m4a","") : `Audio ${index + 1}`,
+					value: index
+				};
+			});
+		}
+		return [];
+	}
+
+	getVideoPickerItems() {
+		if (this.props.video) {
+			return this.props.video.map((obj, index) => {
+				return {
+					label: obj.algorithm ? obj.algorithm.replace("mode","").replace("()","") : (obj.localName ? obj.localName.replace(".mp4","") : `Video ${index + 1}`),
+					value: index
+				};
+			});
+		}
+		return [];
 	}
 	buildMap() {
 		try {
@@ -332,8 +370,78 @@ export default class MapController extends Component {
 
 		var MP = this;
 
+	const audioPickerItems = this.getAudioPickerItems();
+	const videoPickerItems = this.getVideoPickerItems();
+
 	return (
 			<View style={StyleSheet.container}>
+				{/* Audio and Video Controls at top */}
+				<View style={{ 
+					flexDirection: 'row', 
+					padding: 10, 
+					backgroundColor: 'rgba(0,0,0,0.7)',
+					justifyContent: 'space-around' 
+				}}>
+					{/* Audio Dropdown */}
+					<View style={{ flex: 1, marginRight: 5 }}>
+						<TouchableOpacity
+							style={{
+								height: 40,
+								borderWidth: 1,
+								borderColor: '#007AFF',
+								borderRadius: 6,
+								backgroundColor: '#ffffff',
+								justifyContent: 'center',
+								paddingHorizontal: 10,
+								flexDirection: 'row',
+								alignItems: 'center'
+							}}
+							onPress={() => this.setState({ audioModalVisible: true })}
+						>
+							<Text style={{
+								flex: 1,
+								fontSize: 12,
+								color: '#000000'
+							}}>
+								Audio: {audioPickerItems.length > 0 ? audioPickerItems[this.getSelectedAudioIndex()]?.label || 'None' : 'None'}
+							</Text>
+							<Text style={{
+								fontSize: 14,
+								color: '#007AFF'
+							}}>▼</Text>
+						</TouchableOpacity>
+					</View>
+
+					{/* Video Dropdown */}
+					<View style={{ flex: 1, marginLeft: 5 }}>
+						<TouchableOpacity
+							style={{
+								height: 40,
+								borderWidth: 1,
+								borderColor: '#007AFF',
+								borderRadius: 6,
+								backgroundColor: '#ffffff',
+								justifyContent: 'center',
+								paddingHorizontal: 10,
+								flexDirection: 'row',
+								alignItems: 'center'
+							}}
+							onPress={() => this.setState({ videoModalVisible: true })}
+						>
+							<Text style={{
+								flex: 1,
+								fontSize: 12,
+								color: '#000000'
+							}}>
+								Video: {videoPickerItems.length > 0 ? videoPickerItems[this.getSelectedVideoIndex()]?.label || 'None' : 'None'}
+							</Text>
+							<Text style={{
+								fontSize: 14,
+								color: '#007AFF'
+							}}>▼</Text>
+						</TouchableOpacity>
+					</View>
+				</View>
 				<View style={{ flex: 1 }}>
 					<Mapbox.MapView
 						styleURL={Mapbox.StyleURL.Street}
@@ -380,6 +488,174 @@ export default class MapController extends Component {
 					/>
 				</View>
 
+				{/* Audio Modal */}
+				<Modal
+					animationType="slide"
+					transparent={true}
+					visible={this.state.audioModalVisible}
+					onRequestClose={() => this.setState({ audioModalVisible: false })}
+				>
+					<View style={{
+						flex: 1,
+						justifyContent: 'center',
+						alignItems: 'center',
+						backgroundColor: 'rgba(0,0,0,0.5)'
+					}}>
+						<View style={{
+							width: '80%',
+							maxHeight: '60%',
+							backgroundColor: '#ffffff',
+							borderRadius: 12,
+							padding: 20,
+							shadowColor: '#000',
+							shadowOffset: { width: 0, height: 2 },
+							shadowOpacity: 0.25,
+							shadowRadius: 4,
+							elevation: 5
+						}}>
+							<Text style={{
+								fontSize: 18,
+								fontWeight: 'bold',
+								marginBottom: 15,
+								textAlign: 'center',
+								color: '#000000'
+							}}>Select Audio Track</Text>
+							
+							<ScrollView style={{ maxHeight: 200 }}>
+								{audioPickerItems.map((item) => (
+									<TouchableOpacity
+										key={item.value}
+										style={{
+											padding: 15,
+											borderBottomWidth: 1,
+											borderBottomColor: '#e0e0e0',
+											backgroundColor: item.value === this.getSelectedAudioIndex() ? '#f0f8ff' : '#ffffff'
+										}}
+										onPress={async () => {
+											this.setState({ audioModalVisible: false });
+											if (this.props.sendCommand) {
+												try {
+													await this.props.sendCommand("Audio", item.value);
+													console.log("Selected audio track: " + item.value);
+												} catch (error) {
+													console.log("Audio selection error:", error);
+												}
+											}
+										}}
+									>
+										<Text style={{
+											fontSize: 16,
+											color: item.value === this.getSelectedAudioIndex() ? '#007AFF' : '#000000',
+											fontWeight: item.value === this.getSelectedAudioIndex() ? 'bold' : 'normal'
+										}}>{item.label}</Text>
+									</TouchableOpacity>
+								))}
+							</ScrollView>
+
+							<TouchableOpacity
+								style={{
+									marginTop: 15,
+									padding: 12,
+									backgroundColor: '#007AFF',
+									borderRadius: 8,
+									alignItems: 'center'
+								}}
+								onPress={() => this.setState({ audioModalVisible: false })}
+							>
+								<Text style={{
+									color: '#ffffff',
+									fontSize: 16,
+									fontWeight: 'bold'
+								}}>Cancel</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
+				</Modal>
+
+				{/* Video Modal */}
+				<Modal
+					animationType="slide"
+					transparent={true}
+					visible={this.state.videoModalVisible}
+					onRequestClose={() => this.setState({ videoModalVisible: false })}
+				>
+					<View style={{
+						flex: 1,
+						justifyContent: 'center',
+						alignItems: 'center',
+						backgroundColor: 'rgba(0,0,0,0.5)'
+					}}>
+						<View style={{
+							width: '80%',
+							maxHeight: '60%',
+							backgroundColor: '#ffffff',
+							borderRadius: 12,
+							padding: 20,
+							shadowColor: '#000',
+							shadowOffset: { width: 0, height: 2 },
+							shadowOpacity: 0.25,
+							shadowRadius: 4,
+							elevation: 5
+						}}>
+							<Text style={{
+								fontSize: 18,
+								fontWeight: 'bold',
+								marginBottom: 15,
+								textAlign: 'center',
+								color: '#000000'
+							}}>Select Video Track</Text>
+							
+							<ScrollView style={{ maxHeight: 200 }}>
+								{videoPickerItems.map((item) => (
+									<TouchableOpacity
+										key={item.value}
+										style={{
+											padding: 15,
+											borderBottomWidth: 1,
+											borderBottomColor: '#e0e0e0',
+											backgroundColor: item.value === this.getSelectedVideoIndex() ? '#f0f8ff' : '#ffffff'
+										}}
+										onPress={async () => {
+											this.setState({ videoModalVisible: false });
+											if (this.props.sendCommand) {
+												try {
+													await this.props.sendCommand("Video", item.value);
+													console.log("Selected video track: " + item.value);
+												} catch (error) {
+													console.log("Video selection error:", error);
+												}
+											}
+										}}
+									>
+										<Text style={{
+											fontSize: 16,
+											color: item.value === this.getSelectedVideoIndex() ? '#007AFF' : '#000000',
+											fontWeight: item.value === this.getSelectedVideoIndex() ? 'bold' : 'normal'
+										}}>{item.label}</Text>
+									</TouchableOpacity>
+								))}
+							</ScrollView>
+
+							<TouchableOpacity
+								style={{
+									marginTop: 15,
+									padding: 12,
+									backgroundColor: '#007AFF',
+									borderRadius: 8,
+									alignItems: 'center'
+								}}
+								onPress={() => this.setState({ videoModalVisible: false })}
+							>
+								<Text style={{
+									color: '#ffffff',
+									fontSize: 16,
+									fontWeight: 'bold'
+								}}>Cancel</Text>
+							</TouchableOpacity>
+						</View>
+					</View>
+				</Modal>
+
 			</View>
 		);
 	}
@@ -396,4 +672,8 @@ MapController.propTypes = {
 	updateMonitor: PropTypes.func,
 	sendMessageToBLE: PropTypes.func,
 	fetchMessages: PropTypes.func,
+	audio: PropTypes.array,
+	video: PropTypes.array,
+	boardState: PropTypes.object,
+	sendCommand: PropTypes.func,
 };
