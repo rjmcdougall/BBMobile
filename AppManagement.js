@@ -9,7 +9,7 @@ import {
 
 import Touchable from "react-native-platform-touchable";
 import PropTypes from "prop-types";
-import StyleSheet from "./StyleSheet";
+import StyleSheet, { Colors } from "./StyleSheet";
 import Mapbox from "@rnmapbox/maps";
 import Constants from "./Constants";
 import {sha256} from 'js-sha256';
@@ -95,87 +95,156 @@ export default class AppManagement extends Component {
 
 		return (
 			<View style={StyleSheet.container}>
-				<ScrollView>
+				<ScrollView style={{ backgroundColor: Colors.backgroundPrimary }}>
 					<View style={{ height: 10 }}></View>
-					<View style={StyleSheet.button}>
+					<View style={[StyleSheet.button, { 
+						backgroundColor: Colors.surfaceSecondary,
+						borderRadius: 12,
+						borderWidth: 1,
+						borderColor: Colors.borderPrimary,
+						margin: 8,
+						padding: 4
+					}]}>
 						<Touchable
 							onPress={async () => {
 								await this.clearCache();
 							}}
-							style={[{ backgroundColor: this.state.cacheButton }]}
-							background={Touchable.Ripple("blue")}>
-							<Text style={StyleSheet.buttonTextCenter}> Clear Cache </Text>
+							style={[{ 
+								backgroundColor: this.state.cacheButton === "green" ? Colors.success : Colors.accent,
+								borderRadius: 8,
+								padding: 16
+							}]}
+							background={Touchable.Ripple(Colors.accentSecondary, false)}>
+							<Text style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary }]}> Clear Cache </Text>
 						</Touchable>
 					</View>
 					<View style={{ height: 10 }}></View>
-					<View style={StyleSheet.button}>
+					<View style={[StyleSheet.button, { 
+						backgroundColor: Colors.surfaceSecondary,
+						borderRadius: 12,
+						borderWidth: 1,
+						borderColor: Colors.borderPrimary,
+						margin: 8,
+						padding: 4
+					}]}>
 						<Touchable
 							onPress={async () => {
 								this.props.userPrefs.isDevilsHand = !this.props.userPrefs.isDevilsHand;
 								this.props.setUserPrefs(this.props.userPrefs);
 							}}
-							style={[{ backgroundColor: (this.props.userPrefs.isDevilsHand) ? "green" : "skyblue" }]}
-							background={Touchable.Ripple("blue")}>
-							<Text style={StyleSheet.buttonTextCenter}> Left Handed</Text>
+							style={[{ 
+								backgroundColor: (this.props.userPrefs.isDevilsHand) ? Colors.success : Colors.accent,
+								borderRadius: 8,
+								padding: 16
+							}]}
+							background={Touchable.Ripple(Colors.accentSecondary, false)}>
+							<Text style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary }]}>Left Handed</Text>
 						</Touchable>
 					</View>
 					<View style={{ height: 10 }}></View>
-					<View style={StyleSheet.button}>
-						<Text style={StyleSheet.rowText}>Map Mode</Text>
+					<View style={[StyleSheet.button, { 
+						backgroundColor: Colors.surfaceSecondary,
+						borderRadius: 12,
+						borderWidth: 1,
+						borderColor: Colors.borderPrimary,
+						margin: 8,
+						padding: 12
+					}]}>
+						<Text style={[StyleSheet.rowText, { color: Colors.textPrimary, textAlign: 'center' }]}>Map Mode</Text>
 					</View>
 					<View style={{ height: 5 }}></View>
-					<View style={StyleSheet.horizontalButtonBar}>
-						<View style={StyleSheet.horizonralButton}>
+					<View style={[StyleSheet.horizontalButtonBar, {
+						backgroundColor: Colors.surfaceSecondary,
+						borderRadius: 12,
+						borderWidth: 1,
+						borderColor: Colors.borderPrimary,
+						margin: 8,
+						padding: 4
+					}]}>
+						<View style={[StyleSheet.horizonralButton, { flex: 1, margin: 2 }]}>
 							<Touchable
 								onPress={async () => {
 									this.props.userPrefs.mapMode = 'me';
 									this.props.setUserPrefs(this.props.userPrefs);
 								}}
-								style={[{ backgroundColor: (this.props.userPrefs.mapMode === 'me') ? "green" : "skyblue" }]}
-								background={Touchable.Ripple("blue")}>
-								<Text style={StyleSheet.buttonTextCenter}>Me</Text>
+								style={[{ 
+									backgroundColor: (this.props.userPrefs.mapMode === 'me') ? Colors.success : Colors.accent,
+									borderRadius: 8,
+									paddingVertical: 10,
+									paddingHorizontal: 8
+								}]}
+								background={Touchable.Ripple(Colors.accentSecondary, false)}>
+								<Text style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary, fontSize: 14 }]}>Me</Text>
 							</Touchable>
 						</View>
-						<View style={StyleSheet.horizonralButton}>
+						<View style={[StyleSheet.horizonralButton, { flex: 1, margin: 2 }]}>
 							<Touchable
 								onPress={async () => {
 									this.props.userPrefs.mapMode = 'playa';
 									this.props.setUserPrefs(this.props.userPrefs);
 								}}
-								style={[{ backgroundColor: (this.props.userPrefs.mapMode === 'playa') ? "green" : "skyblue" }]}
-								background={Touchable.Ripple("blue")}>
-								<Text style={StyleSheet.buttonTextCenter}>Playa</Text>
+								style={[{ 
+									backgroundColor: (this.props.userPrefs.mapMode === 'playa') ? Colors.success : Colors.accent,
+									borderRadius: 8,
+									paddingVertical: 10,
+									paddingHorizontal: 8
+								}]}
+								background={Touchable.Ripple(Colors.accentSecondary, false)}>
+								<Text style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary, fontSize: 14 }]}>Playa</Text>
 							</Touchable>
 						</View>
-						<View style={StyleSheet.horizonralButton}>
+						<View style={[StyleSheet.horizonralButton, { flex: 1, margin: 2 }]}>
 							<Touchable
 								onPress={async () => {
 									this.props.userPrefs.mapMode = 'auto';
 									this.props.setUserPrefs(this.props.userPrefs);
 								}}
-								style={[{ backgroundColor: (this.props.userPrefs.mapMode === 'auto' || !this.props.userPrefs.mapMode) ? "green" : "skyblue" }]}
-								background={Touchable.Ripple("blue")}>
-								<Text style={StyleSheet.buttonTextCenter}>Auto</Text>
+								style={[{ 
+									backgroundColor: (this.props.userPrefs.mapMode === 'auto' || !this.props.userPrefs.mapMode) ? Colors.success : Colors.accent,
+									borderRadius: 8,
+									paddingVertical: 10,
+									paddingHorizontal: 8
+								}]}
+								background={Touchable.Ripple(Colors.accentSecondary, false)}>
+								<Text style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary, fontSize: 14 }]}>Auto</Text>
 							</Touchable>
 						</View>
 					</View>
 					{(Constants.IS_ANDROID) ?
 						<View>
 							<View style={{ height: 10 }}></View>
-							<View style={StyleSheet.button}>
+							<View style={[StyleSheet.button, { 
+								backgroundColor: Colors.surfaceSecondary,
+								borderRadius: 12,
+								borderWidth: 1,
+								borderColor: Colors.borderPrimary,
+								margin: 8,
+								padding: 4
+							}]}>
 								<Touchable
 									onPress={async () => {
 										this.props.updateMonitor(!this.props.isMonitor);
 									}}
-									style={[{ backgroundColor: (this.state.isMonitor) ? "green" : "skyblue" }]}
-									background={Touchable.Ripple("blue")}>
-									<Text style={StyleSheet.buttonTextCenter}>Monitor Mode</Text>
+									style={[{ 
+										backgroundColor: (this.state.isMonitor) ? Colors.success : Colors.accent,
+										borderRadius: 8,
+										padding: 16
+									}]}
+									background={Touchable.Ripple(Colors.accentSecondary, false)}>
+									<Text style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary }]}>Monitor Mode</Text>
 								</Touchable>
 							</View>
 						</View>
 						: <View />}
 					<View style={{ height: 10 }}></View>
-					<View style={StyleSheet.button} pointerEvents={pointerEvents}>
+					<View style={[StyleSheet.button, { 
+						backgroundColor: Colors.surfaceSecondary,
+						borderRadius: 12,
+						borderWidth: 1,
+						borderColor: Colors.borderPrimary,
+						margin: 8,
+						padding: 4
+					}]} pointerEvents={pointerEvents}>
 						<Touchable
 							onPress={async () => {
 
@@ -189,36 +258,63 @@ export default class AppManagement extends Component {
 									bounds: Constants.PLAYA_BOUNDS()
 								}, AM.progressListener, AM.errorListener);
 							}}
-							style={[{ backgroundColor: downloadBackgroundColor }]}
-							background={Touchable.Ripple("blue")}
+							style={[{ 
+								backgroundColor: downloadBackgroundColor === "green" ? Colors.success : 
+												 downloadBackgroundColor === "yellow" ? Colors.warning : Colors.accent,
+								borderRadius: 8,
+								padding: 16
+							}]}
+							background={Touchable.Ripple(Colors.accentSecondary, false)}
 						>
-							<Text style={StyleSheet.buttonTextCenter}>{downloadText}</Text>
+							<Text style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary }]}>{downloadText}</Text>
 						</Touchable>
 					</View>
 					<View style={{ height: 10 }}></View>
-					<View style={StyleSheet.button}>
+					<View style={[StyleSheet.button, { 
+						backgroundColor: Colors.surfaceSecondary,
+						borderRadius: 12,
+						borderWidth: 1,
+						borderColor: Colors.borderPrimary,
+						margin: 8,
+						padding: 4
+					}]}>
 						<Touchable
 							onPress={async () => {
 								await this.bbCom();
 							}}
-							style={[{ backgroundColor: this.state.bbComButton }]}
-							background={Touchable.Ripple("blue")}>
-							<Text style={StyleSheet.buttonTextCenter}>Go To BB.Com</Text>
+							style={[{ 
+								backgroundColor: this.state.bbComButton === "green" ? Colors.success : Colors.accent,
+								borderRadius: 8,
+								padding: 16
+							}]}
+							background={Touchable.Ripple(Colors.accentSecondary, false)}>
+							<Text style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary }]}>Go To BB.Com</Text>
 						</Touchable>
 					</View>
 					<View style={{ height: 10 }}></View>
 					<View style={{
 						margin: 10,
-						padding: 10,
-						borderColor: "black",
-						borderWidth: 2
+						padding: 15,
+						borderColor: Colors.borderPrimary,
+						borderWidth: 1,
+						borderRadius: 12,
+						backgroundColor: Colors.surfaceSecondary
 					}}>
 						<View style={{ height: 40 }}>
-							<Text style={StyleSheet.rowText}>Location History Minutes (max 15)</Text>
+							<Text style={[StyleSheet.rowText, { color: Colors.textPrimary }]}>Location History Minutes (max 15)</Text>
 						</View>
 						<View style={{ height: 40 }}>
 							<TextInput keyboardType="number-pad"
-								style={{ height: 40, width: 200, borderColor: "gray", borderWidth: 1 }}
+								style={{ 
+									height: 40, 
+									width: 200, 
+									borderColor: Colors.borderSecondary, 
+									borderWidth: 1,
+									borderRadius: 8,
+									backgroundColor: Colors.backgroundPrimary,
+									color: Colors.textPrimary,
+									paddingHorizontal: 12
+								}}
 								onChangeText={async (p) => {
 									this.props.userPrefs.locationHistoryMinutes = p;
 									this.props.setUserPrefs(this.props.userPrefs);
@@ -229,11 +325,20 @@ export default class AppManagement extends Component {
 							/>
 						</View>
 						<View style={{ height: 40 }}>
-							<Text style={StyleSheet.rowText}>Other Input</Text>
+							<Text style={[StyleSheet.rowText, { color: Colors.textPrimary }]}>Other Input</Text>
 						</View>
 						<View style={{ height: 40 }}>
 							<TextInput keyboardType="default"
-								style={{ height: 40, width: 200, borderColor: "gray", borderWidth: 1 }}
+								style={{ 
+									height: 40, 
+									width: 200, 
+									borderColor: Colors.borderSecondary, 
+									borderWidth: 1,
+									borderRadius: 8,
+									backgroundColor: Colors.backgroundPrimary,
+									color: Colors.textPrimary,
+									paddingHorizontal: 12
+								}}
 								onChangeText={async (visibleUnlockCode) => {
 									this.props.userPrefs.unlockCode = sha256(visibleUnlockCode);
 									this.props.userPrefs.visibleUnlockCode = visibleUnlockCode;

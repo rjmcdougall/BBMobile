@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, Button } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
+import Touchable from "react-native-platform-touchable";
+import StyleSheet, { Colors } from "./StyleSheet";
 
 const StatsControl = ({ pointerEvents, boardState, sendCommand }) => {
   const [ledsOn, setLedsOn] = useState(false);
@@ -20,55 +22,116 @@ const StatsControl = ({ pointerEvents, boardState, sendCommand }) => {
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-      <Text style={{ fontSize: 24, marginBottom: 30 }}>Stats Screen</Text>
+    <View style={[StyleSheet.container, { backgroundColor: Colors.backgroundPrimary }]}>
+      <ScrollView style={{ backgroundColor: Colors.backgroundPrimary }} contentContainerStyle={{ padding: 20 }}>
+        <View style={{
+          backgroundColor: Colors.surfaceSecondary,
+          borderRadius: 12,
+          padding: 15,
+          marginBottom: 20,
+          borderWidth: 1,
+          borderColor: Colors.borderPrimary
+        }}>
+          <Text style={{ fontSize: 24, marginBottom: 20, color: Colors.textPrimary, textAlign: 'center', fontWeight: 'bold' }}>Stats Control</Text>
       
-      {/* Stats Display */}
-      <View style={{ marginBottom: 30, alignSelf: 'stretch', paddingHorizontal: 20 }}>
-        <View style={{ flexDirection: 'row', marginBottom: 15 }}>
-          <Text style={{ fontSize: 18, fontWeight: 'bold', width: 180, textAlign: 'left' }}>Voltage:</Text>
-          <Text style={{ fontSize: 18, flex: 1, textAlign: 'left' }}>{boardState?.pv ? `${parseFloat(boardState.pv).toFixed(1)} Volts` : 'N/A'}</Text>
+          {/* Stats Display */}
+          <View style={{ marginBottom: 20 }}>
+            <View style={{ flexDirection: 'row', marginBottom: 12, paddingVertical: 8 }}>
+              <Text style={{ fontSize: 16, fontWeight: 'bold', width: 150, textAlign: 'left', color: Colors.textSecondary }}>Voltage:</Text>
+              <Text style={{ fontSize: 16, flex: 1, textAlign: 'left', color: Colors.textPrimary }}>{boardState?.pv ? `${parseFloat(boardState.pv).toFixed(1)} Volts` : 'N/A'}</Text>
+            </View>
+            <View style={{ flexDirection: 'row', marginBottom: 12, paddingVertical: 8 }}>
+              <Text style={{ fontSize: 16, fontWeight: 'bold', width: 150, textAlign: 'left', color: Colors.textSecondary }}>LED Power:</Text>
+              <Text style={{ fontSize: 16, flex: 1, textAlign: 'left', color: Colors.textPrimary }}>{boardState?.pw ? `${parseFloat(boardState.pw).toFixed(1)} Watts` : 'N/A'}</Text>
+            </View>
+            <View style={{ flexDirection: 'row', marginBottom: 12, paddingVertical: 8 }}>
+              <Text style={{ fontSize: 16, fontWeight: 'bold', width: 150, textAlign: 'left', color: Colors.textSecondary }}>Regulator Temp:</Text>
+              <Text style={{ fontSize: 16, flex: 1, textAlign: 'left', color: Colors.textPrimary }}>{boardState?.pt ? `${parseFloat(boardState.pt).toFixed(1)} C` : 'N/A'}</Text>
+            </View>
+            <View style={{ flexDirection: 'row', marginBottom: 12, paddingVertical: 8 }}>
+              <Text style={{ fontSize: 16, fontWeight: 'bold', width: 150, textAlign: 'left', color: Colors.textSecondary }}>Music Leader:</Text>
+              <Text style={{ fontSize: 16, flex: 1, textAlign: 'left', color: Colors.textPrimary }}>{boardState?.as || 'N/A'}</Text>
+            </View>
+            <View style={{ flexDirection: 'row', marginBottom: 12, paddingVertical: 8 }}>
+              <Text style={{ fontSize: 16, fontWeight: 'bold', width: 150, textAlign: 'left', color: Colors.textSecondary }}>Music Age:</Text>
+              <Text style={{ fontSize: 16, flex: 1, textAlign: 'left', color: Colors.textPrimary }}>{boardState?.ah || 'N/A'}</Text>
+            </View>
+            <View style={{ flexDirection: 'row', marginBottom: 12, paddingVertical: 8 }}>
+              <Text style={{ fontSize: 16, fontWeight: 'bold', width: 150, textAlign: 'left', color: Colors.textSecondary }}>Music Cluster Size:</Text>
+              <Text style={{ fontSize: 16, flex: 1, textAlign: 'left', color: Colors.textPrimary }}>{boardState?.an || 'N/A'}</Text>
+            </View>
+          </View>
         </View>
-        <View style={{ flexDirection: 'row', marginBottom: 15 }}>
-          <Text style={{ fontSize: 18, fontWeight: 'bold', width: 180, textAlign: 'left' }}>LED Power:</Text>
-          <Text style={{ fontSize: 18, flex: 1, textAlign: 'left' }}>{boardState?.pw ? `${parseFloat(boardState.pw).toFixed(1)} Watts` : 'N/A'}</Text>
+
+        {/* Control Buttons */}
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 10 }}>
+          <View style={[StyleSheet.button, { 
+            backgroundColor: Colors.surfaceSecondary,
+            borderRadius: 12,
+            borderWidth: 1,
+            borderColor: Colors.borderPrimary,
+            flex: 1,
+            margin: 4,
+            padding: 4
+          }]}>
+            <Touchable
+              onPress={toggleLeds}
+              style={[{ 
+                backgroundColor: ledsOn ? Colors.success : Colors.accent,
+                borderRadius: 8,
+                paddingVertical: 10,
+                paddingHorizontal: 6
+              }]}
+              background={Touchable.Ripple(Colors.accentSecondary, false)}>
+              <Text style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary, fontSize: 12 }]}>LEDs {ledsOn ? 'ON' : 'OFF'}</Text>
+            </Touchable>
+          </View>
+
+          <View style={[StyleSheet.button, { 
+            backgroundColor: Colors.surfaceSecondary,
+            borderRadius: 12,
+            borderWidth: 1,
+            borderColor: Colors.borderPrimary,
+            flex: 1,
+            margin: 4,
+            padding: 4
+          }]}>
+            <Touchable
+              onPress={toggleAmp}
+              style={[{ 
+                backgroundColor: ampOn ? Colors.success : Colors.accent,
+                borderRadius: 8,
+                paddingVertical: 10,
+                paddingHorizontal: 6
+              }]}
+              background={Touchable.Ripple(Colors.accentSecondary, false)}>
+              <Text style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary, fontSize: 12 }]}>AMP {ampOn ? 'ON' : 'OFF'}</Text>
+            </Touchable>
+          </View>
+
+          <View style={[StyleSheet.button, { 
+            backgroundColor: Colors.surfaceSecondary,
+            borderRadius: 12,
+            borderWidth: 1,
+            borderColor: Colors.borderPrimary,
+            flex: 1,
+            margin: 4,
+            padding: 4
+          }]}>
+            <Touchable
+              onPress={() => sendCommand('fud')}
+              style={[{ 
+                backgroundColor: Colors.warning,
+                borderRadius: 8,
+                paddingVertical: 10,
+                paddingHorizontal: 6
+              }]}
+              background={Touchable.Ripple(Colors.accentSecondary, false)}>
+              <Text style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary, fontSize: 12 }]}>FU-Dan</Text>
+            </Touchable>
+          </View>
         </View>
-        <View style={{ flexDirection: 'row', marginBottom: 15 }}>
-          <Text style={{ fontSize: 18, fontWeight: 'bold', width: 180, textAlign: 'left' }}>Regulator Temp:</Text>
-          <Text style={{ fontSize: 18, flex: 1, textAlign: 'left' }}>{boardState?.pt ? `${parseFloat(boardState.pt).toFixed(1)} C` : 'N/A'}</Text>
-        </View>
-        <View style={{ flexDirection: 'row', marginBottom: 15 }}>
-          <Text style={{ fontSize: 18, fontWeight: 'bold', width: 180, textAlign: 'left' }}>Music Leader:</Text>
-          <Text style={{ fontSize: 18, flex: 1, textAlign: 'left' }}>{boardState?.as || 'N/A'}</Text>
-        </View>
-        <View style={{ flexDirection: 'row', marginBottom: 15 }}>
-          <Text style={{ fontSize: 18, fontWeight: 'bold', width: 180, textAlign: 'left' }}>Music Age:</Text>
-          <Text style={{ fontSize: 18, flex: 1, textAlign: 'left' }}>{boardState?.ah || 'N/A'}</Text>
-        </View>
-        <View style={{ flexDirection: 'row', marginBottom: 15 }}>
-          <Text style={{ fontSize: 18, fontWeight: 'bold', width: 180, textAlign: 'left' }}>Music Cluster Size:</Text>
-          <Text style={{ fontSize: 18, flex: 1, textAlign: 'left' }}>{boardState?.an || 'N/A'}</Text>
-        </View>
-      </View>
-      
-      {/* Control Buttons */}
-      <View style={{ flexDirection: 'row', justifyContent: 'space-around', width: '100%' }}>
-        <Button 
-          title={`LEDs ${ledsOn ? 'ON' : 'OFF'}`} 
-          onPress={toggleLeds}
-          color={ledsOn ? 'green' : 'gray'}
-        />
-        <Button 
-          title={`AMP ${ampOn ? 'ON' : 'OFF'}`} 
-          onPress={toggleAmp}
-          color={ampOn ? 'green' : 'gray'}
-        />
-        <Button 
-          title="FU-Dan" 
-          onPress={() => sendCommand('fud')}
-          color="blue"
-        />
-      </View>
+      </ScrollView>
     </View>
   );
 };

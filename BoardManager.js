@@ -21,7 +21,7 @@ import Constants from "./Constants";
 import LeftNav from "./LeftNav";
 import MapController from "./MapController";
 import BatteryController from "./BatteryController";
-import StyleSheet from "./StyleSheet";
+import StyleSheet, { Colors } from "./StyleSheet";
 import DiscoverController from "./DiscoverController";
 import StatsControl from "./StatsControl";
 import PropTypes from "prop-types";
@@ -862,9 +862,9 @@ export default class BoardManager extends Component {
 
 		if (!this.state.isMonitor)
 			return (
-				<View style={{ flex: 1, backgroundColor: "white" }}>
-					<View style={{ backgroundColor:"black",height:50 }}></View>
-					<View style={{ flexDirection: "row" }}>
+				<View style={{ flex: 1, backgroundColor: Colors.primary }}>
+					<View style={{ backgroundColor: Colors.surfacePrimary, height: 60, borderBottomWidth: 1, borderBottomColor: Colors.borderPrimary }}></View>
+					<View style={{ flexDirection: "row", backgroundColor: Colors.primary }}>
 						{(!this.props.userPrefs.isDevilsHand) ?
 							<View style={{ margin: 2 }}>
 								<Image style={{ width: 50, height: 46 }} source={require("./images/BurnerBoardIcon-1026.png")} />
@@ -904,10 +904,13 @@ export default class BoardManager extends Component {
 									}
 									}
 									style={{
-										backgroundColor: color,
-										flex: 1,
-									}}
-									background={Touchable.Ripple("blue")}>
+									backgroundColor: color === "green" ? Colors.accentSecondary : color === "yellow" ? Colors.accentWarning : Colors.surfaceSecondary,
+									flex: 1,
+									borderRadius: 12,
+									borderWidth: 1,
+									borderColor: Colors.borderPrimary,
+								}}
+								background={Touchable.Ripple(Colors.accent)}>
 									<Text style={StyleSheet.connectButtonTextCenter}>{connectionButtonText} {this.state.scanning ? "(s)" : ""}</Text>
 								</Touchable>
 							</View>

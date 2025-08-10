@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import Touchable from "react-native-platform-touchable";
 import Constants from "./Constants.js";
 import MaterialCommunityIcon from "react-native-vector-icons/MaterialCommunityIcons";
-import StyleSheet from "./StyleSheet";
+import StyleSheet, { Colors } from "./StyleSheet";
 MaterialCommunityIcon.loadFont(); 
 
 export default class LeftNav extends React.Component {
@@ -14,66 +14,90 @@ export default class LeftNav extends React.Component {
 
 	render() {
 		return (
-			<View style={{ width: 50, backgroundColor: "powderblue", margin: 2, position: 'relative' }}>
+			<View style={{ width: 60, backgroundColor: Colors.surfacePrimary, margin: 4, borderRadius: 16, position: 'relative', borderWidth: 1, borderColor: Colors.borderPrimary }}>
 				{/* Top section - Main navigation */}
-				<View style={[{ backgroundColor: this.props.showScreen == Constants.MAP ? "green" : "lightblue" }]}>
-					<Touchable
-						onPress={() => {
-							this.props.onNavigate(Constants.MAP);
-						}}
-						style={StyleSheet.icon}>
-						<MaterialCommunityIcon name="map-marker-multiple" size={40} color="black" />
-					</Touchable>
-				</View>
-				<View style={[{ backgroundColor: this.props.showScreen == Constants.ADMINISTRATION ? "green" : "lightblue" }]}>
-					<Touchable
-						onPress={() => {
-							this.props.onNavigate(Constants.ADMINISTRATION);
-						}}
-						style={StyleSheet.icon}>
-						<MaterialCommunityIcon name="cog" size={40} color="black" />
-					</Touchable>
-				</View>
-				<View style={[{ backgroundColor: this.props.showScreen == Constants.DISCOVER ? "green" : "lightblue" }]}>
-					<Touchable
-						onPress={ () => {
-							this.props.onNavigate(Constants.DISCOVER);
-						}}
-						style={StyleSheet.icon}>
-						<MaterialCommunityIcon name="magnify" size={40} color="black" />
-					</Touchable>
-				</View>
+					<View style={[{ 
+						backgroundColor: this.props.showScreen == Constants.MAP ? Colors.accent : 'transparent',
+						borderRadius: 12,
+						margin: 2
+					}]}>
+						<Touchable
+							onPress={() => {
+								this.props.onNavigate(Constants.MAP);
+							}}
+							style={[StyleSheet.icon, { padding: 4 }]}>
+							<MaterialCommunityIcon name="map-marker-multiple" size={28} color={this.props.showScreen == Constants.MAP ? Colors.textPrimary : Colors.textSecondary} />
+						</Touchable>
+					</View>
+					<View style={[{ 
+						backgroundColor: this.props.showScreen == Constants.ADMINISTRATION ? Colors.accent : 'transparent',
+						borderRadius: 12,
+						margin: 2
+					}]}>
+						<Touchable
+							onPress={() => {
+								this.props.onNavigate(Constants.ADMINISTRATION);
+							}}
+							style={[StyleSheet.icon, { padding: 4 }]}>
+							<MaterialCommunityIcon name="cog" size={28} color={this.props.showScreen == Constants.ADMINISTRATION ? Colors.textPrimary : Colors.textSecondary} />
+						</Touchable>
+					</View>
+					<View style={[{ 
+						backgroundColor: this.props.showScreen == Constants.DISCOVER ? Colors.accent : 'transparent',
+						borderRadius: 12,
+						margin: 2
+					}]}>
+						<Touchable
+							onPress={ () => {
+								this.props.onNavigate(Constants.DISCOVER);
+							}}
+							style={[StyleSheet.icon, { padding: 4 }]}>
+							<MaterialCommunityIcon name="magnify" size={28} color={this.props.showScreen == Constants.DISCOVER ? Colors.textPrimary : Colors.textSecondary} />
+						</Touchable>
+					</View>
 				
 				{/* Bottom section - Secondary/Admin functions - Absolutely positioned */}
-				<View style={{ position: 'absolute', bottom: 0, left: 0, width: 50 }}>
-					<View style={[{ backgroundColor: this.props.showScreen == Constants.APP_MANAGEMENT  ? "green" : "lightblue" }]}>
-						<Touchable
-							onPress={() => {
-								this.props.onNavigate(Constants.APP_MANAGEMENT);
-							}}
-							style={StyleSheet.icon}>
-							<MaterialCommunityIcon name="cellphone" size={40} color="black" />
-						</Touchable>
+					<View style={{ position: 'absolute', bottom: 0, left: 0, width: 60 }}>
+						<View style={[{ 
+							backgroundColor: this.props.showScreen == Constants.APP_MANAGEMENT ? Colors.accent : 'transparent',
+							borderRadius: 12,
+							margin: 2
+						}]}>
+							<Touchable
+								onPress={() => {
+									this.props.onNavigate(Constants.APP_MANAGEMENT);
+								}}
+								style={[StyleSheet.icon, { padding: 4 }]}>
+								<MaterialCommunityIcon name="cellphone" size={24} color={this.props.showScreen == Constants.APP_MANAGEMENT ? Colors.textPrimary : Colors.textTertiary} />
+							</Touchable>
+						</View>
+						<View style={[{ 
+							backgroundColor: this.props.showScreen == Constants.DIAGNOSTIC ? Colors.accent : 'transparent',
+							borderRadius: 12,
+							margin: 2
+						}]}>
+							<Touchable
+								onPress={() => {
+									this.props.onNavigate(Constants.DIAGNOSTIC);
+								}}
+								style={[StyleSheet.icon, { padding: 4 }]}>
+								<MaterialCommunityIcon name="help-network" size={24} color={this.props.showScreen == Constants.DIAGNOSTIC ? Colors.textPrimary : Colors.textTertiary} />
+							</Touchable>
+						</View>
+						<View style={[{ 
+							backgroundColor: this.props.showScreen == Constants.STATS_CONTROL ? Colors.accent : 'transparent',
+							borderRadius: 12,
+							margin: 2
+						}]}>
+							<Touchable
+								onPress={() => {
+									this.props.onNavigate(Constants.STATS_CONTROL);
+								}}
+								style={[StyleSheet.icon, { padding: 4 }]}>
+								<MaterialCommunityIcon name="chart-bar" size={24} color={this.props.showScreen == Constants.STATS_CONTROL ? Colors.textPrimary : Colors.textTertiary} />
+							</Touchable>
+						</View>
 					</View>
-					<View style={[{ backgroundColor: this.props.showScreen == Constants.DIAGNOSTIC ? "green" : "lightblue" }]}>
-						<Touchable
-							onPress={() => {
-								this.props.onNavigate(Constants.DIAGNOSTIC);
-							}}
-							style={StyleSheet.icon}>
-							<MaterialCommunityIcon name="help-network" size={40} color="black" />
-						</Touchable>
-					</View>
-					<View style={[{ backgroundColor: this.props.showScreen == Constants.STATS_CONTROL ? "green" : "lightblue" }]}>
-						<Touchable
-							onPress={() => {
-								this.props.onNavigate(Constants.STATS_CONTROL);
-							}}
-							style={StyleSheet.icon}>
-							<MaterialCommunityIcon name="chart-bar" size={40} color="black" />
-						</Touchable>
-					</View>
-				</View>
 			</View>
 		);
 	}

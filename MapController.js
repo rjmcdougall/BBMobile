@@ -4,10 +4,11 @@ import Mapbox from "@rnmapbox/maps";
 import StateBuilder from "./StateBuilder";
 import PropTypes from "prop-types";
 import Touchable from "react-native-platform-touchable";
-import StyleSheet from "./StyleSheet";
+import StyleSheet, { Colors } from "./StyleSheet";
 import Constants from "./Constants";
 import Bubble from "./Bubble";
 import Cache from "./Cache";
+import VolumeController from "./VolumeController";
 
 Mapbox.setAccessToken(
 	"sk.eyJ1IjoiZGFuaWVsa2VpdGh3IiwiYSI6ImNqdzhlbHUwZTJvdmUzenFramFmMTQ4bXIifQ.9EXJnBcsrsKyS-veb_dlNg"
@@ -375,11 +376,26 @@ export default class MapController extends Component {
 
 	return (
 			<View style={StyleSheet.container}>
-				{/* Audio and Video Controls at top */}
+				{/* Volume Control at top */}
+				{this.props.boardState && (
+					<View style={{
+						backgroundColor: Colors.primary + 'CC', // 80% opacity
+						paddingHorizontal: 10,
+						paddingTop: 10,
+						paddingBottom: 5
+					}}>
+						<VolumeController 
+							boardState={this.props.boardState}
+							sendCommand={this.props.sendCommand}
+						/>
+					</View>
+				)}
+				
+				{/* Audio and Video Controls */}
 				<View style={{ 
 					flexDirection: 'row', 
 					padding: 10, 
-					backgroundColor: 'rgba(0,0,0,0.7)',
+					backgroundColor: Colors.primary + 'CC', // 80% opacity
 					justifyContent: 'space-around' 
 				}}>
 					{/* Audio Dropdown */}
@@ -388,9 +404,9 @@ export default class MapController extends Component {
 							style={{
 								height: 40,
 								borderWidth: 1,
-								borderColor: '#007AFF',
-								borderRadius: 6,
-								backgroundColor: '#ffffff',
+								borderColor: Colors.borderPrimary,
+								borderRadius: 8,
+								backgroundColor: Colors.surfaceSecondary,
 								justifyContent: 'center',
 								paddingHorizontal: 10,
 								flexDirection: 'row',
@@ -401,13 +417,13 @@ export default class MapController extends Component {
 							<Text style={{
 								flex: 1,
 								fontSize: 12,
-								color: '#000000'
+								color: Colors.textPrimary
 							}}>
 								Audio: {audioPickerItems.length > 0 ? audioPickerItems[this.getSelectedAudioIndex()]?.label || 'None' : 'None'}
 							</Text>
 							<Text style={{
 								fontSize: 14,
-								color: '#007AFF'
+								color: Colors.accent
 							}}>▼</Text>
 						</TouchableOpacity>
 					</View>
@@ -415,33 +431,34 @@ export default class MapController extends Component {
 					{/* Video Dropdown */}
 					<View style={{ flex: 1, marginLeft: 5 }}>
 						<TouchableOpacity
-							style={{
-								height: 40,
-								borderWidth: 1,
-								borderColor: '#007AFF',
-								borderRadius: 6,
-								backgroundColor: '#ffffff',
-								justifyContent: 'center',
-								paddingHorizontal: 10,
-								flexDirection: 'row',
-								alignItems: 'center'
-							}}
+						style={{
+							height: 40,
+							borderWidth: 1,
+							borderColor: Colors.borderPrimary,
+							borderRadius: 8,
+							backgroundColor: Colors.surfaceSecondary,
+							justifyContent: 'center',
+							paddingHorizontal: 10,
+							flexDirection: 'row',
+							alignItems: 'center'
+						}}
 							onPress={() => this.setState({ videoModalVisible: true })}
 						>
 							<Text style={{
 								flex: 1,
 								fontSize: 12,
-								color: '#000000'
+								color: Colors.textPrimary
 							}}>
 								Video: {videoPickerItems.length > 0 ? videoPickerItems[this.getSelectedVideoIndex()]?.label || 'None' : 'None'}
 							</Text>
 							<Text style={{
 								fontSize: 14,
-								color: '#007AFF'
+								color: Colors.accent
 							}}>▼</Text>
 						</TouchableOpacity>
 					</View>
 				</View>
+				
 				<View style={{ flex: 1 }}>
 					<Mapbox.MapView
 						styleURL={Mapbox.StyleURL.Street}
@@ -469,21 +486,30 @@ export default class MapController extends Component {
 					) : <View />}
 				</View>
 
-				<View style={{ backgroundColor: "rgba(0,0,0,0.8)", position: "absolute", bottom: 0, left: 0, right: 0 }}>
+				<View style={{ backgroundColor: Colors.primary + 'E6', position: "absolute", bottom: 0, left: 0, right: 0 }}>
 					<View style={{ maxHeight: 120, padding: 5 }}>
 						{this.state.messages.slice(-4).map((msg, index) => (
-							<Text key={index} style={{ color: "white", fontSize: 10, marginBottom: 2 }}>
+							<Text key={index} style={{ color: Colors.textPrimary, fontSize: 10, marginBottom: 2 }}>
 								{msg}
 							</Text>
 						))}
 					</View>
 					<TextInput
-						style={{ height: 40, borderColor: "gray", borderWidth: 1, color: "white", margin: 5, paddingHorizontal: 10, backgroundColor: "rgba(255,255,255,0.1)" }}
+						style={{ 
+							height: 40, 
+							borderColor: Colors.borderPrimary, 
+							borderWidth: 1, 
+							color: Colors.textPrimary, 
+							margin: 5, 
+							paddingHorizontal: 10, 
+							backgroundColor: Colors.surfaceSecondary,
+							borderRadius: 8
+						}}
 						onSubmitEditing={this.handleSubmitMessage}
 						onChangeText={(text) => this.setState({ currentMessage: text })}
 						value={this.state.currentMessage}
 						placeholder="Type a message..."
-						placeholderTextColor="gray"
+						placeholderTextColor={Colors.textSecondary}
 						returnKeyType="send"
 					/>
 				</View>
@@ -504,8 +530,10 @@ export default class MapController extends Component {
 						<View style={{
 							width: '80%',
 							maxHeight: '60%',
-							backgroundColor: '#ffffff',
+							backgroundColor: Colors.surfaceSecondary,
 							borderRadius: 12,
+							borderWidth: 1,
+							borderColor: Colors.borderPrimary,
 							padding: 20,
 							shadowColor: '#000',
 							shadowOffset: { width: 0, height: 2 },
@@ -518,19 +546,19 @@ export default class MapController extends Component {
 								fontWeight: 'bold',
 								marginBottom: 15,
 								textAlign: 'center',
-								color: '#000000'
+								color: Colors.textPrimary
 							}}>Select Audio Track</Text>
 							
 							<ScrollView style={{ maxHeight: 200 }}>
 								{audioPickerItems.map((item) => (
 									<TouchableOpacity
 										key={item.value}
-										style={{
-											padding: 15,
-											borderBottomWidth: 1,
-											borderBottomColor: '#e0e0e0',
-											backgroundColor: item.value === this.getSelectedAudioIndex() ? '#f0f8ff' : '#ffffff'
-										}}
+									style={{
+										padding: 15,
+										borderBottomWidth: 1,
+										borderBottomColor: Colors.borderSecondary,
+										backgroundColor: item.value === this.getSelectedAudioIndex() ? Colors.accent + '20' : Colors.surfaceSecondary
+									}}
 										onPress={async () => {
 											this.setState({ audioModalVisible: false });
 											if (this.props.sendCommand) {
@@ -545,7 +573,7 @@ export default class MapController extends Component {
 									>
 										<Text style={{
 											fontSize: 16,
-											color: item.value === this.getSelectedAudioIndex() ? '#007AFF' : '#000000',
+											color: item.value === this.getSelectedAudioIndex() ? Colors.accent : Colors.textPrimary,
 											fontWeight: item.value === this.getSelectedAudioIndex() ? 'bold' : 'normal'
 										}}>{item.label}</Text>
 									</TouchableOpacity>
@@ -553,13 +581,13 @@ export default class MapController extends Component {
 							</ScrollView>
 
 							<TouchableOpacity
-								style={{
-									marginTop: 15,
-									padding: 12,
-									backgroundColor: '#007AFF',
-									borderRadius: 8,
-									alignItems: 'center'
-								}}
+							style={{
+								marginTop: 15,
+								padding: 12,
+								backgroundColor: Colors.accent,
+								borderRadius: 8,
+								alignItems: 'center'
+							}}
 								onPress={() => this.setState({ audioModalVisible: false })}
 							>
 								<Text style={{
@@ -588,8 +616,10 @@ export default class MapController extends Component {
 						<View style={{
 							width: '80%',
 							maxHeight: '60%',
-							backgroundColor: '#ffffff',
+							backgroundColor: Colors.surfaceSecondary,
 							borderRadius: 12,
+							borderWidth: 1,
+							borderColor: Colors.borderPrimary,
 							padding: 20,
 							shadowColor: '#000',
 							shadowOffset: { width: 0, height: 2 },
@@ -602,19 +632,19 @@ export default class MapController extends Component {
 								fontWeight: 'bold',
 								marginBottom: 15,
 								textAlign: 'center',
-								color: '#000000'
+								color: Colors.textPrimary
 							}}>Select Video Track</Text>
 							
 							<ScrollView style={{ maxHeight: 200 }}>
 								{videoPickerItems.map((item) => (
 									<TouchableOpacity
 										key={item.value}
-										style={{
-											padding: 15,
-											borderBottomWidth: 1,
-											borderBottomColor: '#e0e0e0',
-											backgroundColor: item.value === this.getSelectedVideoIndex() ? '#f0f8ff' : '#ffffff'
-										}}
+									style={{
+										padding: 15,
+										borderBottomWidth: 1,
+										borderBottomColor: Colors.borderSecondary,
+										backgroundColor: item.value === this.getSelectedVideoIndex() ? Colors.accent + '20' : Colors.surfaceSecondary
+									}}
 										onPress={async () => {
 											this.setState({ videoModalVisible: false });
 											if (this.props.sendCommand) {
@@ -629,7 +659,7 @@ export default class MapController extends Component {
 									>
 										<Text style={{
 											fontSize: 16,
-											color: item.value === this.getSelectedVideoIndex() ? '#007AFF' : '#000000',
+											color: item.value === this.getSelectedVideoIndex() ? Colors.accent : Colors.textPrimary,
 											fontWeight: item.value === this.getSelectedVideoIndex() ? 'bold' : 'normal'
 										}}>{item.label}</Text>
 									</TouchableOpacity>
@@ -637,13 +667,13 @@ export default class MapController extends Component {
 							</ScrollView>
 
 							<TouchableOpacity
-								style={{
-									marginTop: 15,
-									padding: 12,
-									backgroundColor: '#007AFF',
-									borderRadius: 8,
-									alignItems: 'center'
-								}}
+							style={{
+								marginTop: 15,
+								padding: 12,
+								backgroundColor: Colors.accent,
+								borderRadius: 8,
+								alignItems: 'center'
+							}}
 								onPress={() => this.setState({ videoModalVisible: false })}
 							>
 								<Text style={{
