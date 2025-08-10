@@ -867,16 +867,16 @@ export default class BoardManager extends Component {
 					<View style={{ flexDirection: "row", backgroundColor: Colors.primary }}>
 						{(!this.props.userPrefs.isDevilsHand) ?
 							<View style={{ margin: 2 }}>
-								<Image style={{ width: 50, height: 46 }} source={require("./images/BurnerBoardIcon-1026.png")} />
+								<Image style={{ width: 50, height: 46 }} source={require("./images/BurnerBoardIcon-1026-dark.png")} />
 							</View>
 							: <View></View>
 						}
 						<View style={{ flex: 1, margin: 2}}>
-							<BatteryController key={this.state.connectedPeripheral.name + "bat"} id={this.state.connectedPeripheral.name + "bat"} b={this.state.boardState.b} />
+							<BatteryController b={this.state.boardState.b} />
 						</View>
 						{(this.props.userPrefs.isDevilsHand) ?
 							<View style={{ margin: 2}}>
-								<Image style={{ width: 50, height: 46, }} source={require("./images/BurnerBoardIcon-1026.png")} />
+								<Image style={{ width: 50, height: 46, }} source={require("./images/BurnerBoardIcon-1026-dark.png")} />
 							</View>
 							: <View></View>
 						}
