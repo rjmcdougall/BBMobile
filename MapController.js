@@ -29,6 +29,9 @@ export default class MapController extends Component {
 			videoModalVisible: false,
 		};
 
+		// Use class property to persist across renders
+		this.hasAutoZoomedOnce = false;
+
 		this.onPressCircle = this.onPressCircle.bind(this);
 		this.lastHeardBoardDate = this.lastHeardBoardDate.bind(this);
 		this.onUserLocationUpdate = this.onUserLocationUpdate.bind(this);
@@ -96,6 +99,22 @@ export default class MapController extends Component {
 			return;
 		}
 
+		// Prevent auto-zoom after the first time using class property
+		if (this.hasAutoZoomedOnce) {
+			console.log('Auto-zoom already occurred, only updating user location');
+			// Just update user location without changing center or zoom
+			this.props.setMap({
+				center: this.props.map.center,
+				zoom: this.props.map.zoom,
+				userLocation: userLocation
+			});
+			return;
+		}
+
+		console.log('Performing first and only auto-zoom');
+		// Mark that we're about to auto-zoom (immediate update)
+		this.hasAutoZoomedOnce = true;
+
 		const distance = this.calculateDistance(
 			userLocation[1], // latitude
 			userLocation[0], // longitude
@@ -121,21 +140,21 @@ export default class MapController extends Component {
 			
 			// Update map based on location and user preferences
 			if (this.props.userPrefs.mapMode === 'me') {
-				// Always center on user
+				// Always center on user (this mode continues to follow)
 				this.props.setMap({
 					center: userLocation,
 					zoom: 13,
 					userLocation: userLocation
 				});
 			} else if (this.props.userPrefs.mapMode === 'playa') {
-				// Always center on Burning Man
+				// Always center on Burning Man (just update user location)
 				this.props.setMap({
 					center: Constants.MAN_LOCATION,
 					zoom: 13,
 					userLocation: userLocation
 				});
 			} else {
-				// Auto mode - use distance algorithm
+				// Auto mode - use distance algorithm (with one-time auto-zoom)
 				this.updateMapBasedOnLocation(userLocation);
 			}
 		}
@@ -490,7 +509,7 @@ export default class MapController extends Component {
 							<Bubble>
 								<Text>{this.state.boardPicked.board}</Text>
 								<Text>last heard: {this.lastHeardBoardDate()}</Text>
-								<Text>battery: {this.state.boardPicked.b}%</Text>
+								<Text>battery: {this.state.boardPicked.b === -1 ? 'unknown' : this.state.boardPicked.b + '%'}</Text>
 							</Bubble>
 						) : <View />}
 					</View>
@@ -572,11 +591,11 @@ export default class MapController extends Component {
 
 				<View style={{ backgroundColor: Colors.primary + 'E6', position: "absolute", bottom: 0, left: 0, right: 0 }}>
 					<View style={{ maxHeight: 120, padding: 5 }}>
-						{this.state.messages.slice(-4).map((msg, index) => (
-							<Text key={index} style={{ color: Colors.textPrimary, fontSize: 10, marginBottom: 2 }}>
-								{msg}
-							</Text>
-						))}
+					{this.state.messages.slice(-4).map((msg, index) => (
+						<Text key={index} style={{ color: Colors.textPrimary, fontSize: 14, marginBottom: 2 }}>
+							{msg}
+						</Text>
+					))}
 					</View>
 					<TextInput
 						style={{ 

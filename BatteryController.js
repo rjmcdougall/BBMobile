@@ -18,12 +18,21 @@ export default class BatteryController extends React.Component {
 			barColor = "green";
 
 		var b = 0;
+		var displayText = "unknown";
 		
-		if (this.props.b <= 100) 
-			b = this.props.b ;
-		else
+		if (this.props.b === -1) {
 			b = 0;
-		return (
+			displayText = "unknown";
+			barColor = "gray";
+		} else if (this.props.b <= 100) {
+			b = this.props.b;
+			displayText = Math.round(b) + "%";
+		} else {
+			b = 0;
+			displayText = "0%";
+		}
+		
+return (
 			<View style={styles.container}>
 				<AnimatedBar
 					progress={b / 100.0}
@@ -37,7 +46,7 @@ export default class BatteryController extends React.Component {
 				>
 					<View style={[styles.row, styles.center]}>
 						<Text key={this.props.id + "t"} style={[styles.barText, { fontSize: 30 }]}>
-							{Math.round(b)}%
+							{displayText}
 						</Text>
 					</View>
 				</AnimatedBar>

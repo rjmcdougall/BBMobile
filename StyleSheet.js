@@ -41,9 +41,10 @@ export default StyleSheet.create({
 	},
 	connectButtonTextCenter: {
 		margin: 2,
-		fontSize: 16,
+		fontSize: 18,
 		textAlign: "center",
-		padding: 12,
+		paddingHorizontal: 12,
+		paddingVertical: 8,
 		fontWeight: "600",
 		color: Colors.textPrimary,
 	},

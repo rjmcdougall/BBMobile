@@ -300,20 +300,22 @@ export default class AppManagement extends Component {
 						borderRadius: 12,
 						backgroundColor: Colors.surfaceSecondary
 					}}>
-						<View style={{ height: 40 }}>
-							<Text style={[StyleSheet.rowText, { color: Colors.textPrimary }]}>Location History Minutes (max 15)</Text>
+						<View style={{ minHeight: 50, justifyContent: 'center' }}>
+							<Text style={[StyleSheet.rowText, { color: Colors.textPrimary, fontSize: 16 }]}>Location History Minutes (max 15)</Text>
 						</View>
-						<View style={{ height: 40 }}>
+						<View style={{ minHeight: 50, justifyContent: 'center' }}>
 							<TextInput keyboardType="number-pad"
 								style={{ 
-									height: 40, 
+									height: 45, 
 									width: 200, 
 									borderColor: Colors.borderSecondary, 
 									borderWidth: 1,
 									borderRadius: 8,
 									backgroundColor: Colors.backgroundPrimary,
 									color: Colors.textPrimary,
-									paddingHorizontal: 12
+									paddingHorizontal: 12,
+									fontSize: 16,
+									textAlignVertical: 'center'
 								}}
 								onChangeText={async (p) => {
 									this.props.userPrefs.locationHistoryMinutes = p;
@@ -324,20 +326,22 @@ export default class AppManagement extends Component {
 								value={this.props.userPrefs.locationHistoryMinutes}
 							/>
 						</View>
-						<View style={{ height: 40 }}>
-							<Text style={[StyleSheet.rowText, { color: Colors.textPrimary }]}>Other Input</Text>
+						<View style={{ minHeight: 50, justifyContent: 'center' }}>
+							<Text style={[StyleSheet.rowText, { color: Colors.textPrimary, fontSize: 16 }]}>Other Input</Text>
 						</View>
-						<View style={{ height: 40 }}>
+						<View style={{ minHeight: 50, justifyContent: 'center' }}>
 							<TextInput keyboardType="default"
 								style={{ 
-									height: 40, 
+									height: 45, 
 									width: 200, 
 									borderColor: Colors.borderSecondary, 
 									borderWidth: 1,
 									borderRadius: 8,
 									backgroundColor: Colors.backgroundPrimary,
 									color: Colors.textPrimary,
-									paddingHorizontal: 12
+									paddingHorizontal: 12,
+									fontSize: 16,
+									textAlignVertical: 'center'
 								}}
 								onChangeText={async (visibleUnlockCode) => {
 									this.props.userPrefs.unlockCode = sha256(visibleUnlockCode);
