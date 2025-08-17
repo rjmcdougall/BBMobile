@@ -419,7 +419,7 @@ export default class MapController extends Component {
 								fontSize: 12,
 								color: Colors.textPrimary
 							}}>
-								Audio: {audioPickerItems.length > 0 ? audioPickerItems[this.getSelectedAudioIndex()]?.label || 'None' : 'None'}
+								{audioPickerItems.length > 0 ? audioPickerItems[this.getSelectedAudioIndex()]?.label || 'None' : 'None'}
 							</Text>
 							<Text style={{
 								fontSize: 14,
@@ -449,7 +449,7 @@ export default class MapController extends Component {
 								fontSize: 12,
 								color: Colors.textPrimary
 							}}>
-								Video: {videoPickerItems.length > 0 ? videoPickerItems[this.getSelectedVideoIndex()]?.label || 'None' : 'None'}
+								{videoPickerItems.length > 0 ? videoPickerItems[this.getSelectedVideoIndex()]?.label || 'None' : 'None'}
 							</Text>
 							<Text style={{
 								fontSize: 14,
@@ -459,31 +459,115 @@ export default class MapController extends Component {
 					</View>
 				</View>
 				
-				<View style={{ flex: 1 }}>
-					<Mapbox.MapView
-						styleURL={Mapbox.StyleURL.Street}
-						ref={c => (this._map = c)}
-						style={{ flex: 1 }}>
-						<Mapbox.Camera
-							zoomLevel={MP.props.map.zoom}
-							animationMode={"flyTo"}
-							animationDuration={1000}
-							centerCoordinate={MP.props.map.center}
-							followUserLocation={this.state.followUserLocation}
-							followUserMode="compass"
-							followZoomLevel={MP.props.map.zoom}
-							showUserLocation={true} />
-						{(!this.props.isMonitor) ? (<Mapbox.UserLocation onUpdate={this.onUserLocationUpdate} />) : <View></View>}
-						{this.buildMap()}
-					</Mapbox.MapView>
+				<View style={{ flex: 1, flexDirection: 'row' }}>
+					{/* Map Container */}
+					<View style={{ 
+						flex: (this.state.audioModalVisible || this.state.videoModalVisible) ? 0 : 1,
+						width: (this.state.audioModalVisible || this.state.videoModalVisible) ? 0 : '100%',
+						overflow: 'hidden'
+					}}>
+						<Mapbox.MapView
+							styleURL={Mapbox.StyleURL.Street}
+							ref={c => (this._map = c)}
+							style={{ 
+								flex: 1,
+								opacity: (this.state.audioModalVisible || this.state.videoModalVisible) ? 0 : 1
+							}}>
+							<Mapbox.Camera
+								zoomLevel={MP.props.map.zoom}
+								animationMode={"flyTo"}
+								animationDuration={1000}
+								centerCoordinate={MP.props.map.center}
+								followUserLocation={this.state.followUserLocation}
+								followUserMode="compass"
+								followZoomLevel={MP.props.map.zoom}
+								showUserLocation={true} />
+							{(!this.props.isMonitor) ? (<Mapbox.UserLocation onUpdate={this.onUserLocationUpdate} />) : <View></View>}
+							{this.buildMap()}
+						</Mapbox.MapView>
 
-					{(this.state.boardPicked) ? (
-						<Bubble>
-							<Text>{this.state.boardPicked.board}</Text>
-							<Text>last heard: {this.lastHeardBoardDate()}</Text>
-							<Text>battery: {this.state.boardPicked.b}%</Text>
-						</Bubble>
-					) : <View />}
+						{(this.state.boardPicked && !(this.state.audioModalVisible || this.state.videoModalVisible)) ? (
+							<Bubble>
+								<Text>{this.state.boardPicked.board}</Text>
+								<Text>last heard: {this.lastHeardBoardDate()}</Text>
+								<Text>battery: {this.state.boardPicked.b}%</Text>
+							</Bubble>
+						) : <View />}
+					</View>
+
+					{/* Media Selection Pane */}
+					{(this.state.audioModalVisible || this.state.videoModalVisible) && (
+						<View style={{
+							flex: 1,
+							backgroundColor: Colors.surfaceSecondary,
+							borderLeftWidth: 1,
+							borderLeftColor: Colors.borderPrimary,
+							padding: 20
+						}}>
+							<Text style={{
+								fontSize: 18,
+								fontWeight: 'bold',
+								marginBottom: 15,
+								textAlign: 'center',
+								color: Colors.textPrimary
+							}}>
+								Select {this.state.audioModalVisible ? 'Audio' : 'Video'} Track
+							</Text>
+							
+							<ScrollView style={{ flex: 1, marginBottom: 15 }}>
+								{(this.state.audioModalVisible ? audioPickerItems : videoPickerItems).map((item) => (
+									<TouchableOpacity
+										key={item.value}
+										style={{
+											padding: 15,
+											borderBottomWidth: 1,
+											borderBottomColor: Colors.borderSecondary,
+											backgroundColor: item.value === (this.state.audioModalVisible ? this.getSelectedAudioIndex() : this.getSelectedVideoIndex()) ? Colors.accent + '20' : Colors.surfaceSecondary
+										}}
+										onPress={async () => {
+											this.setState({ 
+												audioModalVisible: false, 
+												videoModalVisible: false 
+											});
+											if (this.props.sendCommand) {
+												try {
+													await this.props.sendCommand(this.state.audioModalVisible ? "Audio" : "Video", item.value);
+													console.log(`Selected ${this.state.audioModalVisible ? 'audio' : 'video'} track:`, item.value);
+												} catch (error) {
+													console.log("Track selection error:", error);
+												}
+											}
+										}}
+									>
+										<Text style={{
+											fontSize: 16,
+											color: item.value === (this.state.audioModalVisible ? this.getSelectedAudioIndex() : this.getSelectedVideoIndex()) ? Colors.accent : Colors.textPrimary,
+											fontWeight: item.value === (this.state.audioModalVisible ? this.getSelectedAudioIndex() : this.getSelectedVideoIndex()) ? 'bold' : 'normal'
+										}}>{item.label}</Text>
+									</TouchableOpacity>
+								))}
+							</ScrollView>
+
+							<TouchableOpacity
+								style={{
+									padding: 12,
+									backgroundColor: Colors.accent,
+									borderRadius: 8,
+									alignItems: 'center'
+								}}
+								onPress={() => this.setState({ 
+									audioModalVisible: false, 
+									videoModalVisible: false 
+								})}
+							>
+								<Text style={{
+									color: '#ffffff',
+									fontSize: 16,
+									fontWeight: 'bold'
+								}}>Close</Text>
+							</TouchableOpacity>
+						</View>
+					)}
 				</View>
 
 				<View style={{ backgroundColor: Colors.primary + 'E6', position: "absolute", bottom: 0, left: 0, right: 0 }}>
@@ -514,177 +598,6 @@ export default class MapController extends Component {
 					/>
 				</View>
 
-				{/* Audio Modal */}
-				<Modal
-					animationType="slide"
-					transparent={true}
-					visible={this.state.audioModalVisible}
-					onRequestClose={() => this.setState({ audioModalVisible: false })}
-				>
-					<View style={{
-						flex: 1,
-						justifyContent: 'center',
-						alignItems: 'center',
-						backgroundColor: 'rgba(0,0,0,0.5)'
-					}}>
-						<View style={{
-							width: '80%',
-							maxHeight: '60%',
-							backgroundColor: Colors.surfaceSecondary,
-							borderRadius: 12,
-							borderWidth: 1,
-							borderColor: Colors.borderPrimary,
-							padding: 20,
-							shadowColor: '#000',
-							shadowOffset: { width: 0, height: 2 },
-							shadowOpacity: 0.25,
-							shadowRadius: 4,
-							elevation: 5
-						}}>
-							<Text style={{
-								fontSize: 18,
-								fontWeight: 'bold',
-								marginBottom: 15,
-								textAlign: 'center',
-								color: Colors.textPrimary
-							}}>Select Audio Track</Text>
-							
-							<ScrollView style={{ maxHeight: 200 }}>
-								{audioPickerItems.map((item) => (
-									<TouchableOpacity
-										key={item.value}
-									style={{
-										padding: 15,
-										borderBottomWidth: 1,
-										borderBottomColor: Colors.borderSecondary,
-										backgroundColor: item.value === this.getSelectedAudioIndex() ? Colors.accent + '20' : Colors.surfaceSecondary
-									}}
-										onPress={async () => {
-											this.setState({ audioModalVisible: false });
-											if (this.props.sendCommand) {
-												try {
-													await this.props.sendCommand("Audio", item.value);
-													console.log("Selected audio track: " + item.value);
-												} catch (error) {
-													console.log("Audio selection error:", error);
-												}
-											}
-										}}
-									>
-										<Text style={{
-											fontSize: 16,
-											color: item.value === this.getSelectedAudioIndex() ? Colors.accent : Colors.textPrimary,
-											fontWeight: item.value === this.getSelectedAudioIndex() ? 'bold' : 'normal'
-										}}>{item.label}</Text>
-									</TouchableOpacity>
-								))}
-							</ScrollView>
-
-							<TouchableOpacity
-							style={{
-								marginTop: 15,
-								padding: 12,
-								backgroundColor: Colors.accent,
-								borderRadius: 8,
-								alignItems: 'center'
-							}}
-								onPress={() => this.setState({ audioModalVisible: false })}
-							>
-								<Text style={{
-									color: '#ffffff',
-									fontSize: 16,
-									fontWeight: 'bold'
-								}}>Cancel</Text>
-							</TouchableOpacity>
-						</View>
-					</View>
-				</Modal>
-
-				{/* Video Modal */}
-				<Modal
-					animationType="slide"
-					transparent={true}
-					visible={this.state.videoModalVisible}
-					onRequestClose={() => this.setState({ videoModalVisible: false })}
-				>
-					<View style={{
-						flex: 1,
-						justifyContent: 'center',
-						alignItems: 'center',
-						backgroundColor: 'rgba(0,0,0,0.5)'
-					}}>
-						<View style={{
-							width: '80%',
-							maxHeight: '60%',
-							backgroundColor: Colors.surfaceSecondary,
-							borderRadius: 12,
-							borderWidth: 1,
-							borderColor: Colors.borderPrimary,
-							padding: 20,
-							shadowColor: '#000',
-							shadowOffset: { width: 0, height: 2 },
-							shadowOpacity: 0.25,
-							shadowRadius: 4,
-							elevation: 5
-						}}>
-							<Text style={{
-								fontSize: 18,
-								fontWeight: 'bold',
-								marginBottom: 15,
-								textAlign: 'center',
-								color: Colors.textPrimary
-							}}>Select Video Track</Text>
-							
-							<ScrollView style={{ maxHeight: 200 }}>
-								{videoPickerItems.map((item) => (
-									<TouchableOpacity
-										key={item.value}
-									style={{
-										padding: 15,
-										borderBottomWidth: 1,
-										borderBottomColor: Colors.borderSecondary,
-										backgroundColor: item.value === this.getSelectedVideoIndex() ? Colors.accent + '20' : Colors.surfaceSecondary
-									}}
-										onPress={async () => {
-											this.setState({ videoModalVisible: false });
-											if (this.props.sendCommand) {
-												try {
-													await this.props.sendCommand("Video", item.value);
-													console.log("Selected video track: " + item.value);
-												} catch (error) {
-													console.log("Video selection error:", error);
-												}
-											}
-										}}
-									>
-										<Text style={{
-											fontSize: 16,
-											color: item.value === this.getSelectedVideoIndex() ? Colors.accent : Colors.textPrimary,
-											fontWeight: item.value === this.getSelectedVideoIndex() ? 'bold' : 'normal'
-										}}>{item.label}</Text>
-									</TouchableOpacity>
-								))}
-							</ScrollView>
-
-							<TouchableOpacity
-							style={{
-								marginTop: 15,
-								padding: 12,
-								backgroundColor: Colors.accent,
-								borderRadius: 8,
-								alignItems: 'center'
-							}}
-								onPress={() => this.setState({ videoModalVisible: false })}
-							>
-								<Text style={{
-									color: '#ffffff',
-									fontSize: 16,
-									fontWeight: 'bold'
-								}}>Cancel</Text>
-							</TouchableOpacity>
-						</View>
-					</View>
-				</Modal>
 
 			</View>
 		);

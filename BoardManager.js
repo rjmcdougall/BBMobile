@@ -399,7 +399,6 @@ export default class BoardManager extends Component {
 				var boardName = peripheral.name;
 
 				this.setState({
-					connectedPeripheral: peripheral,
 					boardBLEDevices: boardBLEDevices,
 					boardState: StateBuilder.blankBoardState(),
 					video: StateBuilder.blankVideo(),
@@ -410,7 +409,8 @@ export default class BoardManager extends Component {
 					scanning: false,
 				});
 
-				await this.startScan(true);
+				// Directly connect to the selected peripheral instead of just scanning
+				await this.connectToPeripheral(peripheral);
 			}
 			catch (error) {
 				this.l("Connection error" + error, true, null);
@@ -653,15 +653,17 @@ export default class BoardManager extends Component {
 
 				peripheral.connectionStatus = Constants.DISCONNECTED;
 
+				// Check for existing devices with same name but different ID (duplicates)
 				var boardBleDeviceArray = Array.from(boardBleDevices.values());
-				var bleBoardDeviceExists = boardBleDeviceArray.filter((board) => {
-					if (board.name == peripheral.name && board.id != peripheral)
-						return true;
+				var duplicateDevices = boardBleDeviceArray.filter((board) => {
+					return board.name == peripheral.name && board.id != peripheral.id;
 				});
 
-				if (bleBoardDeviceExists.length > 0) {
-					boardBleDevices.delete(bleBoardDeviceExists.id);
-				}
+				// Remove all duplicate devices with the same name
+				duplicateDevices.forEach((duplicate) => {
+					this.l("Removing duplicate device: " + duplicate.name + " (ID: " + duplicate.id + ")", false, null);
+					boardBleDevices.delete(duplicate.id);
+				});
 
 				boardBleDevices.set(peripheral.id, peripheral);
 				this.setState({ boardBleDevices: boardBleDevices });

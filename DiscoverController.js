@@ -59,10 +59,18 @@ export default class DiscoverController extends React.Component {
 														}
 													}
 													}
-													style={[StyleSheet.button, { height: 50, backgroundColor: color }]}
+													style={[StyleSheet.button, { 
+														height: 60, 
+														backgroundColor: color,
+														alignItems: 'center',
+														justifyContent: 'center'
+													}]}
 
 													background={Touchable.Ripple("blue")}>
-													<Text style={StyleSheet.connectButtonTextCenter}>{item.name}</Text>
+													<Text style={[
+														StyleSheet.connectButtonTextCenter, 
+														{ padding: 8 }
+													]}>{item.name}</Text>
 												</Touchable>
 											);
 										}
