@@ -599,14 +599,17 @@ export default class MapController extends Component {
 					</View>
 					<TextInput
 						style={{ 
-							height: 40, 
+							height: 44, 
 							borderColor: Colors.borderPrimary, 
 							borderWidth: 1, 
 							color: Colors.textPrimary, 
 							margin: 5, 
-							paddingHorizontal: 10, 
+							paddingHorizontal: 12, 
+							paddingVertical: 10,
 							backgroundColor: Colors.surfaceSecondary,
-							borderRadius: 8
+							borderRadius: 8,
+							fontSize: 16,
+							textAlignVertical: 'center'
 						}}
 						onSubmitEditing={this.handleSubmitMessage}
 						onChangeText={(text) => this.setState({ currentMessage: text })}
