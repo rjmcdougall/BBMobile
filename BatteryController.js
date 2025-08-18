@@ -18,11 +18,11 @@ export default class BatteryController extends React.Component {
 			barColor = "green";
 
 		var b = 0;
-		var displayText = "unknown";
+		var displayText = "battery level unknown";
 		
 		if (this.props.b === -1) {
 			b = 0;
-			displayText = "unknown";
+			displayText = "battery level unknown";
 			barColor = "gray";
 		} else if (this.props.b <= 100) {
 			b = this.props.b;
@@ -45,7 +45,7 @@ return (
 					key={this.props.id + "bar"}
 				>
 					<View style={[styles.row, styles.center]}>
-						<Text key={this.props.id + "t"} style={[styles.barText, { fontSize: 30 }]}>
+						<Text key={this.props.id + "t"} style={[styles.barText, { fontSize: displayText.includes('battery level') ? 24 : 30 }]}>
 							{displayText}
 						</Text>
 					</View>

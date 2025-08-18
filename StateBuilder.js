@@ -39,7 +39,7 @@ var bBoardState = {
 	acn: 0, // audio channel number
 	vcn: 0, // video channel number
 	v: -1, // volume
-	b: 0, // battery level
+	b: -1, // battery level
 	am: 0, // audio master
 	apkd: 0, // apk updated date
 	apkv: 0, // apk version number
