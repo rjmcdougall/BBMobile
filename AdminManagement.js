@@ -38,7 +38,7 @@ export default class AdminManagement extends Component {
 								return true;
 							}}
 							style={[{ 
-								backgroundColor: (this.props.boardState.g) ? Colors.success : Colors.accent,
+							backgroundColor: (this.props.boardState.g) ? Colors.accent : Colors.surfaceSecondary,
 								borderRadius: 8,
 								padding: 16
 							}]}
@@ -61,7 +61,7 @@ export default class AdminManagement extends Component {
 								return true;
 							}}
 							style={[{ 
-								backgroundColor: (this.props.boardState.am) ? Colors.success : Colors.accent,
+							backgroundColor: (this.props.boardState.am) ? Colors.accent : Colors.surfaceSecondary,
 								borderRadius: 8,
 								padding: 16
 							}]}
@@ -85,7 +85,7 @@ export default class AdminManagement extends Component {
 								return true;
 							}}
 							style={[{ 
-								backgroundColor: (this.props.boardState.bm) ? Colors.success : Colors.accent,
+							backgroundColor: (this.props.boardState.bm) ? Colors.accent : Colors.surfaceSecondary,
 								borderRadius: 8,
 								padding: 16
 							}]}
@@ -111,7 +111,7 @@ export default class AdminManagement extends Component {
 								return true;
 							}}
 							style={[{ 
-								backgroundColor: (this.props.boardState.rd) ? Colors.success : Colors.accent,
+							backgroundColor: (this.props.boardState.rd) ? Colors.accent : Colors.surfaceSecondary,
 								borderRadius: 8,
 								padding: 16
 							}]}
@@ -138,7 +138,7 @@ export default class AdminManagement extends Component {
 									return true;
 								}}
 								style={[{ 
-									backgroundColor: (this.props.boardState.fm) ? Colors.success : Colors.accent,
+								backgroundColor: (this.props.boardState.fm) ? Colors.accent : Colors.surfaceSecondary,
 									borderRadius: 8,
 									padding: 16
 								}]}
@@ -164,7 +164,7 @@ export default class AdminManagement extends Component {
 									return true;
 								}}
 								style={[{ 
-									backgroundColor: (this.props.boardState.bar) ? Colors.success : Colors.accent,
+								backgroundColor: (this.props.boardState.bar) ? Colors.accent : Colors.surfaceSecondary,
 									borderRadius: 8,
 									padding: 16
 								}]}
@@ -189,7 +189,7 @@ export default class AdminManagement extends Component {
 								return true;
 							}}
 							style={[{ 
-								backgroundColor: (this.props.boardState.r) ? Colors.error : Colors.accent,
+							backgroundColor: (this.props.boardState.r) ? Colors.accent : Colors.surfaceSecondary,
 								borderRadius: 8,
 								padding: 16
 							}]}

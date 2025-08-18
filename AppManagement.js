@@ -110,7 +110,7 @@ export default class AppManagement extends Component {
 								await this.clearCache();
 							}}
 							style={[{ 
-								backgroundColor: this.state.cacheButton === "green" ? Colors.success : Colors.accent,
+								backgroundColor: this.state.cacheButton === "green" ? Colors.accentSecondary : Colors.surfaceSecondary,
 								borderRadius: 8,
 								padding: 16
 							}]}
@@ -133,7 +133,7 @@ export default class AppManagement extends Component {
 								this.props.setUserPrefs(this.props.userPrefs);
 							}}
 							style={[{ 
-								backgroundColor: (this.props.userPrefs.isDevilsHand) ? Colors.success : Colors.accent,
+							backgroundColor: (this.props.userPrefs.isDevilsHand) ? Colors.accent : Colors.surfaceSecondary,
 								borderRadius: 8,
 								padding: 16
 							}]}
@@ -168,7 +168,7 @@ export default class AppManagement extends Component {
 									this.props.setUserPrefs(this.props.userPrefs);
 								}}
 								style={[{ 
-									backgroundColor: (this.props.userPrefs.mapMode === 'me') ? Colors.success : Colors.accent,
+								backgroundColor: (this.props.userPrefs.mapMode === 'me') ? Colors.accent : Colors.surfaceSecondary,
 									borderRadius: 8,
 									paddingVertical: 10,
 									paddingHorizontal: 8
@@ -184,7 +184,7 @@ export default class AppManagement extends Component {
 									this.props.setUserPrefs(this.props.userPrefs);
 								}}
 								style={[{ 
-									backgroundColor: (this.props.userPrefs.mapMode === 'playa') ? Colors.success : Colors.accent,
+								backgroundColor: (this.props.userPrefs.mapMode === 'playa') ? Colors.accent : Colors.surfaceSecondary,
 									borderRadius: 8,
 									paddingVertical: 10,
 									paddingHorizontal: 8
@@ -200,7 +200,7 @@ export default class AppManagement extends Component {
 									this.props.setUserPrefs(this.props.userPrefs);
 								}}
 								style={[{ 
-									backgroundColor: (this.props.userPrefs.mapMode === 'auto' || !this.props.userPrefs.mapMode) ? Colors.success : Colors.accent,
+								backgroundColor: (this.props.userPrefs.mapMode === 'auto' || !this.props.userPrefs.mapMode) ? Colors.accent : Colors.surfaceSecondary,
 									borderRadius: 8,
 									paddingVertical: 10,
 									paddingHorizontal: 8
@@ -226,7 +226,7 @@ export default class AppManagement extends Component {
 										this.props.updateMonitor(!this.props.isMonitor);
 									}}
 									style={[{ 
-										backgroundColor: (this.state.isMonitor) ? Colors.success : Colors.accent,
+										backgroundColor: (this.state.isMonitor) ? Colors.accent : Colors.surfaceSecondary,
 										borderRadius: 8,
 										padding: 16
 									}]}
@@ -259,8 +259,8 @@ export default class AppManagement extends Component {
 								}, AM.progressListener, AM.errorListener);
 							}}
 							style={[{ 
-								backgroundColor: downloadBackgroundColor === "green" ? Colors.success : 
-												 downloadBackgroundColor === "yellow" ? Colors.warning : Colors.accent,
+								backgroundColor: downloadBackgroundColor === "green" ? Colors.accentSecondary : 
+												 downloadBackgroundColor === "yellow" ? Colors.accentWarning : Colors.surfaceSecondary,
 								borderRadius: 8,
 								padding: 16
 							}]}
@@ -283,7 +283,7 @@ export default class AppManagement extends Component {
 								await this.bbCom();
 							}}
 							style={[{ 
-								backgroundColor: this.state.bbComButton === "green" ? Colors.success : Colors.accent,
+								backgroundColor: this.state.bbComButton === "green" ? Colors.accentSecondary : Colors.surfaceSecondary,
 								borderRadius: 8,
 								padding: 16
 							}]}

@@ -77,7 +77,7 @@ const StatsControl = ({ pointerEvents, boardState, sendCommand }) => {
             <Touchable
               onPress={toggleLeds}
               style={[{ 
-                backgroundColor: ledsOn ? Colors.success : Colors.accent,
+                backgroundColor: ledsOn ? Colors.accent : Colors.surfaceSecondary,
                 borderRadius: 8,
                 paddingVertical: 10,
                 paddingHorizontal: 6
@@ -99,7 +99,7 @@ const StatsControl = ({ pointerEvents, boardState, sendCommand }) => {
             <Touchable
               onPress={toggleAmp}
               style={[{ 
-                backgroundColor: ampOn ? Colors.success : Colors.accent,
+                backgroundColor: ampOn ? Colors.accent : Colors.surfaceSecondary,
                 borderRadius: 8,
                 paddingVertical: 10,
                 paddingHorizontal: 6
@@ -121,7 +121,7 @@ const StatsControl = ({ pointerEvents, boardState, sendCommand }) => {
             <Touchable
               onPress={() => sendCommand('fud')}
               style={[{ 
-                backgroundColor: Colors.warning,
+                backgroundColor: Colors.surfaceSecondary,
                 borderRadius: 8,
                 paddingVertical: 10,
                 paddingHorizontal: 6
