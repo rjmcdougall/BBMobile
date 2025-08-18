@@ -32,7 +32,7 @@ const StatsControl = ({ pointerEvents, boardState, sendCommand }) => {
           borderWidth: 1,
           borderColor: Colors.borderPrimary
         }}>
-          <Text style={{ fontSize: 24, marginBottom: 20, color: Colors.textPrimary, textAlign: 'center', fontWeight: 'bold' }}>Stats Control</Text>
+          <Text style={{ fontSize: 24, marginBottom: 20, color: Colors.textPrimary, textAlign: 'center', fontWeight: 'bold' }}>Board Control</Text>
       
           {/* Stats Display */}
           <View style={{ marginBottom: 20 }}>
@@ -72,18 +72,18 @@ const StatsControl = ({ pointerEvents, boardState, sendCommand }) => {
             borderColor: Colors.borderPrimary,
             flex: 1,
             margin: 4,
-            padding: 4
+            padding: 2
           }]}>
             <Touchable
               onPress={toggleLeds}
               style={[{ 
                 backgroundColor: ledsOn ? Colors.accent : Colors.surfaceSecondary,
                 borderRadius: 8,
-                paddingVertical: 10,
-                paddingHorizontal: 6
+                paddingVertical: 4,
+                paddingHorizontal: 2
               }]}
               background={Touchable.Ripple(Colors.accentSecondary, false)}>
-              <Text style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary, fontSize: 12 }]}>LEDs {ledsOn ? 'ON' : 'OFF'}</Text>
+              <Text numberOfLines={1} style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary, fontSize: 16 }]}>LEDs</Text>
             </Touchable>
           </View>
 
@@ -94,18 +94,18 @@ const StatsControl = ({ pointerEvents, boardState, sendCommand }) => {
             borderColor: Colors.borderPrimary,
             flex: 1,
             margin: 4,
-            padding: 4
+            padding: 2
           }]}>
             <Touchable
               onPress={toggleAmp}
               style={[{ 
                 backgroundColor: ampOn ? Colors.accent : Colors.surfaceSecondary,
                 borderRadius: 8,
-                paddingVertical: 10,
-                paddingHorizontal: 6
+                paddingVertical: 4,
+                paddingHorizontal: 2
               }]}
               background={Touchable.Ripple(Colors.accentSecondary, false)}>
-              <Text style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary, fontSize: 12 }]}>AMP {ampOn ? 'ON' : 'OFF'}</Text>
+              <Text numberOfLines={1} style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary, fontSize: 16 }]}>Amp</Text>
             </Touchable>
           </View>
 
@@ -116,18 +116,18 @@ const StatsControl = ({ pointerEvents, boardState, sendCommand }) => {
             borderColor: Colors.borderPrimary,
             flex: 1,
             margin: 4,
-            padding: 4
+            padding: 2
           }]}>
             <Touchable
               onPress={() => sendCommand('fud')}
               style={[{ 
                 backgroundColor: Colors.surfaceSecondary,
                 borderRadius: 8,
-                paddingVertical: 10,
-                paddingHorizontal: 6
+                paddingVertical: 4,
+                paddingHorizontal: 2
               }]}
               background={Touchable.Ripple(Colors.accentSecondary, false)}>
-              <Text style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary, fontSize: 12 }]}>FU-Dan</Text>
+              <Text numberOfLines={1} style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary, fontSize: 16 }]}>FUD</Text>
             </Touchable>
           </View>
         </View>
