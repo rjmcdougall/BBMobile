@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Image, ImageBackground } from "react-native";
 import PropTypes from "prop-types";
 import AnimatedBar from "./AnimatedBar";
 import Constants from "./Constants";
@@ -32,24 +32,41 @@ export default class BatteryController extends React.Component {
 			displayText = "0%";
 		}
 		
-return (
+	return (
 			<View style={styles.container}>
-				<AnimatedBar
-					progress={b / 100.0}
-					height={null}
-					borderColor="#DDD"
-					barColor={barColor}
-					borderRadius={5}
-					borderWidth={5}
-					duration={100}
-					key={this.props.id + "bar"}
-				>
-					<View style={[styles.row, styles.center]}>
-						<Text key={this.props.id + "t"} style={[styles.barText, { fontSize: displayText.includes('battery level') ? 24 : 30 }]}>
-							{displayText}
-						</Text>
-					</View>
-				</AnimatedBar>
+				<View style={styles.batteryContainer}>
+					{/* Battery shell background */}
+					<ImageBackground 
+						source={require('./images/batteryicon.jpg')} 
+						style={styles.batteryBackground}
+						resizeMode="stretch"
+					>
+						{/* Battery fill - positioned inside the battery shell */}
+						<View style={styles.batteryFillContainer}>
+							{/* Gray background for empty portion */}
+							<View style={[
+								styles.batteryEmptyFill,
+								{
+									backgroundColor: '#404040',
+								}
+							]} />
+							{/* Colored fill for battery level */}
+							<View style={[
+								styles.batteryFill,
+								{
+									width: `${b}%`,
+									backgroundColor: barColor,
+								}
+							]} />
+						</View>
+						{/* Battery text overlay */}
+						<View style={[styles.row, styles.center, styles.textOverlay]}>
+							<Text key={this.props.id + "t"} style={[styles.barText, { fontSize: displayText.includes('battery level') ? 16 : 20 }]}>
+								{displayText}
+							</Text>
+						</View>
+					</ImageBackground>
+				</View>
 			</View>
 		);
 	}
@@ -71,6 +88,45 @@ const styles = StyleSheet.create({
 		paddingHorizontal: 0,
 		justifyContent: "space-around",
 	},
+	batteryContainer: {
+		height: 46,
+		width: '100%',
+		position: 'relative',
+	},
+	batteryBackground: {
+		height: 46,
+		width: '100%',
+		position: 'relative',
+	},
+	batteryFillContainer: {
+		position: 'absolute',
+		top: 4,
+		left: '8%',
+		right: '12%',
+		bottom: 4,
+		overflow: 'hidden',
+		borderRadius: 2,
+	},
+	batteryEmptyFill: {
+		height: '100%',
+		width: '100%',
+		borderRadius: 2,
+		position: 'absolute',
+	},
+	batteryFill: {
+		height: '100%',
+		borderRadius: 2,
+		position: 'absolute',
+		left: 0,
+		top: 0,
+	},
+	textOverlay: {
+		position: 'absolute',
+		top: 0,
+		left: 0,
+		right: 0,
+		bottom: 0,
+	},
 	row: {
 		flexDirection: "row",
 	},
@@ -81,5 +137,9 @@ const styles = StyleSheet.create({
 	barText: {
 		backgroundColor: "transparent",
 		color: "#FFF",
+		fontWeight: 'bold',
+		textShadowColor: '#000',
+		textShadowOffset: { width: 1, height: 1 },
+		textShadowRadius: 2,
 	},
 });
