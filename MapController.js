@@ -338,6 +338,50 @@ export default class MapController extends Component {
 			var MP = this;
 			var shapeSource;
 
+			// Add Burning Man 2025 overlay
+			const burningManOverlay = (
+				<Mapbox.ShapeSource 
+					id="burning-man-overlay" 
+					key="burning-man-overlay"
+					shape={require('./maps/burning-mesh-overlay-2025.json')}
+				>
+					{/* Street outlines */}
+					<Mapbox.LineLayer 
+						id="street-outlines" 
+						filter={['==', ['get', 'layer_id'], 'streetOutlines']}
+						style={{
+							lineColor: ['get', 'stroke'],
+							lineWidth: 2,
+							lineOpacity: 0.8
+						}} 
+					/>
+					{/* Trash fence */}
+					<Mapbox.LineLayer 
+						id="trash-fence" 
+						filter={['==', ['get', 'layer_id'], 'trashFence']}
+						style={{
+							lineColor: '#FFA500',
+							lineWidth: 3,
+							lineOpacity: 0.9,
+							lineDasharray: [2, 2]
+						}} 
+					/>
+					{/* CPNS (Communication Point Nodes) */}
+					<Mapbox.CircleLayer 
+						id="cpns" 
+						filter={['==', ['get', 'layer_id'], 'cpns']}
+						style={{
+							circleRadius: 6,
+							circleColor: '#FFA500',
+							circleStrokeColor: '#333333',
+							circleStrokeWidth: 2,
+							circleOpacity: 0.9
+						}} 
+					/>
+				</Mapbox.ShapeSource>
+			);
+			a.push(burningManOverlay);
+
 			this.props.locations.map((board) => {
 
 				if (board.locations.length > 1) {
