@@ -83,7 +83,7 @@ const StatsControl = ({ pointerEvents, boardState, sendCommand }) => {
                 paddingHorizontal: 2
               }]}
               background={Touchable.Ripple(Colors.accentSecondary, false)}>
-              <Text numberOfLines={1} style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary, fontSize: 16 }]}>LEDs</Text>
+              <Text numberOfLines={1} style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary, fontSize: 14 }]}>LEDs</Text>
             </Touchable>
           </View>
 
@@ -105,7 +105,7 @@ const StatsControl = ({ pointerEvents, boardState, sendCommand }) => {
                 paddingHorizontal: 2
               }]}
               background={Touchable.Ripple(Colors.accentSecondary, false)}>
-              <Text numberOfLines={1} style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary, fontSize: 16 }]}>Amp</Text>
+              <Text numberOfLines={1} style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary, fontSize: 14 }]}>Amp</Text>
             </Touchable>
           </View>
 
@@ -127,7 +127,7 @@ const StatsControl = ({ pointerEvents, boardState, sendCommand }) => {
                 paddingHorizontal: 2
               }]}
               background={Touchable.Ripple(Colors.accentSecondary, false)}>
-              <Text numberOfLines={1} style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary, fontSize: 16 }]}>FUD</Text>
+              <Text numberOfLines={1} style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary, fontSize: 14 }]}>FUD</Text>
             </Touchable>
           </View>
         </View>

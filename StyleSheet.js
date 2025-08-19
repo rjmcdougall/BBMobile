@@ -33,7 +33,7 @@ export { Colors };
 export default StyleSheet.create({
 	buttonTextCenter: {
 		margin: 2,
-		fontSize: 24,
+		fontSize: 16,
 		textAlign: "center",
 		padding: 12,
 		fontWeight: "600",
@@ -41,7 +41,7 @@ export default StyleSheet.create({
 	},
 	connectButtonTextCenter: {
 		margin: 2,
-		fontSize: 18,
+		fontSize: 14,
 		textAlign: "center",
 		paddingHorizontal: 12,
 		paddingVertical: 8,
@@ -50,7 +50,7 @@ export default StyleSheet.create({
 	},
 	smallButtonTextCenter: {
 		margin: 2,
-		fontSize: 14,
+		fontSize: 12,
 		textAlign: "center",
 		padding: 8,
 		fontWeight: "500",
@@ -127,7 +127,7 @@ export default StyleSheet.create({
 	},
 	dropDownRowText: {
 		marginLeft: 12,
-		fontSize: 20,
+		fontSize: 16,
 		color: Colors.textPrimary,
 		fontWeight: "500",
 	},
