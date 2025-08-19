@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
 });
 
 AnimatedBar.defaultProps = {
-	height: 10,
+	height: 11,
 	borderColor: "#000",
 	borderWidth: 1,
 	borderRadius: 0,
