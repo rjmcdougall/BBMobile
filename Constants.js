@@ -54,11 +54,13 @@ exports.BTDEVICESPREFIX = "BTDevice_";
 exports.MESSAGES = "Messages";
 
 //Map Configuration
+// 2024 location 40.7866, -119.2066
+// 2025 location 40.786958, -119.202994
 exports.PLAYA_BOUNDS = function() {
-	var bounds = geoViewport.bounds([-119.2066,40.7866], 14, [600, 400]);
+	var bounds = geoViewport.bounds([-119.202994,40.78695], 14, [600, 400]);
 	return [[bounds[0], bounds[1]], [bounds[2], bounds[3]]];
 };
-exports.MAN_LOCATION = [-119.2066,40.7866];
+exports.MAN_LOCATION = [-119.202994,40.786958];
 
 //Diagnostic Screen Configuration
 exports.MAX_DIAGNOSTIC_LINES = 100;
