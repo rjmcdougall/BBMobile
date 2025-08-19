@@ -869,7 +869,7 @@ export default class BoardManager extends Component {
 					<View style={{ flexDirection: "row", backgroundColor: Colors.primary }}>
 						{(!this.props.userPrefs.isDevilsHand) ?
 							<View style={{ margin: 2 }}>
-								<Image style={{ width: 50, height: 46 }} source={require("./images/BurnerBoardIcon-1026-dark.png")} />
+							<Image style={{ width: 50, height: 51 }} source={require("./images/BurnerBoardIcon-1026-dark.png")} />
 							</View>
 							: <View></View>
 						}
@@ -878,7 +878,7 @@ export default class BoardManager extends Component {
 						</View>
 						{(this.props.userPrefs.isDevilsHand) ?
 							<View style={{ margin: 2}}>
-								<Image style={{ width: 50, height: 46, }} source={require("./images/BurnerBoardIcon-1026-dark.png")} />
+								<Image style={{ width: 50, height: 51, }} source={require("./images/BurnerBoardIcon-1026-dark.png")} />
 							</View>
 							: <View></View>
 						}

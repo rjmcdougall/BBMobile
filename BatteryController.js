@@ -89,12 +89,12 @@ const styles = StyleSheet.create({
 		justifyContent: "space-around",
 	},
 	batteryContainer: {
-		height: 46,
+		height: 51,
 		width: '100%',
 		position: 'relative',
 	},
 	batteryBackground: {
-		height: 46,
+		height: 51,
 		width: '100%',
 		position: 'relative',
 	},
