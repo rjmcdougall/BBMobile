@@ -122,3 +122,84 @@ exports.boardColor = function (item, boardData) {
 	return color;
 };
 
+// Helper function to determine if a color is light or dark
+// Returns true if the color is light and needs dark text
+exports.isLightColor = function(colorString) {
+	// Convert color names to RGB values for calculation
+	const colorMap = {
+		// Light colors that need dark text
+		'white': [255, 255, 255],
+		'whitesmoke': [245, 245, 245],
+		'lightgray': [211, 211, 211],
+		'lightgrey': [211, 211, 211],
+		'silver': [192, 192, 192],
+		'gainsboro': [220, 220, 220],
+		'yellow': [255, 255, 0],
+		'lightyellow': [255, 255, 224],
+		'gold': [255, 215, 0],
+		'orange': [255, 165, 0],
+		'pink': [255, 192, 203],
+		'lightpink': [255, 182, 193],
+		'lightblue': [173, 216, 230],
+		'lightcyan': [224, 255, 255],
+		'lightgreen': [144, 238, 144],
+		'lightcoral': [240, 128, 128],
+		'lightsalmon': [255, 160, 122],
+		'wheat': [245, 222, 179],
+		'beige': [245, 245, 220],
+		'khaki': [240, 230, 140],
+		'lavender': [230, 230, 250],
+		'plum': [221, 160, 221],
+		'thistle': [216, 191, 216],
+		// Add more light colors as needed
+	};
+
+	// Check if it's a named color first
+	const lowerColor = colorString.toLowerCase();
+	if (colorMap[lowerColor]) {
+		const [r, g, b] = colorMap[lowerColor];
+		// Calculate luminance using the standard formula
+		const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+		return luminance > 128; // Return true if light color
+	}
+
+	// Handle hex colors (#RRGGBB or #RGB)
+	if (colorString.startsWith('#')) {
+		let hex = colorString.slice(1);
+		
+		// Convert 3-digit hex to 6-digit
+		if (hex.length === 3) {
+			hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+		}
+		
+		if (hex.length === 6) {
+			const r = parseInt(hex.slice(0, 2), 16);
+			const g = parseInt(hex.slice(2, 4), 16);
+			const b = parseInt(hex.slice(4, 6), 16);
+			
+			// Calculate luminance
+			const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+			return luminance > 128;
+		}
+	}
+
+	// Handle rgb() format
+	const rgbMatch = colorString.match(/rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/);
+	if (rgbMatch) {
+		const r = parseInt(rgbMatch[1]);
+		const g = parseInt(rgbMatch[2]);
+		const b = parseInt(rgbMatch[3]);
+		
+		const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+		return luminance > 128;
+	}
+
+	// Default to false (dark text) for unknown colors
+	return false;
+};
+
+// Helper function to get appropriate text color for a given background color
+exports.getTextColorForBackground = function(backgroundColor) {
+	return exports.isLightColor(backgroundColor) ? '#000000' : '#FFFFFF';
+};
+

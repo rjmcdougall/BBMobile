@@ -47,6 +47,7 @@ export default class DiscoverController extends React.Component {
 										try {
  
 											var color = StateBuilder.boardColor(item.name, DC.props.boardData);
+											var textColor = StateBuilder.getTextColorForBackground(color);
 
 											return (
 												<Touchable
@@ -69,7 +70,7 @@ export default class DiscoverController extends React.Component {
 													background={Touchable.Ripple("blue")}>
 													<Text style={[
 														StyleSheet.connectButtonTextCenter, 
-														{ padding: 8 }
+														{ padding: 8, color: textColor }
 													]}>{item.name}</Text>
 												</Touchable>
 											);
