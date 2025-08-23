@@ -73,6 +73,9 @@ export default class MapController extends Component {
 
 	componentWillUnmount() {
 		// Clean up references to prevent memory leaks
+		if (this.bubbleTimeout) {
+			clearTimeout(this.bubbleTimeout);
+		}
 	}
 
 	// Calculate distance between two coordinates in miles using Haversine formula
@@ -225,21 +228,67 @@ export default class MapController extends Component {
 	}
 
 	async onPressCircle(e) {
+		// Enhanced logging for Android debugging
+		if (Constants.debug || Constants.IS_ANDROID) {
+			console.log('Map marker clicked - Platform:', Platform.OS);
+			console.log('Event structure:', JSON.stringify(e, null, 2));
+		}
 
-		if (e.nativeEvent.payload.geometry.type != "Point")
+		// Handle different event structures between iOS and Android
+		let payload;
+		if (e.nativeEvent && e.nativeEvent.payload) {
+			payload = e.nativeEvent.payload;
+		} else if (e.features && e.features.length > 0) {
+			// Android sometimes uses features array
+			payload = e.features[0];
+		} else if (e.geometry) {
+			// Direct feature object
+			payload = e;
+		} else {
+			console.log('Unknown event structure on', Platform.OS);
 			return;
+		}
 
+		if (!payload || !payload.geometry || payload.geometry.type !== "Point") {
+			console.log('Not a point geometry or missing payload');
+			return;
+		}
+
+		// Extract board name from properties
+		const boardName = payload.properties && payload.properties.board;
+		if (!boardName) {
+			console.log('No board name in properties:', payload.properties);
+			return;
+		}
+
+		// Find the clicked board
 		var boardPicked = this.props.locations.filter((board) => {
-			return board.board == e.nativeEvent.payload.properties.board;
+			return board.board === boardName;
 		})[0];
 
+		if (!boardPicked) {
+			console.log('Board not found:', boardName);
+			return;
+		}
+
+		console.log('Board selected:', boardName);
+
+		// Clear any existing timeout
+		if (this.bubbleTimeout) {
+			clearTimeout(this.bubbleTimeout);
+		}
+
+		// Show the board information bubble
 		this.setState({
 			boardPicked: boardPicked
 		});
-		await this.sleep(3000);
-		this.setState({
-			boardPicked: null
-		});
+
+		// Auto-hide after 5 seconds (increased for better Android UX)
+		this.bubbleTimeout = setTimeout(() => {
+			this.setState({
+				boardPicked: null
+			});
+		}, 5000);
 	}
 
 	lastHeardBoardDate() {
@@ -338,49 +387,51 @@ export default class MapController extends Component {
 			var MP = this;
 			var shapeSource;
 
-			// Add Burning Man 2025 overlay
-			const burningManOverlay = (
-				<Mapbox.ShapeSource 
-					id="burning-man-overlay" 
-					key="burning-man-overlay"
-					shape={require('./maps/burning-mesh-overlay-2025.json')}
-				>
-					{/* Street outlines */}
-					<Mapbox.LineLayer 
-						id="street-outlines" 
-						filter={['==', ['get', 'layer_id'], 'streetOutlines']}
-						style={{
-							lineColor: ['get', 'stroke'],
-							lineWidth: 2,
-							lineOpacity: 0.8
-						}} 
-					/>
-					{/* Trash fence */}
-					<Mapbox.LineLayer 
-						id="trash-fence" 
-						filter={['==', ['get', 'layer_id'], 'trashFence']}
-						style={{
-							lineColor: '#FFA500',
-							lineWidth: 3,
-							lineOpacity: 0.9,
-							lineDasharray: [2, 2]
-						}} 
-					/>
-					{/* CPNS (Communication Point Nodes) */}
-					<Mapbox.CircleLayer 
-						id="cpns" 
-						filter={['==', ['get', 'layer_id'], 'cpns']}
-						style={{
-							circleRadius: 6,
-							circleColor: '#FFA500',
-							circleStrokeColor: '#333333',
-							circleStrokeWidth: 2,
-							circleOpacity: 0.9
-						}} 
-					/>
-				</Mapbox.ShapeSource>
-			);
-			a.push(burningManOverlay);
+			// Add Burning Man 2025 overlay if enabled
+			if (this.props.userPrefs && this.props.userPrefs.showMapOverlay) {
+				const burningManOverlay = (
+					<Mapbox.ShapeSource 
+						id="burning-man-overlay" 
+						key="burning-man-overlay"
+						shape={require('./maps/burning-mesh-overlay-2025.json')}
+					>
+						{/* Street outlines */}
+						<Mapbox.LineLayer 
+							id="street-outlines" 
+							filter={['==', ['get', 'layer_id'], 'streetOutlines']}
+							style={{
+								lineColor: ['get', 'stroke'],
+								lineWidth: 2,
+								lineOpacity: 0.8
+							}} 
+						/>
+						{/* Trash fence */}
+						<Mapbox.LineLayer 
+							id="trash-fence" 
+							filter={['==', ['get', 'layer_id'], 'trashFence']}
+							style={{
+								lineColor: '#FFA500',
+								lineWidth: 3,
+								lineOpacity: 0.9,
+								lineDasharray: [2, 2]
+							}} 
+						/>
+						{/* CPNS (Communication Point Nodes) */}
+						<Mapbox.CircleLayer 
+							id="cpns" 
+							filter={['==', ['get', 'layer_id'], 'cpns']}
+							style={{
+								circleRadius: 6,
+								circleColor: '#FFA500',
+								circleStrokeColor: '#333333',
+								circleStrokeWidth: 2,
+								circleOpacity: 0.9
+							}} 
+						/>
+					</Mapbox.ShapeSource>
+				);
+				a.push(burningManOverlay);
+			}
 
 			this.props.locations.map((board) => {
 
@@ -401,16 +452,58 @@ export default class MapController extends Component {
 				if (board.locations.length > 0) {
 
 					shapeSource = (
-						<Mapbox.ShapeSource id={"C" + board.board} key={"C" + board.board}
+						<Mapbox.ShapeSource 
+							id={"C" + board.board} 
+							key={"C" + board.board}
 							shape={this.makePoint(board)}
-							onPress={MP.onPressCircle}>
-							<Mapbox.CircleLayer id={"CL" + board.board} key={"CL" + board.board}
+							onPress={MP.onPressCircle}
+							hitbox={{width: 50, height: 50}} // Larger hit area for Android
+							tolerance={10} // Tap tolerance
+						>
+							<Mapbox.CircleLayer 
+								id={"CL" + board.board} 
+								key={"CL" + board.board}
 								style={{
-									circleRadius: 8,
+									circleRadius: Constants.IS_ANDROID ? 10 : 8, // Slightly larger on Android
 									circleColor: StateBuilder.boardColor(board.board, this.props.boardData),
 									circleStrokeColor: "black",
-									circleStrokeWidth: 2
-								}} />
+									circleStrokeWidth: 2,
+									circleOpacity: 0.9
+								}} 
+							/>
+							{/* Board name text label - appears when zoomed in close */}
+							<Mapbox.SymbolLayer 
+								id={"TL" + board.board} 
+								key={"TL" + board.board}
+								style={{
+									// Text styling
+									textField: board.board,
+									textFont: ['Open Sans Semibold', 'Arial Unicode MS Bold'],
+									textSize: 12,
+									textColor: '#FFFFFF',
+									textHaloColor: '#000000',
+									textHaloWidth: 1,
+									textHaloBlur: 1,
+									// Position relative to the circle
+									textOffset: [0, 2], // Offset below the circle
+									textAnchor: 'top',
+									// Show only at high zoom levels (approximately 30 feet visibility)
+									textOpacity: [
+										'interpolate',
+										['linear'],
+										['zoom'],
+										16, 0,    // Invisible below zoom 16
+										17, 0.7,  // Fade in at zoom 17
+										18, 1     // Fully visible at zoom 18+
+									],
+									// Prevent label collisions
+									textAllowOverlap: false,
+									textIgnorePlacement: false,
+									// Additional styling for better readability
+									textPitchAlignment: 'viewport',
+									textRotationAlignment: 'viewport'
+								}} 
+							/>
 						</Mapbox.ShapeSource>);
 
 					a.push(shapeSource);

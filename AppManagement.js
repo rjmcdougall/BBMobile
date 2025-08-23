@@ -210,6 +210,29 @@ export default class AppManagement extends Component {
 							</Touchable>
 						</View>
 					</View>
+					<View style={{ height: 10 }}></View>
+					<View style={[StyleSheet.button, { 
+						backgroundColor: Colors.surfaceSecondary,
+						borderRadius: 12,
+						borderWidth: 1,
+						borderColor: Colors.borderPrimary,
+						margin: 8,
+						padding: 4
+					}]}>
+						<Touchable
+							onPress={async () => {
+								this.props.userPrefs.showMapOverlay = !this.props.userPrefs.showMapOverlay;
+								this.props.setUserPrefs(this.props.userPrefs);
+							}}
+							style={[{ 
+							backgroundColor: (this.props.userPrefs.showMapOverlay) ? Colors.accent : Colors.surfaceSecondary,
+								borderRadius: 8,
+								padding: 16
+							}]}
+							background={Touchable.Ripple(Colors.accentSecondary, false)}>
+							<Text style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary }]}>Map Overlay</Text>
+						</Touchable>
+					</View>
 					{(Constants.IS_ANDROID) ?
 						<View>
 							<View style={{ height: 10 }}></View>
