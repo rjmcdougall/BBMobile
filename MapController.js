@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Text, View, TextInput, Platform, TouchableOpacity, Modal, ScrollView } from "react-native";
+import { Text, View, TextInput, Platform, TouchableOpacity, Modal, ScrollView, Keyboard, Dimensions, KeyboardAvoidingView } from "react-native";
 import Mapbox from "@rnmapbox/maps";
 import StateBuilder from "./StateBuilder";
 import PropTypes from "prop-types";
@@ -27,10 +27,14 @@ export default class MapController extends Component {
 			currentMessage: '',
 			audioModalVisible: false,
 			videoModalVisible: false,
+			keyboardVisible: false,
+			keyboardHeight: 0,
+			screenHeight: Dimensions.get('window').height,
 		};
 
 		// Use class property to persist across renders
 		this.hasAutoZoomedOnce = false;
+		this.textInputFocused = false;
 
 		this.onPressCircle = this.onPressCircle.bind(this);
 		this.lastHeardBoardDate = this.lastHeardBoardDate.bind(this);
@@ -43,6 +47,10 @@ export default class MapController extends Component {
 		this.getVideoPickerItems = this.getVideoPickerItems.bind(this);
 		this.getSelectedAudioIndex = this.getSelectedAudioIndex.bind(this);
 		this.getSelectedVideoIndex = this.getSelectedVideoIndex.bind(this);
+		this.onKeyboardShow = this.onKeyboardShow.bind(this);
+		this.onKeyboardHide = this.onKeyboardHide.bind(this);
+		this.onTextInputFocus = this.onTextInputFocus.bind(this);
+		this.onTextInputBlur = this.onTextInputBlur.bind(this);
 	}
 
 	async componentDidMount() {
@@ -69,6 +77,15 @@ export default class MapController extends Component {
 		if (this.props.fetchMessages) {
 			this.props.fetchMessages();
 		}
+		
+		// Set up keyboard listeners
+		this.keyboardShowListener = Keyboard.addListener('keyboardDidShow', this.onKeyboardShow);
+		this.keyboardHideListener = Keyboard.addListener('keyboardDidHide', this.onKeyboardHide);
+		
+		// Listen for screen dimension changes
+		this.dimensionListener = Dimensions.addEventListener('change', (dimensions) => {
+			this.setState({ screenHeight: dimensions.window.height });
+		});
 	}
 
 	componentWillUnmount() {
@@ -76,6 +93,57 @@ export default class MapController extends Component {
 		if (this.bubbleTimeout) {
 			clearTimeout(this.bubbleTimeout);
 		}
+		
+		// Clean up keyboard listeners
+		if (this.keyboardShowListener) {
+			this.keyboardShowListener.remove();
+		}
+		if (this.keyboardHideListener) {
+			this.keyboardHideListener.remove();
+		}
+		if (this.dimensionListener) {
+			this.dimensionListener?.remove();
+		}
+	}
+
+	onKeyboardShow(e) {
+		const keyboardHeight = e.endCoordinates.height;
+		console.log('Keyboard shown with height:', keyboardHeight);
+		this.setState({ 
+			keyboardVisible: true, 
+			keyboardHeight: keyboardHeight
+		});
+	}
+
+	onKeyboardHide() {
+		console.log('Keyboard hidden');
+		// Only hide keyboard state if text input is not focused
+		if (!this.textInputFocused) {
+			this.setState({ 
+				keyboardVisible: false, 
+				keyboardHeight: 0
+			});
+		}
+	}
+
+	onTextInputFocus() {
+		console.log('TextInput focused');
+		this.textInputFocused = true;
+		// Force keyboard visible state
+		this.setState({ keyboardVisible: true });
+		// Scroll to bottom when input is focused
+		if (this.messageScrollView) {
+			setTimeout(() => {
+				this.messageScrollView.scrollToEnd({ animated: true });
+			}, 100);
+		}
+	}
+
+	onTextInputBlur() {
+		console.log('TextInput blurred');
+		this.textInputFocused = false;
+		// Don't auto-hide on blur - let user use back button or manual dismiss
+		// This prevents accidental returns to map while typing
 	}
 
 	// Calculate distance between two coordinates in miles using Haversine formula
@@ -353,7 +421,15 @@ export default class MapController extends Component {
 				}
 			}
 			
-		this.setState({ currentMessage: '' });
+			// Clear message and maintain focus
+			this.setState({ currentMessage: '' });
+			
+			// Refocus the input to keep keyboard open
+			if (this.textInputRef) {
+				setTimeout(() => {
+					this.textInputRef.focus();
+				}, 50);
+			}
 		}
 	}
 
@@ -622,8 +698,13 @@ export default class MapController extends Component {
 					</View>
 				</View>
 				
-				<View style={{ flex: 1, flexDirection: 'row' }}>
-					{/* Map Container */}
+				<View style={{ 
+					flex: 1, 
+					flexDirection: 'row',
+					marginBottom: this.state.keyboardVisible ? 0 : 270 // Space for message overlay (206 + 64 footer)
+				}}>
+					{/* Map Container - completely hidden when keyboard is visible */}
+					{!this.state.keyboardVisible && (
 					<View style={{ 
 						flex: (this.state.audioModalVisible || this.state.videoModalVisible) ? 0 : 1,
 						width: (this.state.audioModalVisible || this.state.videoModalVisible) ? 0 : '100%',
@@ -659,6 +740,7 @@ export default class MapController extends Component {
 							</Bubble>
 						) : <View />}
 					</View>
+					)}
 
 					{/* Media Selection Pane */}
 					{(this.state.audioModalVisible || this.state.videoModalVisible) && (
@@ -735,36 +817,225 @@ export default class MapController extends Component {
 					)}
 				</View>
 
-				<View style={{ backgroundColor: Colors.primary + 'E6', position: "absolute", bottom: 0, left: 0, right: 0 }}>
-					<View style={{ maxHeight: 120, padding: 5 }}>
-					{this.state.messages.slice(-4).map((msg, index) => (
-						<Text key={index} style={{ color: Colors.textPrimary, fontSize: 14, marginBottom: 2 }}>
-							{msg}
-						</Text>
-					))}
+				{this.state.keyboardVisible && (
+					/* Full-screen message mode when keyboard is visible */
+					<View style={{
+						position: 'absolute',
+						top: 0,
+						left: 0,
+						right: 0,
+						bottom: 0,
+						zIndex: 1000,
+						backgroundColor: Colors.primary
+					}}>
+						{/* Header with back button */}
+						<View style={{
+							flexDirection: 'row',
+							alignItems: 'center',
+							padding: 10,
+							paddingTop: 50,
+							backgroundColor: Colors.primary,
+							borderBottomWidth: 1,
+							borderBottomColor: Colors.borderPrimary
+						}}>
+							<TouchableOpacity
+								style={{
+									padding: 8,
+									marginRight: 10,
+									backgroundColor: Colors.surfaceSecondary,
+									borderRadius: 8
+								}}
+								onPress={() => {
+									console.log('Back button pressed - returning to map');
+									this.textInputFocused = false;
+									this.setState({ keyboardVisible: false, keyboardHeight: 0 });
+									// Dismiss keyboard
+									if (this.textInputRef) {
+										this.textInputRef.blur();
+									}
+								}}
+							>
+								<Text style={{ color: Colors.textPrimary, fontSize: 14, fontWeight: 'bold' }}>← Back</Text>
+							</TouchableOpacity>
+							<Text style={{ color: Colors.textPrimary, fontSize: 16, fontWeight: 'bold' }}>Messages</Text>
+						</View>
+						
+						{/* Fill remaining screen with message interface */}
+						<KeyboardAvoidingView
+							behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+							keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 100}
+							style={{ 
+								flex: 1,
+								backgroundColor: Colors.primary,
+								paddingBottom: 64 // Space for footer button
+							}}
+						>
+							<View style={{ 
+								flex: 1, 
+								backgroundColor: Colors.primary,
+								justifyContent: 'flex-end'
+							}}>
+							<View style={{ 
+								flex: 1,
+								minHeight: 200,
+								maxHeight: this.state.screenHeight * 0.6, // Take up to 60% of screen
+								backgroundColor: Colors.primary
+							}}>
+								<ScrollView 
+									style={{ 
+										flex: 1,
+										padding: 10,
+										backgroundColor: Colors.surfacePrimary + '99' // Semi-transparent background
+									}}
+									contentContainerStyle={{ 
+										paddingVertical: 10,
+										flexGrow: 1,
+										justifyContent: 'flex-end'
+									}}
+									showsVerticalScrollIndicator={true}
+									ref={ref => this.messageScrollView = ref}
+									onContentSizeChange={() => {
+										if (this.messageScrollView) {
+											this.messageScrollView.scrollToEnd({ animated: true });
+										}
+									}}
+								>
+									{this.state.messages.length === 0 && (
+										<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+											<Text style={{ color: Colors.textSecondary, fontSize: 16, fontStyle: 'italic', textAlign: 'center' }}>
+												No messages yet. Type below to start a conversation.
+											</Text>
+										</View>
+									)}
+									{this.state.messages.map((msg, index) => (
+										<View key={index} style={{ 
+											backgroundColor: Colors.surfaceSecondary + 'CC',
+											padding: 8,
+											marginVertical: 2,
+											borderRadius: 8,
+											borderLeftWidth: 3,
+											borderLeftColor: Colors.accent
+										}}>
+											<Text style={{ color: Colors.textPrimary, fontSize: 14, lineHeight: 18 }}>
+												{msg}
+											</Text>
+										</View>
+									))}
+								</ScrollView>
+							</View>
+							<View style={{ 
+								backgroundColor: Colors.surfacePrimary,
+								borderTopWidth: 1, 
+								borderTopColor: Colors.borderSecondary, 
+								paddingTop: 10,
+								paddingBottom: 20, // Extra padding for bottom
+								paddingHorizontal: 10
+							}}>
+								<TextInput
+									ref={ref => this.textInputRef = ref}
+									style={{ 
+										height: 44, 
+										borderColor: Colors.borderPrimary, 
+										borderWidth: 1, 
+										color: Colors.textPrimary, 
+										paddingHorizontal: 12, 
+										paddingVertical: 10,
+										backgroundColor: Colors.surfaceSecondary,
+										borderRadius: 8,
+										fontSize: 16,
+										textAlignVertical: 'center'
+									}}
+									onSubmitEditing={this.handleSubmitMessage}
+									onChangeText={(text) => this.setState({ currentMessage: text })}
+									value={this.state.currentMessage}
+									placeholder="Type a message..."
+									placeholderTextColor={Colors.textSecondary}
+									returnKeyType="send"
+									onFocus={this.onTextInputFocus}
+									onBlur={this.onTextInputBlur}
+									blurOnSubmit={false}
+								/>
+							</View>
+							</View>
+						</KeyboardAvoidingView>
 					</View>
-					<TextInput
-						style={{ 
-							height: 44, 
-							borderColor: Colors.borderPrimary, 
-							borderWidth: 1, 
-							color: Colors.textPrimary, 
-							margin: 5, 
-							paddingHorizontal: 12, 
-							paddingVertical: 10,
-							backgroundColor: Colors.surfaceSecondary,
-							borderRadius: 8,
-							fontSize: 16,
-							textAlignVertical: 'center'
-						}}
-						onSubmitEditing={this.handleSubmitMessage}
-						onChangeText={(text) => this.setState({ currentMessage: text })}
-						value={this.state.currentMessage}
-						placeholder="Type a message..."
-						placeholderTextColor={Colors.textSecondary}
-						returnKeyType="send"
-					/>
-				</View>
+				)}
+				
+				{/* Normal overlay mode when keyboard is hidden */}
+				{!this.state.keyboardVisible && (
+					<View style={{
+						backgroundColor: Colors.primary + 'F0', 
+						position: "absolute", 
+						bottom: 0, // Extend to bottom
+						left: 0, 
+						right: 0,
+						height: 270, // 206 for content + 64 for footer button area
+						zIndex: 100,
+						borderTopLeftRadius: 12,
+						borderTopRightRadius: 12
+					}}>
+						<ScrollView 
+						style={{ flex: 1, padding: 5, marginBottom: 64 }} // Use flex with margin to avoid text input
+							contentContainerStyle={{ paddingVertical: 5 }}
+							showsVerticalScrollIndicator={true}
+							ref={ref => this.overlayMessageScrollView = ref}
+							onContentSizeChange={() => {
+								// Auto-scroll to bottom when new messages arrive
+								if (this.overlayMessageScrollView) {
+									this.overlayMessageScrollView.scrollToEnd({ animated: true });
+								}
+							}}
+						>
+							{this.state.messages.map((msg, index) => (
+								<Text key={index} style={{ color: Colors.textPrimary, fontSize: 14, marginBottom: 4, lineHeight: 18 }}>
+									{msg}
+								</Text>
+							))}
+							{this.state.messages.length === 0 && (
+								<Text style={{ color: Colors.textSecondary, fontSize: 14, fontStyle: 'italic', textAlign: 'center', padding: 10 }}>
+									No messages yet. Type below to start a conversation.
+								</Text>
+							)}
+						</ScrollView>
+						<View style={{ 
+							borderTopWidth: 1, 
+							borderTopColor: Colors.borderSecondary, 
+							paddingTop: 5,
+							paddingBottom: 5,
+							position: 'absolute',
+							bottom: 0, // Position at bottom of overlay (above footer in screen)
+							left: 0,
+							right: 0,
+							height: 64 // Match footer height
+						}}>
+							<TextInput
+								ref={ref => this.overlayTextInputRef = ref}
+								style={{ 
+									height: 44, 
+									borderColor: Colors.borderPrimary, 
+									borderWidth: 1, 
+									color: Colors.textPrimary, 
+									margin: 5, 
+									paddingHorizontal: 12, 
+									paddingVertical: 10,
+									backgroundColor: Colors.surfaceSecondary,
+									borderRadius: 8,
+									fontSize: 16,
+									textAlignVertical: 'center'
+								}}
+								onSubmitEditing={this.handleSubmitMessage}
+								onChangeText={(text) => this.setState({ currentMessage: text })}
+								value={this.state.currentMessage}
+								placeholder="Type a message..."
+								placeholderTextColor={Colors.textSecondary}
+								returnKeyType="send"
+								onFocus={this.onTextInputFocus}
+								onBlur={this.onTextInputBlur}
+								blurOnSubmit={false}
+							/>
+						</View>
+					</View>
+				)}
 
 
 			</View>

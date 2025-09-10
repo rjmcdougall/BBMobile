@@ -457,29 +457,23 @@ export default class BoardManager extends Component {
 	updateBLEState(newMedia) {
 
 		try {
-			console.log("BBM: updateBLEState called with:", newMedia);
-			
 			// Batch all state updates together to ensure a single render
 			let stateUpdate = {};
 			
 			if (newMedia.boards) {
 				Cache.set(Constants.BOARDS, newMedia.boards);
 				stateUpdate.boardData = newMedia.boards;
-				console.log("BBM: Updating boardData:", newMedia.boards.length, "items");
 			}
 			if (newMedia.video) {
 				stateUpdate.video = newMedia.video;
 				Cache.set(Constants.VIDEOPREFIX + this.state.connectedPeripheral.name, newMedia.video);
-				console.log("BBM: Updating video:", newMedia.video.length, "items");
 			}
 			if (newMedia.audio) {
 				stateUpdate.audio = newMedia.audio;
 				Cache.set(Constants.AUDIOPREFIX + this.state.connectedPeripheral.name, newMedia.audio);
-				console.log("BBM: Updating audio:", newMedia.audio.length, "items");
 			}
 			if (newMedia.state) {
 				stateUpdate.boardState = newMedia.state;
-				console.log("BBM: Updating boardState, v:", newMedia.state.v, "b:", newMedia.state.b);
 			}
 			if (newMedia.wifi) {
 				stateUpdate.wifi = newMedia.wifi;
@@ -493,17 +487,7 @@ export default class BoardManager extends Component {
 			
 			// Apply all state updates at once
 			if (Object.keys(stateUpdate).length > 0) {
-				console.log("BBM: Applying batched state update:", Object.keys(stateUpdate));
-				this.setState(stateUpdate, () => {
-					// Force completion check after state update completes
-					const completion = this.completionPercentage();
-					console.log("BBM: After state update - completion:", completion + "%");
-					if (completion === 100) {
-						console.log("BBM: 🟢 Should be green now! Forcing re-render...");
-						// Force a re-render by updating a dummy state
-						this.forceUpdate();
-					}
-				});
+				this.setState(stateUpdate);
 			}
 			
 			if (newMedia.messages) {
@@ -888,14 +872,6 @@ export default class BoardManager extends Component {
 		if (this.state.audio.length > 0) completionPercent += 25;
 		if (this.state.boardState.v != -1) completionPercent += 25;
 		
-		// Simple debug logging
-		if (completionPercent < 100) {
-			console.log("BBM: Controls disabled - completion:", completionPercent, 
-				"boardData:", this.state.boardData.length, 
-				"video:", this.state.video.length, 
-				"audio:", this.state.audio.length, 
-				"boardState.v:", this.state.boardState.v);
-		}
 		
 		return completionPercent;
 	}
@@ -912,19 +888,11 @@ export default class BoardManager extends Component {
 		if (this.state.connectedPeripheral) {
 			const completion = this.completionPercentage();
 			const isConnected = this.state.connectedPeripheral.connectionStatus == Constants.CONNECTED;
-			
-			console.log("BBM: 🎨 RENDER:", {
-				completion: completion + "%",
-				isConnected,
-				connectionStatus: this.state.connectedPeripheral.connectionStatus,
-				shouldBeGreen: completion === 100 && isConnected
-			});
 
 			if (completion == 100 && isConnected) {
 				color = "green";
 				enableControls = "auto";
 				connectionButtonText = "Loaded " + boardName;
-				console.log("BBM: 🟢 Button should be GREEN! Color var set to:", JSON.stringify(color));
 			}
 			else {
 				switch (this.state.connectedPeripheral.connectionStatus) {
@@ -932,19 +900,16 @@ export default class BoardManager extends Component {
 					color = "#fff";
 					enableControls = "none";
 					connectionButtonText = "Connect to " + boardName;
-					console.log("BBM: ⚪ Button: white (disconnected)");
 					break;
 				case Constants.CONNECTING:
 					color = "yellow";
 					enableControls = "none";
 					connectionButtonText = "Connecting To " + boardName;
-					console.log("BBM: 🟡 Button: yellow (connecting)");
 					break;
 				case Constants.CONNECTED:
 					color = "yellow";
 					enableControls = "none";
 					connectionButtonText = "Loading " + boardName + " " + completion + "%";
-					console.log("BBM: 🟡 Button: yellow (loading " + completion + "%)");
 					break;
 				}
 			}
@@ -954,21 +919,7 @@ export default class BoardManager extends Component {
 			color = "#fff";
 			enableControls = "none";
 			connectionButtonText = "Select Board";
-			console.log("BBM: ⚪ Button: white (no peripheral)");
 		}
-
-		// Debug the final color value and style calculation
-		console.log("BBM: 🎨 Final color variable:", JSON.stringify(color));
-		console.log("BBM: 🎨 Style calculation - color === 'green':", color === "green");
-		console.log("BBM: 🎨 Style calculation - color === 'yellow':", color === "yellow");
-		console.log("BBM: 🎨 Final backgroundColor will be:", color === "green" ? "Colors.accentSecondary" : color === "yellow" ? "Colors.accentWarning" : "Colors.surfaceSecondary");
-		
-		// Debug actual color values being applied
-		const actualBackgroundColor = color === "green" ? Colors.accentSecondary : color === "yellow" ? Colors.accentWarning : Colors.surfaceSecondary;
-		console.log("BBM: 🎨 ACTUAL backgroundColor value:", actualBackgroundColor);
-		console.log("BBM: 🎨 Colors.accentSecondary value:", Colors.accentSecondary);
-		console.log("BBM: 🎨 Colors.accentWarning value:", Colors.accentWarning);
-		console.log("BBM: 🎨 Colors.surfaceSecondary value:", Colors.surfaceSecondary);
 
 		if (!this.state.isMonitor)
 			return (
@@ -1014,7 +965,7 @@ export default class BoardManager extends Component {
 									}
 									}
 									style={{
-									backgroundColor: color === "green" ? "#00FF00" : color === "yellow" ? Colors.accentWarning : Colors.surfaceSecondary,
+									backgroundColor: color === "green" ? Colors.accentSecondary : color === "yellow" ? Colors.accentWarning : Colors.surfaceSecondary,
 									flex: 1,
 									borderRadius: 12,
 									borderWidth: 1,
