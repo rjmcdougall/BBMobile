@@ -90,8 +90,9 @@ const styles = StyleSheet.create({
 	},
 	batteryContainer: {
 		height: 51,
-		width: '100%',
+		width: '80%', // 20% narrower
 		position: 'relative',
+		alignSelf: 'center', // Center the battery horizontally
 	},
 	batteryBackground: {
 		height: 51,

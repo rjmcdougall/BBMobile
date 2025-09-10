@@ -69,7 +69,7 @@ exports.MAX_DIAGNOSTIC_LINES = 100;
 exports.LOCATION_CHECK_INTERVAL = function (isMonitorMode) {
 	if (module.exports.IS_ANDROID){
 		if(isMonitorMode)
-			return 1000;
+			return 300;
 		else
 			return 8000;
 	}
@@ -93,17 +93,17 @@ exports.RETRIEVE_SERVICES_SLEEP = function () {
 
 exports.SET_NOTIFICATIONS_SLEEP = function () {
 	if (module.exports.IS_ANDROID)
-		return 1000;
+		return 100;
 	else
 		return 0;
 };
 
 exports.BLE_DATA_FETCH_TIMEOUT = function () {
 	if (module.exports.IS_ANDROID)
-		return 5000;
+		return 2000;
 	else
-		return 5000;
+		return 2000;
 };
 
 exports.FS_CACHE_HEADER = "BBM_";
-exports.BLE_TIMEOUT = 10000;
+exports.BLE_TIMEOUT = 5000;

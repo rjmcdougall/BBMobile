@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, NativeEventEmitter, NativeModules, ScrollView,PermissionsAndroid, AppState, Text, Image, YellowBox } from "react-native";
+import { View, NativeEventEmitter, NativeModules, ScrollView,PermissionsAndroid, AppState, Text, Image, YellowBox, TouchableOpacity } from "react-native";
 //import BleManager from "react-native-ble-manager";
 import BleManager, {
   BleDisconnectPeripheralEvent,
@@ -160,9 +160,9 @@ export default class BoardManager extends Component {
 				PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
 			]).then((result) => {
 				if (result) {
-				console.log('User accept')
+				console.log('BBM: User accept')
 				} else {
-				console.log('User refuse')
+				console.log('BBM: User refuse')
 				}
 			})
 			 
@@ -186,11 +186,21 @@ export default class BoardManager extends Component {
 
 	handleAppStateChange(nextAppState) {
 		if (this.state.appState.match(/inactive|background/) && nextAppState === "active") {
-			console.log("App has come to the foreground!");
+			console.log("BBM: App has come to the foreground!");
 			BleManager.getConnectedPeripherals([]).then((peripheralsArray) => {
-				console.log("Connected boards: " + peripheralsArray.length);
+				console.log("BBM: Connected boards: " + peripheralsArray.length);
 			});
 		}
+		
+		// Release any held locks when app goes to background
+		// This prevents permanent deadlocks after suspend/resume cycles
+		if (nextAppState.match(/inactive|background/) && this.state.appState === "active") {
+			if (mutex.isLocked()) {
+				this.l("App backgrounding - releasing mutex lock to prevent deadlock (mutex locked: " + mutex.isLocked() + ")", false);
+				this.cancelCommand();
+			}
+		}
+		
 		this.setState({
 			appState: nextAppState
 		});
@@ -199,8 +209,20 @@ export default class BoardManager extends Component {
 	cancelCommand() {
 		clearTimeout(this.state.currentCommandTimeout);
 		this.l(this.state.currentCommand + " data found, release lock (mutex locked: " + mutex.isLocked() + ")", false);
-		if (bleMutex) {
-			bleMutex();
+		
+		// CRITICAL FIX: Improved mutex release safety
+		// Only release if we have the release function and mutex is actually locked
+		if (bleMutex && mutex.isLocked()) {
+			try {
+				bleMutex();
+				this.l("Mutex successfully released", false);
+			} catch (error) {
+				this.l("Error releasing mutex: " + error, true);
+			}
+			bleMutex = null;
+		} else if (bleMutex) {
+			// If we have the release function but mutex isn't locked, just clear the reference
+			this.l("Mutex not locked, clearing release function reference", false);
 			bleMutex = null;
 		}
 	}
@@ -270,6 +292,18 @@ export default class BoardManager extends Component {
 	}
 
 	componentWillUnmount() {
+		// CRITICAL FIX: Release any held locks before unmounting
+		// This prevents memory leaks and app-wide deadlocks
+		if (mutex.isLocked()) {
+			this.l("Component unmounting - releasing mutex lock to prevent memory leak (mutex locked: " + mutex.isLocked() + ")", false);
+			this.cancelCommand();
+		}
+		
+		// Clear background timer to prevent continued execution after unmount
+		if (this.state.backgroundLoop) {
+			clearInterval(this.state.backgroundLoop);
+		}
+		
 		this.handlerDiscover.remove();
 		this.handlerStop.remove();
 		this.handlerDisconnect.remove();
@@ -423,36 +457,61 @@ export default class BoardManager extends Component {
 	updateBLEState(newMedia) {
 
 		try {
+			console.log("BBM: updateBLEState called with:", newMedia);
+			
+			// Batch all state updates together to ensure a single render
+			let stateUpdate = {};
+			
 			if (newMedia.boards) {
 				Cache.set(Constants.BOARDS, newMedia.boards);
-				this.setState({ boardData: newMedia.boards });
+				stateUpdate.boardData = newMedia.boards;
+				console.log("BBM: Updating boardData:", newMedia.boards.length, "items");
 			}
 			if (newMedia.video) {
-				this.setState({ video: newMedia.video });
+				stateUpdate.video = newMedia.video;
 				Cache.set(Constants.VIDEOPREFIX + this.state.connectedPeripheral.name, newMedia.video);
+				console.log("BBM: Updating video:", newMedia.video.length, "items");
 			}
 			if (newMedia.audio) {
-				this.setState({ audio: newMedia.audio });
+				stateUpdate.audio = newMedia.audio;
 				Cache.set(Constants.AUDIOPREFIX + this.state.connectedPeripheral.name, newMedia.audio);
+				console.log("BBM: Updating audio:", newMedia.audio.length, "items");
 			}
 			if (newMedia.state) {
-				this.setState({ boardState: newMedia.state });
+				stateUpdate.boardState = newMedia.state;
+				console.log("BBM: Updating boardState, v:", newMedia.state.v, "b:", newMedia.state.b);
 			}
 			if (newMedia.wifi) {
-				this.setState({ wifi: newMedia.wifi });
+				stateUpdate.wifi = newMedia.wifi;
 			}
 			if (newMedia.btdevs) {
-				this.setState({ devices: newMedia.btdevs });
+				stateUpdate.devices = newMedia.btdevs;
 			}
-		if (newMedia.locations) {
-			this.setState({ locations: newMedia.locations });
-		}
-		if (newMedia.messages) {
-			// Forward messages to MapController if it exists
-			if (this.mapControllerRef && this.mapControllerRef.addReceivedMessages) {
-				this.mapControllerRef.addReceivedMessages(newMedia.messages);
+			if (newMedia.locations) {
+				stateUpdate.locations = newMedia.locations;
 			}
-		}
+			
+			// Apply all state updates at once
+			if (Object.keys(stateUpdate).length > 0) {
+				console.log("BBM: Applying batched state update:", Object.keys(stateUpdate));
+				this.setState(stateUpdate, () => {
+					// Force completion check after state update completes
+					const completion = this.completionPercentage();
+					console.log("BBM: After state update - completion:", completion + "%");
+					if (completion === 100) {
+						console.log("BBM: 🟢 Should be green now! Forcing re-render...");
+						// Force a re-render by updating a dummy state
+						this.forceUpdate();
+					}
+				});
+			}
+			
+			if (newMedia.messages) {
+				// Forward messages to MapController if it exists
+				if (this.mapControllerRef && this.mapControllerRef.addReceivedMessages) {
+					this.mapControllerRef.addReceivedMessages(newMedia.messages);
+				}
+			}
 		}
 		catch (error) {
 			this.l("Error Updating Media State " + error, true, null);
@@ -465,8 +524,8 @@ export default class BoardManager extends Component {
 			if (logArray.length > Constants.MAX_DIAGNOSTIC_LINES)
 				logArray.splice(0, 1);
 			logArray.push({ logLine: logLine, isError: isError, body: body });
-			console.log(logLine);
-			if (body != null) console.log(body);
+			console.log("BBM: " + logLine);
+			if (body != null) console.log("BBM: ", body);
 			this.setState({ logLines: logArray });
 		}
 	}
@@ -486,10 +545,21 @@ export default class BoardManager extends Component {
 
 			try {
 				var boards = await Cache.get(Constants.BOARDS);
-				if (boards)
-					this.l("boards found in cache, skipping", false, boards);
-				else
-					await this.sendCommand("getboards", "");
+				if (boards) {
+					this.l("boards found in cache, updating state", false, boards);
+					this.setState({ boardData: boards });
+				} else {
+					// Check if we have default/blank boardData that needs refreshing
+					var hasValidBoardData = this.state.boardData.length > 0 && 
+						!(this.state.boardData.length === 1 && this.state.boardData[0]?.name === 'none');
+					
+					if (!hasValidBoardData) {
+						this.l("No boards in cache and current boardData is empty/default, fetching from device", false);
+						await this.sendCommand("getboards", "");
+					} else {
+						this.l("No boards in cache but current boardData seems valid, keeping existing data", false);
+					}
+				}
 			}
 			catch (error) {
 				this.l("Refresh Media Error: " + error, true);
@@ -584,7 +654,7 @@ export default class BoardManager extends Component {
 			return true;
 		}
 		else {
-			console.log("SendCommand blocked - not connected. Status:", this.state.connectedPeripheral.connectionStatus);
+			console.log("BBM: SendCommand blocked - not connected. Status:", this.state.connectedPeripheral.connectionStatus);
 			this.l("Command '" + command + "' blocked - device not connected", true);
 			return false;
 		}
@@ -627,7 +697,7 @@ export default class BoardManager extends Component {
 				this.setState({
 					//	boardBleDevices: new Map(),
 					appState: "",
-					connectedPeripheral: StateBuilder.blankperipheral(),
+				connectedPeripheral: StateBuilder.blankPeripheral(),
 					boardState: StateBuilder.blankBoardState(),
 					video: StateBuilder.blankVideo(),
 					audio: StateBuilder.blankAudio(),
@@ -726,6 +796,13 @@ export default class BoardManager extends Component {
 
 				} catch (error) {
 					this.l("Error connecting: " + error, true, null);
+					
+					// CRITICAL FIX: Release any held locks on connection failure
+					// Connection errors during refreshBLEState can leave locks held
+					if (mutex.isLocked()) {
+						this.l("Connection error - releasing mutex lock (locked: " + mutex.isLocked() + ")", false);
+						this.cancelCommand();
+					}
 
 					// Update status 
 					boardBleDevice.connectionStatus = Constants.DISCONNECTED;
@@ -769,8 +846,8 @@ export default class BoardManager extends Component {
 			if (this.state.isMonitor) {
 				try {
 					var boardsJSON = await cr.getLocationJSON();
-					console.log("Content Resolver JSON");
-					console.log(boardsJSON);
+					console.log("BBM: Content Resolver JSON");
+					console.log("BBM: ", boardsJSON);
 					this.setState({ locations: JSON.parse(boardsJSON)});
 				}
 				catch (error) {
@@ -778,18 +855,25 @@ export default class BoardManager extends Component {
 				}
 			}
 			else {
-				if (this.state.connectedPeripheral
+			if (this.state.connectedPeripheral
 					&& this.state.connectedPeripheral.connectionStatus == Constants.CONNECTED
 					&& this.completionPercentage() == 100) {
 					try {
+						// CRITICAL FIX: Execute commands sequentially with proper awaiting
+						// This prevents race conditions where multiple commands compete for the mutex
 						await this.sendCommand("Location", this.props.userPrefs.locationHistoryMinutes);
-						this.sleep(1000);
+						await this.sleep(1000);  // Fixed: Now properly awaited
 						await this.sendCommand("getstate", this.props.userPrefs.locationHistoryMinutes);
-						this.sleep(500);
+						await this.sleep(500);   // Fixed: Now properly awaited
 						await this.sendCommand("getmessages", this.props.userPrefs.locationHistoryMinutes);
 					}
 					catch (error) {
 						this.l("Location Loop Failed:" + error, true, null);
+						// Ensure any held locks are released on error
+						if (mutex.isLocked()) {
+							this.l("Location Loop error - releasing mutex lock (locked: " + mutex.isLocked() + ")", true);
+							this.cancelCommand();
+						}
 					}
 				}
 			}
@@ -804,9 +888,9 @@ export default class BoardManager extends Component {
 		if (this.state.audio.length > 0) completionPercent += 25;
 		if (this.state.boardState.v != -1) completionPercent += 25;
 		
-		// Debug logging
+		// Simple debug logging
 		if (completionPercent < 100) {
-			console.log("Controls disabled - completion:", completionPercent, 
+			console.log("BBM: Controls disabled - completion:", completionPercent, 
 				"boardData:", this.state.boardData.length, 
 				"video:", this.state.video.length, 
 				"audio:", this.state.audio.length, 
@@ -826,13 +910,21 @@ export default class BoardManager extends Component {
 			boardName = this.state.boardName;
 
 		if (this.state.connectedPeripheral) {
+			const completion = this.completionPercentage();
+			const isConnected = this.state.connectedPeripheral.connectionStatus == Constants.CONNECTED;
+			
+			console.log("BBM: 🎨 RENDER:", {
+				completion: completion + "%",
+				isConnected,
+				connectionStatus: this.state.connectedPeripheral.connectionStatus,
+				shouldBeGreen: completion === 100 && isConnected
+			});
 
- 
-
-			if (this.completionPercentage() == 100 && this.state.connectedPeripheral.connectionStatus == Constants.CONNECTED) {
+			if (completion == 100 && isConnected) {
 				color = "green";
 				enableControls = "auto";
 				connectionButtonText = "Loaded " + boardName;
+				console.log("BBM: 🟢 Button should be GREEN! Color var set to:", JSON.stringify(color));
 			}
 			else {
 				switch (this.state.connectedPeripheral.connectionStatus) {
@@ -840,16 +932,19 @@ export default class BoardManager extends Component {
 					color = "#fff";
 					enableControls = "none";
 					connectionButtonText = "Connect to " + boardName;
+					console.log("BBM: ⚪ Button: white (disconnected)");
 					break;
 				case Constants.CONNECTING:
 					color = "yellow";
 					enableControls = "none";
 					connectionButtonText = "Connecting To " + boardName;
+					console.log("BBM: 🟡 Button: yellow (connecting)");
 					break;
 				case Constants.CONNECTED:
 					color = "yellow";
 					enableControls = "none";
-					connectionButtonText = "Loading " + boardName + " " + this.completionPercentage() + "%";
+					connectionButtonText = "Loading " + boardName + " " + completion + "%";
+					console.log("BBM: 🟡 Button: yellow (loading " + completion + "%)");
 					break;
 				}
 			}
@@ -859,8 +954,21 @@ export default class BoardManager extends Component {
 			color = "#fff";
 			enableControls = "none";
 			connectionButtonText = "Select Board";
+			console.log("BBM: ⚪ Button: white (no peripheral)");
 		}
 
+		// Debug the final color value and style calculation
+		console.log("BBM: 🎨 Final color variable:", JSON.stringify(color));
+		console.log("BBM: 🎨 Style calculation - color === 'green':", color === "green");
+		console.log("BBM: 🎨 Style calculation - color === 'yellow':", color === "yellow");
+		console.log("BBM: 🎨 Final backgroundColor will be:", color === "green" ? "Colors.accentSecondary" : color === "yellow" ? "Colors.accentWarning" : "Colors.surfaceSecondary");
+		
+		// Debug actual color values being applied
+		const actualBackgroundColor = color === "green" ? Colors.accentSecondary : color === "yellow" ? Colors.accentWarning : Colors.surfaceSecondary;
+		console.log("BBM: 🎨 ACTUAL backgroundColor value:", actualBackgroundColor);
+		console.log("BBM: 🎨 Colors.accentSecondary value:", Colors.accentSecondary);
+		console.log("BBM: 🎨 Colors.accentWarning value:", Colors.accentWarning);
+		console.log("BBM: 🎨 Colors.surfaceSecondary value:", Colors.surfaceSecondary);
 
 		if (!this.state.isMonitor)
 			return (
@@ -895,7 +1003,7 @@ export default class BoardManager extends Component {
 								{(this.state.showScreen == Constants.STATS_CONTROL) ? <StatsControl pointerEvents={enableControls} boardState={this.state.boardState} sendCommand={this.sendCommand} /> : <View></View>}
 							</View>
 							<View style={StyleSheet.footer}>
-								<Touchable
+								<TouchableOpacity
 									onPress={async () => {
 										try {
 											await this.startScan(true);
@@ -906,15 +1014,14 @@ export default class BoardManager extends Component {
 									}
 									}
 									style={{
-									backgroundColor: color === "green" ? Colors.accentSecondary : color === "yellow" ? Colors.accentWarning : Colors.surfaceSecondary,
+									backgroundColor: color === "green" ? "#00FF00" : color === "yellow" ? Colors.accentWarning : Colors.surfaceSecondary,
 									flex: 1,
 									borderRadius: 12,
 									borderWidth: 1,
 									borderColor: Colors.borderPrimary,
-								}}
-								background={Touchable.Ripple(Colors.accent)}>
+								}}>
 									<Text style={StyleSheet.connectButtonTextCenter}>{connectionButtonText} {this.state.scanning ? "(s)" : ""}</Text>
-								</Touchable>
+								</TouchableOpacity>
 							</View>
 						</View>
 						{(this.props.userPrefs.isDevilsHand) ? <LeftNav onNavigate={this.onNavigate} showScreen={this.state.showScreen} onPressSearchForBoards={this.onPressSearchForBoards} /> : <View></View>}
@@ -945,7 +1052,7 @@ export default class BoardManager extends Component {
 			return new Date(lastLocation.d).toLocaleTimeString();
 		}
 		catch (error){
-			console.log(error);
+			console.log("BBM: ", error);
 		}
 	}
 

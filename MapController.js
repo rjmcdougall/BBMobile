@@ -138,12 +138,15 @@ export default class MapController extends Component {
 	}
 
 	onUserLocationUpdate(location) {
+		console.log('Location update received:', location);
 		if (location) {
 			const userLocation = [location.coords.longitude, location.coords.latitude];
+			console.log('User location updated to:', userLocation);
 			
 			// Update map based on location and user preferences
 			if (this.props.userPrefs.mapMode === 'me') {
 				// Always center on user (this mode continues to follow)
+				console.log('Map mode: me - centering on user location');
 				this.props.setMap({
 					center: userLocation,
 					zoom: 13,
@@ -151,6 +154,7 @@ export default class MapController extends Component {
 				});
 			} else if (this.props.userPrefs.mapMode === 'playa') {
 				// Always center on Burning Man (just update user location)
+				console.log('Map mode: playa - updating user location only');
 				this.props.setMap({
 					center: Constants.MAN_LOCATION,
 					zoom: 13,
@@ -158,8 +162,11 @@ export default class MapController extends Component {
 				});
 			} else {
 				// Auto mode - use distance algorithm (with one-time auto-zoom)
+				console.log('Map mode: auto - using distance algorithm');
 				this.updateMapBasedOnLocation(userLocation);
 			}
+		} else {
+			console.log('Location update called but location is null');
 		}
 	}
 
@@ -638,7 +645,9 @@ export default class MapController extends Component {
 								followUserMode="compass"
 								followZoomLevel={MP.props.map.zoom}
 								showUserLocation={true} />
-							{(!this.props.isMonitor) ? (<Mapbox.UserLocation onUpdate={this.onUserLocationUpdate} />) : <View></View>}
+							{(!this.props.isMonitor) ? (
+								<Mapbox.UserLocation onUpdate={this.onUserLocationUpdate} />
+							) : <View></View>}
 							{this.buildMap()}
 						</Mapbox.MapView>
 
