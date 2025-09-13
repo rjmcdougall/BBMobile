@@ -372,10 +372,21 @@ export default class MapController extends Component {
 		return new Date(lastLocation.d).toLocaleString();
 	}
 
-	async addMessage(message) {
-		const timestamp = new Date().toLocaleTimeString();
-		const formattedMessage = `${timestamp}: ${message}`;
-		const newMessages = [...this.state.messages, formattedMessage];
+	async addMessage(message, boardName = 'Me') {
+		const timestamp = new Date();
+		const timeString = timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+		
+		// Create structured message object
+		const messageObj = {
+			id: Date.now() + Math.random(), // Unique ID
+			boardName: boardName,
+			text: message,
+			timestamp: timestamp.toISOString(),
+			timeDisplay: timeString,
+			boardColor: boardName === 'Me' ? Colors.accent : this.getBoardColor(boardName)
+		};
+		
+		const newMessages = [...this.state.messages, messageObj];
 		
 		// Keep only last 8 messages
 		if (newMessages.length > 8) {
@@ -393,17 +404,245 @@ export default class MapController extends Component {
 		}
 	}
 
+	// Helper method to get board color
+	getBoardColor(boardName) {
+		let color;
+		if (this.props.boardData && StateBuilder.boardColor) {
+			color = StateBuilder.boardColor(boardName, this.props.boardData);
+		}
+		
+		// Fallback to a visible default color if no color or invalid color
+		if (!color || typeof color !== 'string' || color.trim() === '') {
+			color = Colors.accent; // Use accent color as fallback instead of surfaceTertiary
+		}
+		
+		console.log('Board color for', boardName + ':', color);
+		return color;
+	}
+
+	// Helper method to determine if text should be white or black based on background color
+	getContrastTextColor(hexColor) {
+		if (!hexColor || typeof hexColor !== 'string') {
+			console.log('Invalid hex color:', hexColor, 'using black text');
+			return '#000000'; // Default to black if no color
+		}
+		
+		// Remove # if present
+		let color = hexColor.replace('#', '');
+		
+		// Handle short hex codes (e.g., #FFF -> #FFFFFF)
+		if (color.length === 3) {
+			color = color.split('').map(c => c + c).join('');
+		}
+		
+		// Validate hex color length
+		if (color.length !== 6) {
+			console.log('Invalid hex color format:', hexColor, 'using black text');
+			return '#000000';
+		}
+		
+		// Convert hex to RGB
+		const r = parseInt(color.substr(0, 2), 16);
+		const g = parseInt(color.substr(2, 2), 16);
+		const b = parseInt(color.substr(4, 2), 16);
+		
+		// Check for invalid RGB values
+		if (isNaN(r) || isNaN(g) || isNaN(b)) {
+			console.log('Invalid RGB values from hex:', hexColor, 'RGB:', r, g, b, 'using black text');
+			return '#000000';
+		}
+		
+		// Calculate luminance using W3C formula
+		const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+		
+		console.log('Color analysis:', hexColor, 'RGB:', r, g, b, 'Luminance:', luminance.toFixed(3));
+		
+		// Return black text for light backgrounds, white text for dark backgrounds
+		// Use a more conservative threshold to avoid white-on-white issues
+		return luminance > 0.4 ? '#000000' : '#FFFFFF';
+	}
+
+	// Helper method to render a formatted message
+	renderMessage(msg, index, isOverlay = false) {
+		// Handle backward compatibility - convert old string messages to objects
+		let messageObj;
+		if (typeof msg === 'string') {
+			// Parse old format "timestamp: message"
+			const colonIndex = msg.indexOf(': ');
+			if (colonIndex > -1) {
+				const timeStr = msg.substring(0, colonIndex);
+				const text = msg.substring(colonIndex + 2);
+				messageObj = {
+					id: index,
+					boardName: 'Me',
+					text: text,
+					timeDisplay: timeStr,
+					boardColor: Colors.accent
+				};
+			} else {
+				// Fallback for messages without time
+				messageObj = {
+					id: index,
+					boardName: 'Me',
+					text: msg,
+					timeDisplay: '',
+					boardColor: Colors.accent
+				};
+			}
+		} else {
+			// New message object format
+			messageObj = msg;
+		}
+
+		if (isOverlay) {
+			// Simplified overlay format for compact display
+			return (
+				<View key={messageObj.id || index} style={{
+					flexDirection: 'row',
+					alignItems: 'flex-start',
+					marginBottom: 3,
+					paddingHorizontal: 2
+				}}>
+					{/* Board name with colored background */}
+					<View style={{
+						backgroundColor: messageObj.boardColor,
+						borderRadius: 8,
+						paddingHorizontal: 8,
+						paddingVertical: 3,
+						marginRight: 8,
+						flexShrink: 0,
+						minWidth: 75,
+						maxWidth: 75,
+						justifyContent: 'center',
+						alignItems: 'center'
+					}}>
+						<Text style={{
+							color: this.getContrastTextColor(messageObj.boardColor),
+							fontSize: 10,
+							fontWeight: 'bold',
+							textAlign: 'center',
+							fontFamily: 'monospace'
+						}} numberOfLines={1}>
+							{messageObj.boardName.length > 10 ? messageObj.boardName.substring(0, 10) : messageObj.boardName}
+						</Text>
+					</View>
+					{/* Message text */}
+					<Text style={{
+						color: Colors.textPrimary,
+						fontSize: 14,
+						lineHeight: 18,
+						flex: 1,
+						marginRight: 8
+					}}>
+						{messageObj.text}
+					</Text>
+					{/* Time */}
+					{messageObj.timeDisplay && (
+						<Text style={{
+							color: Colors.textTertiary,
+							fontSize: 9,
+							flexShrink: 0,
+							marginTop: 1
+						}}>
+							{messageObj.timeDisplay}
+						</Text>
+					)}
+				</View>
+			);
+		} else {
+			// Full-screen format with more spacing
+			return (
+				<View key={messageObj.id || index} style={{
+					flexDirection: 'row',
+					alignItems: 'flex-start',
+					backgroundColor: Colors.surfaceSecondary + 'CC',
+					padding: 12,
+					marginVertical: 4,
+					borderRadius: 8,
+					borderLeftWidth: 4,
+					borderLeftColor: messageObj.boardColor
+				}}>
+					{/* Board name with colored background */}
+					<View style={{
+						backgroundColor: messageObj.boardColor,
+						borderRadius: 10,
+						paddingHorizontal: 10,
+						paddingVertical: 4,
+						marginRight: 12,
+						flexShrink: 0,
+						minWidth: 85,
+						maxWidth: 85,
+						justifyContent: 'center',
+						alignItems: 'center'
+					}}>
+						<Text style={{
+							color: this.getContrastTextColor(messageObj.boardColor),
+							fontSize: 11,
+							fontWeight: 'bold',
+							textAlign: 'center',
+							fontFamily: 'monospace'
+						}} numberOfLines={1}>
+							{messageObj.boardName.length > 10 ? messageObj.boardName.substring(0, 10) : messageObj.boardName}
+						</Text>
+					</View>
+					{/* Message text */}
+					<Text style={{
+						color: Colors.textPrimary,
+						fontSize: 15,
+						lineHeight: 20,
+						flex: 1,
+						marginRight: 12
+					}}>
+						{messageObj.text}
+					</Text>
+					{/* Time */}
+					{messageObj.timeDisplay && (
+						<Text style={{
+							color: Colors.textTertiary,
+							fontSize: 10,
+							flexShrink: 0,
+							marginTop: 1
+						}}>
+							{messageObj.timeDisplay}
+						</Text>
+					)}
+				</View>
+			);
+		}
+	}
+
 	// Method to be called from BoardManager when BLE messages are received
 	addReceivedMessages(messages) {
 		if (Array.isArray(messages)) {
 			// Add each message from the BLE response
 			messages.forEach(message => {
-				this.addMessage(message);
+				this.parseAndAddMessage(message);
 			});
 		} else if (typeof messages === 'string') {
 			// Single message
-			this.addMessage(messages);
+			this.parseAndAddMessage(messages);
 		}
+	}
+
+	// Helper method to parse board name from message format "BoardName: message text"
+	parseAndAddMessage(messageText) {
+		if (typeof messageText === 'string') {
+			const colonIndex = messageText.indexOf(':');
+			if (colonIndex > 0) {
+				// Extract board name (everything before the first colon)
+				const boardName = messageText.substring(0, colonIndex).trim();
+				// Extract message text (everything after the first colon and space)
+				const messageContent = messageText.substring(colonIndex + 1).trim();
+				
+				if (boardName && messageContent) {
+					this.addMessage(messageContent, boardName);
+					return;
+				}
+			}
+		}
+		
+		// Fallback: if parsing fails, treat as a regular message from "Me"
+		this.addMessage(messageText, 'Me');
 	}
 
 	async handleSubmitMessage(event) {
@@ -734,9 +973,9 @@ export default class MapController extends Component {
 
 						{(this.state.boardPicked && !(this.state.audioModalVisible || this.state.videoModalVisible)) ? (
 							<Bubble>
-								<Text>{this.state.boardPicked.board}</Text>
-								<Text>last heard: {this.lastHeardBoardDate()}</Text>
-								<Text>battery: {this.state.boardPicked.b === -1 ? 'unknown' : this.state.boardPicked.b + '%'}</Text>
+								<Text style={{ color: '#000000', fontSize: 16, fontWeight: 'bold', marginBottom: 2 }}>{this.state.boardPicked.board}</Text>
+								<Text style={{ color: '#333333', fontSize: 14, marginBottom: 2 }}>last heard: {this.lastHeardBoardDate()}</Text>
+								<Text style={{ color: '#333333', fontSize: 14 }}>battery: {this.state.boardPicked.b === -1 ? 'unknown' : this.state.boardPicked.b + '%'}</Text>
 							</Bubble>
 						) : <View />}
 					</View>
@@ -907,20 +1146,9 @@ export default class MapController extends Component {
 											</Text>
 										</View>
 									)}
-									{this.state.messages.map((msg, index) => (
-										<View key={index} style={{ 
-											backgroundColor: Colors.surfaceSecondary + 'CC',
-											padding: 8,
-											marginVertical: 2,
-											borderRadius: 8,
-											borderLeftWidth: 3,
-											borderLeftColor: Colors.accent
-										}}>
-											<Text style={{ color: Colors.textPrimary, fontSize: 14, lineHeight: 18 }}>
-												{msg}
-											</Text>
-										</View>
-									))}
+							{this.state.messages.map((msg, index) => (
+								this.renderMessage(msg, index, false)
+							))}
 								</ScrollView>
 							</View>
 							<View style={{ 
@@ -987,9 +1215,7 @@ export default class MapController extends Component {
 							}}
 						>
 							{this.state.messages.map((msg, index) => (
-								<Text key={index} style={{ color: Colors.textPrimary, fontSize: 14, marginBottom: 4, lineHeight: 18 }}>
-									{msg}
-								</Text>
+								this.renderMessage(msg, index, true)
 							))}
 							{this.state.messages.length === 0 && (
 								<Text style={{ color: Colors.textSecondary, fontSize: 14, fontStyle: 'italic', textAlign: 'center', padding: 10 }}>
