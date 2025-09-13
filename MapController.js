@@ -358,12 +358,12 @@ export default class MapController extends Component {
 			boardPicked: boardPicked
 		});
 
-		// Auto-hide after 5 seconds (increased for better Android UX)
+		// Auto-hide after 2 seconds (increased for better Android UX)
 		this.bubbleTimeout = setTimeout(() => {
 			this.setState({
 				boardPicked: null
 			});
-		}, 5000);
+		}, 2000);
 	}
 
 	lastHeardBoardDate() {
@@ -562,7 +562,7 @@ export default class MapController extends Component {
 									// Text styling
 									textField: board.board,
 									textFont: ['Open Sans Semibold', 'Arial Unicode MS Bold'],
-									textSize: 12,
+									textSize: 14,
 									textColor: '#FFFFFF',
 									textHaloColor: '#000000',
 									textHaloWidth: 1,
@@ -575,9 +575,9 @@ export default class MapController extends Component {
 										'interpolate',
 										['linear'],
 										['zoom'],
-										16, 0,    // Invisible below zoom 16
-										17, 0.7,  // Fade in at zoom 17
-										18, 1     // Fully visible at zoom 18+
+										15, 0,    // Invisible below zoom 16
+										16, 0.7,  // Fade in at zoom 17
+										17, 1     // Fully visible at zoom 18+
 									],
 									// Prevent label collisions
 									textAllowOverlap: false,
