@@ -1,9 +1,10 @@
 import React from "react";
-import { View, Image, Text } from "react-native";
+import { View, Image, Text, Platform } from "react-native";
 import PropTypes from "prop-types";
 import StyleSheet, { Colors } from "./StyleSheet";
 import Slider from "@react-native-community/slider";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import Constants from "./Constants";
 
 export default class VolumeController extends React.Component {
 	constructor(props) {
@@ -90,7 +91,7 @@ export default class VolumeController extends React.Component {
 					<View style={{
 						position: 'absolute',
 						left: thumbPosition,
-						top: -8, // Move it up more for Android
+						top: Constants.IS_IOS ? -4 : -8, // iOS needs less vertical offset than Android
 						width: 32,
 						height: 32,
 						borderRadius: 16,
@@ -108,8 +109,8 @@ export default class VolumeController extends React.Component {
 							fontSize: 24, 
 							color: 'white',
 							textAlign: 'center',
-							marginLeft: 4, // Move more to the right for Android
-							marginTop: -3 // Move up more for Android
+							marginLeft: Constants.IS_ANDROID ? 4 : 2, // iOS needs less horizontal offset
+							marginTop: Constants.IS_ANDROID ? -3 : -2 // iOS needs less vertical offset
 						}}>♪</Text>
 					</View>
 				</View>
