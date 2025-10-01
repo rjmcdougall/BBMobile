@@ -28,6 +28,7 @@ import StatsControl from "./StatsControl";
 import PropTypes from "prop-types";
 import { Buffer } from "buffer";
 import ContentResolver from "./ContentResolver";
+import CloudDatastoreService from "./CloudDatastoreService";
 import { Mutex } from "async-mutex";
 const mutex = new Mutex();
 var bleMutex;
@@ -66,6 +67,8 @@ export default class BoardManager extends Component {
 			isMonitor: false,
 			currentCommandTimeout: null,
 			currentCommand: "",
+			cloudConnectionStatus: Constants.CLOUD_DISCONNECTED,
+			isCloudConnected: false,
 		};
 
 		this.handleDiscoverPeripheral = this.handleDiscoverPeripheral.bind(this);
@@ -82,6 +85,18 @@ export default class BoardManager extends Component {
 		this.setMap = this.setMap.bind(this);
 		this.clearCache = this.clearCache.bind(this);
 		this.updateMonitor = this.updateMonitor.bind(this);
+		this.onSelectCloudConnection = this.onSelectCloudConnection.bind(this);
+		this.handleCloudDataUpdate = this.handleCloudDataUpdate.bind(this);
+		this.handleCloudConnectionStatusChange = this.handleCloudConnectionStatusChange.bind(this);
+		this.handleCloudError = this.handleCloudError.bind(this);
+		
+		// Initialize cloud service
+		this.cloudService = new CloudDatastoreService();
+		this.cloudService.setCallbacks({
+			onDataUpdate: this.handleCloudDataUpdate,
+			onConnectionStatusChange: this.handleCloudConnectionStatusChange,
+			onError: this.handleCloudError,
+		});
 	}
 
 
@@ -951,7 +966,7 @@ export default class BoardManager extends Component {
 								{(this.state.showScreen == Constants.ADMINISTRATION) ? <AdminManagement wifi={this.state.wifi} devices={this.state.devices} setUserPrefs={this.props.setUserPrefs} userPrefs={this.props.userPrefs} pointerEvents={enableControls} boardState={this.state.boardState} sendCommand={this.sendCommand} /> : <View></View>}
 								{(this.state.showScreen == Constants.APP_MANAGEMENT) ? <AppManagement updateMonitor={this.updateMonitor} clearCache={this.clearCache} setUserPrefs={this.props.setUserPrefs} userPrefs={this.props.userPrefs} /> : <View></View>}
 								{(this.state.showScreen == Constants.MAP) ? <MapController ref={ref => this.mapControllerRef = ref} isMonitor={this.state.isMonitor} updateMonitor = {this.updateMonitor} userPrefs={this.props.userPrefs} boardState={this.state.boardState} locations={this.state.locations} setMap={this.setMap} map={this.state.map} boardData={this.state.boardData} setUserPrefs={this.props.setUserPrefs} sendMessageToBLE={this.sendMessageToBLE.bind(this)} fetchMessages={this.fetchMessages.bind(this)} audio={this.state.audio} video={this.state.video} sendCommand={this.sendCommand} /> : <View></View>}
-								{(this.state.showScreen == Constants.DISCOVER) ? <DiscoverController startScan={this.startScan} boardBleDevices={this.state.boardBleDevices} scanning={this.state.scanning} boardData={this.state.boardData} onSelectPeripheral={this.onSelectPeripheral} /> : <View></View>}
+								{(this.state.showScreen == Constants.DISCOVER) ? <DiscoverController startScan={this.startScan} boardBleDevices={this.state.boardBleDevices} scanning={this.state.scanning} boardData={this.state.boardData} onSelectPeripheral={this.onSelectPeripheral} onSelectCloudConnection={this.onSelectCloudConnection} /> : <View></View>}
 								{(this.state.showScreen == Constants.BOARD_STATUS) ? <BoardStatusPanel boardData={this.state.boardData} onRefreshBoards={this.startScan.bind(this, false)} /> : <View></View>}
 								{(this.state.showScreen == Constants.STATS_CONTROL) ? <StatsControl pointerEvents={enableControls} boardState={this.state.boardState} sendCommand={this.sendCommand} /> : <View></View>}
 							</View>
@@ -1039,6 +1054,104 @@ export default class BoardManager extends Component {
 		});
 
 		return a;
+	}
+
+	// Cloud connection methods
+	async onSelectCloudConnection() {
+		try {
+			this.l("Connecting to Google Cloud Datastore...", false, null);
+			
+			// Disconnect from any existing BLE connections
+			if (this.state.connectedPeripheral && this.state.connectedPeripheral.id !== "12345") {
+				await BleManager.disconnect(this.state.connectedPeripheral.id);
+			}
+			
+			// Reset state for cloud connection
+			this.setState({
+				connectedPeripheral: StateBuilder.blankPeripheral(),
+				boardState: StateBuilder.blankBoardState(),
+				video: StateBuilder.blankVideo(),
+				audio: StateBuilder.blankAudio(),
+				devices: StateBuilder.blankDevices(),
+				showScreen: Constants.MAP,
+				scanning: false,
+			});
+			
+			// Connect to cloud service
+			const cloudData = await this.cloudService.connect();
+			
+			if (cloudData) {
+				this.handleCloudDataUpdate(cloudData);
+				this.l("Successfully connected to cloud!", false, null);
+			}
+			
+		} catch (error) {
+			this.l("Failed to connect to cloud: " + error.message, true, null);
+		}
+	}
+
+	handleCloudDataUpdate(cloudData) {
+		try {
+			if (cloudData.boards && cloudData.boards.length > 0) {
+				// Merge cloud boards with existing board data
+				let mergedBoardData = [...this.state.boardData];
+				
+				// Remove any existing cloud boards to avoid duplicates
+				mergedBoardData = mergedBoardData.filter(board => !board.isCloud);
+				
+				// Add new cloud boards
+				mergedBoardData = [...mergedBoardData, ...cloudData.boards];
+				
+				this.setState({
+					boardData: mergedBoardData,
+				});
+				
+				// Cache the updated board data
+				Cache.set(Constants.BOARDS, mergedBoardData);
+				
+				this.l("Updated board data with " + cloudData.boards.length + " cloud boards", false, null);
+			}
+			
+			if (cloudData.locations && cloudData.locations.length > 0) {
+				// Merge cloud locations with existing locations
+				let mergedLocations = [...this.state.locations];
+				
+				// Remove any existing cloud locations to avoid duplicates
+				const cloudBoardNames = cloudData.boards.map(b => b.name);
+				mergedLocations = mergedLocations.filter(loc => !cloudBoardNames.includes(loc.board));
+				
+				// Add new cloud locations
+				mergedLocations = [...mergedLocations, ...cloudData.locations];
+				
+				this.setState({
+					locations: mergedLocations,
+				});
+				
+				this.l("Updated locations with " + cloudData.locations.length + " cloud locations", false, null);
+			}
+			
+		} catch (error) {
+			this.l("Error processing cloud data: " + error.message, true, null);
+		}
+	}
+
+	handleCloudConnectionStatusChange(status) {
+		this.setState({
+			cloudConnectionStatus: status,
+			isCloudConnected: status === Constants.CLOUD_CONNECTED,
+		});
+		
+		const statusText = {
+			[Constants.CLOUD_CONNECTING]: "Connecting to cloud...",
+			[Constants.CLOUD_CONNECTED]: "Connected to cloud",
+			[Constants.CLOUD_DISCONNECTED]: "Disconnected from cloud"
+		}[status] || status;
+		
+		this.l("Cloud status: " + statusText, status === Constants.CLOUD_DISCONNECTED, null);
+	}
+
+	handleCloudError(errorMessage) {
+		this.l("Cloud error: " + errorMessage, true, null);
 	}
 }
 

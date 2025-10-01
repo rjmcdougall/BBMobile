@@ -29,6 +29,9 @@ exports.DISCONNECTED = "Disconnected";
 exports.CONNECTED = "Connected";
 exports.CONNECTING = "Connecting";
 exports.LOADED = "Loaded";
+exports.CLOUD_CONNECTED = "Cloud Connected";
+exports.CLOUD_CONNECTING = "Cloud Connecting";
+exports.CLOUD_DISCONNECTED = "Cloud Disconnected";
 
 //Batter Thresholds
 exports.BATTERY_RED = 20;
