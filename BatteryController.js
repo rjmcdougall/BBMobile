@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Image, ImageBackground } from "react-native";
 import PropTypes from "prop-types";
 import AnimatedBar from "./AnimatedBar";
 import Constants from "./Constants";
+import { Colors } from "./StyleSheet";
 
 export default class BatteryController extends React.Component {
 	constructor(props) {
@@ -35,21 +36,12 @@ export default class BatteryController extends React.Component {
 	return (
 			<View style={styles.container}>
 				<View style={styles.batteryContainer}>
-					{/* Battery shell background */}
-					<ImageBackground 
-						source={require('./images/batteryicon.jpg')} 
-						style={styles.batteryBackground}
-						resizeMode="stretch"
-					>
+					{/* Battery main body */}
+					<View style={styles.batteryShell}>
 						{/* Battery fill - positioned inside the battery shell */}
 						<View style={styles.batteryFillContainer}>
 							{/* Gray background for empty portion */}
-							<View style={[
-								styles.batteryEmptyFill,
-								{
-									backgroundColor: '#404040',
-								}
-							]} />
+							<View style={styles.batteryEmptyFill} />
 							{/* Colored fill for battery level */}
 							<View style={[
 								styles.batteryFill,
@@ -61,11 +53,13 @@ export default class BatteryController extends React.Component {
 						</View>
 						{/* Battery text overlay */}
 						<View style={[styles.row, styles.center, styles.textOverlay]}>
-							<Text key={this.props.id + "t"} style={[styles.barText, { fontSize: displayText.includes('battery level') ? 16 : 20 }]}>
+							<Text key={this.props.id + "t"} style={[styles.barText, { fontSize: displayText.includes('battery level') ? 12 : 16 }]}>
 								{displayText}
 							</Text>
 						</View>
-					</ImageBackground>
+					</View>
+					{/* Battery positive terminal */}
+					<View style={styles.batteryTerminal} />
 				</View>
 			</View>
 		);
@@ -86,25 +80,41 @@ const styles = StyleSheet.create({
 		paddingTop: 0,
 		paddingBottom: 0,
 		paddingHorizontal: 0,
-		justifyContent: "space-around",
+		justifyContent: "center",
+		alignItems: "center",
+		backgroundColor: 'transparent', // Transparent background
 	},
 	batteryContainer: {
-		height: 51,
-		width: '80%', // 20% narrower
-		position: 'relative',
-		alignSelf: 'center', // Center the battery horizontally
+		height: 47, // Additional 10% higher (43 * 1.1 = 47.3)
+		width: '76.5%', // 10% narrower (85% * 0.9 = 76.5%)
+		flexDirection: 'row',
+		alignItems: 'center',
+		alignSelf: 'center',
+		backgroundColor: 'transparent', // Transparent background
 	},
-	batteryBackground: {
-		height: 51,
-		width: '100%',
+	batteryShell: {
+		flex: 1,
+		height: 37, // Additional 10% higher (34 * 1.1 = 37.4)
+		borderWidth: 2,
+		borderColor: Colors.borderPrimary,
+		borderRadius: 4,
+		backgroundColor: Colors.surfaceSecondary,
 		position: 'relative',
+		overflow: 'hidden',
+	},
+	batteryTerminal: {
+		width: 4,
+		height: 21, // Additional 10% higher (19 * 1.1 = 20.9)
+		backgroundColor: Colors.borderPrimary,
+		borderRadius: 2,
+		marginLeft: 2,
 	},
 	batteryFillContainer: {
 		position: 'absolute',
-		top: 4,
-		left: '8%',
-		right: '12%',
-		bottom: 4,
+		top: 2,
+		left: 2,
+		right: 2,
+		bottom: 2,
 		overflow: 'hidden',
 		borderRadius: 2,
 	},
@@ -113,6 +123,7 @@ const styles = StyleSheet.create({
 		width: '100%',
 		borderRadius: 2,
 		position: 'absolute',
+		backgroundColor: Colors.surfaceTertiary,
 	},
 	batteryFill: {
 		height: '100%',
@@ -120,6 +131,7 @@ const styles = StyleSheet.create({
 		position: 'absolute',
 		left: 0,
 		top: 0,
+		minWidth: 2,
 	},
 	textOverlay: {
 		position: 'absolute',
@@ -127,6 +139,8 @@ const styles = StyleSheet.create({
 		left: 0,
 		right: 0,
 		bottom: 0,
+		justifyContent: 'center',
+		alignItems: 'center',
 	},
 	row: {
 		flexDirection: "row",
@@ -137,9 +151,10 @@ const styles = StyleSheet.create({
 	},
 	barText: {
 		backgroundColor: "transparent",
-		color: "#FFF",
-		fontWeight: 'bold',
-		textShadowColor: '#000',
+		color: Colors.textPrimary,
+		fontWeight: '600',
+		textAlign: 'center',
+		textShadowColor: 'rgba(0,0,0,0.8)',
 		textShadowOffset: { width: 1, height: 1 },
 		textShadowRadius: 2,
 	},
