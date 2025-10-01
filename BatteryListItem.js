@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 	},
 	batteryContainer: {
-		height: 26, // 10% higher (24 * 1.1 = 26.4)
+		height: 29, // 10% higher (26 * 1.1 = 28.6, rounded to 29)
 		width: '90%',
 		flexDirection: 'row',
 		alignItems: 'center',
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
 	},
 	batteryShell: {
 		flex: 1,
-		height: 22, // 10% higher (20 * 1.1 = 22)
+		height: 24, // 10% higher (22 * 1.1 = 24.2, rounded to 24)
 		borderWidth: 1,
 		borderColor: Colors.borderSecondary,
 		borderRadius: 3,
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
 	},
 	batteryTip: {
 		width: 3,
-		height: 13, // 10% higher (12 * 1.1 = 13.2)
+		height: 14, // 10% higher (13 * 1.1 = 14.3, rounded to 14)
 		backgroundColor: Colors.borderSecondary,
 		borderRadius: 2,
 		marginLeft: 2,

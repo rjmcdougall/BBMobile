@@ -429,6 +429,16 @@ export default class BoardManager extends Component {
 	async onSelectPeripheral(peripheral) {
 		if (peripheral) {
 
+			// Disconnect from cloud if connected
+			if (this.state.isCloudConnected) {
+				try {
+					this.l("Disconnecting from cloud to connect to BLE peripheral", false, null);
+					this.cloudService.disconnect();
+				} catch (error) {
+					this.l("Failed to disconnect from cloud: " + error, true, null);
+				}
+			}
+
 			var boardBLEDevices = this.state.boardBleDevices;
 
 			if (peripheral.connectionStatus != Constants.DISCONNECTED) {
@@ -976,7 +986,7 @@ export default class BoardManager extends Component {
 								{(this.state.showScreen == Constants.APP_MANAGEMENT) ? <AppManagement updateMonitor={this.updateMonitor} clearCache={this.clearCache} setUserPrefs={this.props.setUserPrefs} userPrefs={this.props.userPrefs} /> : <View></View>}
 								{(this.state.showScreen == Constants.MAP) ? <MapController ref={ref => this.mapControllerRef = ref} isMonitor={this.state.isMonitor} updateMonitor = {this.updateMonitor} userPrefs={this.props.userPrefs} boardState={this.state.boardState} locations={this.state.locations} setMap={this.setMap} map={this.state.map} boardData={this.state.boardData} setUserPrefs={this.props.setUserPrefs} sendMessageToBLE={this.sendMessageToBLE.bind(this)} fetchMessages={this.fetchMessages.bind(this)} audio={this.state.audio} video={this.state.video} sendCommand={this.sendCommand} /> : <View></View>}
 								{(this.state.showScreen == Constants.DISCOVER) ? <DiscoverController startScan={this.startScan} boardBleDevices={this.state.boardBleDevices} scanning={this.state.scanning} boardData={this.state.boardData} onSelectPeripheral={this.onSelectPeripheral} onSelectCloudConnection={this.onSelectCloudConnection} /> : <View></View>}
-								{(this.state.showScreen == Constants.BOARD_STATUS) ? <BoardStatusPanel boardData={this.state.boardData} onRefreshBoards={this.startScan.bind(this, false)} /> : <View></View>}
+								{(this.state.showScreen == Constants.BOARD_STATUS) ? <BoardStatusPanel boardData={this.state.boardData} onRefreshBoards={this.startScan.bind(this, false)} locations={this.state.locations} connectedPeripheral={this.state.connectedPeripheral} isCloudConnected={this.state.isCloudConnected} cloudConnectionStatus={this.state.cloudConnectionStatus} /> : <View></View>}
 								{(this.state.showScreen == Constants.STATS_CONTROL) ? <StatsControl pointerEvents={enableControls} boardState={this.state.boardState} sendCommand={this.sendCommand} /> : <View></View>}
 							</View>
 							<View style={StyleSheet.footer}>
