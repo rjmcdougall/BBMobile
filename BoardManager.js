@@ -15,6 +15,7 @@ import MediaManagement from "./MediaManagement";
 import AdminManagement from "./AdminManagement";
 import AppManagement from "./AppManagement";
 import Diagnostic from "./Diagnostic";
+import BoardStatusPanel from "./BoardStatusPanel";
 import Touchable from "react-native-platform-touchable";
 import StateBuilder from "./StateBuilder";
 import Constants from "./Constants";
@@ -951,6 +952,7 @@ export default class BoardManager extends Component {
 								{(this.state.showScreen == Constants.APP_MANAGEMENT) ? <AppManagement updateMonitor={this.updateMonitor} clearCache={this.clearCache} setUserPrefs={this.props.setUserPrefs} userPrefs={this.props.userPrefs} /> : <View></View>}
 								{(this.state.showScreen == Constants.MAP) ? <MapController ref={ref => this.mapControllerRef = ref} isMonitor={this.state.isMonitor} updateMonitor = {this.updateMonitor} userPrefs={this.props.userPrefs} boardState={this.state.boardState} locations={this.state.locations} setMap={this.setMap} map={this.state.map} boardData={this.state.boardData} setUserPrefs={this.props.setUserPrefs} sendMessageToBLE={this.sendMessageToBLE.bind(this)} fetchMessages={this.fetchMessages.bind(this)} audio={this.state.audio} video={this.state.video} sendCommand={this.sendCommand} /> : <View></View>}
 								{(this.state.showScreen == Constants.DISCOVER) ? <DiscoverController startScan={this.startScan} boardBleDevices={this.state.boardBleDevices} scanning={this.state.scanning} boardData={this.state.boardData} onSelectPeripheral={this.onSelectPeripheral} /> : <View></View>}
+								{(this.state.showScreen == Constants.BOARD_STATUS) ? <BoardStatusPanel boardData={this.state.boardData} onRefreshBoards={this.startScan.bind(this, false)} /> : <View></View>}
 								{(this.state.showScreen == Constants.STATS_CONTROL) ? <StatsControl pointerEvents={enableControls} boardState={this.state.boardState} sendCommand={this.sendCommand} /> : <View></View>}
 							</View>
 							<View style={StyleSheet.footer}>

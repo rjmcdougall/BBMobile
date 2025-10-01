@@ -55,6 +55,19 @@ export default class LeftNav extends React.Component {
 							<MaterialCommunityIcon name="magnify" size={28} color={this.props.showScreen == Constants.DISCOVER ? Colors.textPrimary : Colors.textSecondary} />
 						</Touchable>
 					</View>
+					<View style={[{ 
+						backgroundColor: this.props.showScreen == Constants.BOARD_STATUS ? Colors.accent : 'transparent',
+						borderRadius: 12,
+						margin: 2
+					}]}>
+						<Touchable
+							onPress={() => {
+								this.props.onNavigate(Constants.BOARD_STATUS);
+							}}
+							style={[StyleSheet.icon, { padding: 4 }]}>
+							<MaterialCommunityIcon name="battery-medium" size={28} color={this.props.showScreen == Constants.BOARD_STATUS ? Colors.textPrimary : Colors.textSecondary} />
+						</Touchable>
+					</View>
 				
 				{/* Bottom section - Secondary/Admin functions - Absolutely positioned */}
 					<View style={{ position: 'absolute', bottom: 0, left: 0, width: 60 }}>

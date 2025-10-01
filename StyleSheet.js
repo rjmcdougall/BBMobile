@@ -17,6 +17,7 @@ const Colors = {
 	textPrimary: '#FFFFFF',
 	textSecondary: '#B0B0B0',
 	textTertiary: '#8E8E93',
+	textDark: '#000000',
 	
 	// Surface Colors
 	surfacePrimary: '#1c1c1e',

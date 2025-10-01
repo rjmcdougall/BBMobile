@@ -43,6 +43,7 @@ exports.MAP = "Map";
 exports.APP_MANAGEMENT = "App";
 exports.MAP2 = "Map2";
 exports.STATS_CONTROL = "StatsControl";
+exports.BOARD_STATUS = "BoardStatus";
 
 //The Cache Items
 exports.DEFAULT_PERIPHERAL = "DefaultPeripheral";
