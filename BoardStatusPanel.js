@@ -77,26 +77,15 @@ export default class BoardStatusPanel extends Component {
         const boardName = board.name || board.bootName || `Board ${index + 1}`;
         const batteryLevel = this.getBatteryLevel(board);
         const lastHeard = this.formatLastHeard(board.lastHeard || board.ah);
-        const boardColor = StateBuilder.boardColor(boardName, this.props.boardData || []);
-        const isLightColor = StateBuilder.isLightColor(boardColor);
 
         return (
             <View 
                 key={`board-${index}-${boardName}`}
-                style={[
-                    styles.boardItem,
-                    { 
-                        backgroundColor: boardColor,
-                        borderColor: Colors.borderPrimary
-                    }
-                ]}
+                style={styles.boardItem}
             >
                 {/* Left side - Board name */}
                 <View style={styles.boardNameContainer}>
-                    <Text style={[
-                        styles.boardName,
-                        { color: isLightColor ? Colors.textDark : Colors.textPrimary }
-                    ]}>
+                    <Text style={styles.boardName}>
                         {boardName}
                     </Text>
                 </View>
@@ -108,16 +97,10 @@ export default class BoardStatusPanel extends Component {
 
                 {/* Right side - Last heard timestamp */}
                 <View style={styles.timestampContainer}>
-                    <Text style={[
-                        styles.timestampText,
-                        { color: isLightColor ? Colors.textDark : Colors.textSecondary }
-                    ]}>
+                    <Text style={styles.timestampText}>
                         Last heard:
                     </Text>
-                    <Text style={[
-                        styles.timestampValue,
-                        { color: isLightColor ? Colors.textDark : Colors.textPrimary }
-                    ]}>
+                    <Text style={styles.timestampValue}>
                         {lastHeard}
                     </Text>
                 </View>
@@ -207,12 +190,14 @@ const styles = RNStyleSheet.create({
         marginBottom: 12,
         borderRadius: 12,
         borderWidth: 1,
+        borderColor: Colors.borderPrimary,
+        backgroundColor: Colors.surfacePrimary,
         minHeight: 80,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-        elevation: 3,
+        shadowOpacity: 0.15,
+        shadowRadius: 3,
+        elevation: 2,
     },
     boardNameContainer: {
         flex: 1.5,
@@ -231,6 +216,7 @@ const styles = RNStyleSheet.create({
         fontSize: 14,
         fontWeight: 'bold',
         flexShrink: 1,
+        color: Colors.textPrimary,
     },
     batteryContainer: {
         flex: 2,
@@ -245,10 +231,12 @@ const styles = RNStyleSheet.create({
     timestampText: {
         fontSize: 12,
         marginBottom: 2,
+        color: Colors.textSecondary,
     },
     timestampValue: {
         fontSize: 12,
         fontWeight: 'normal',
+        color: Colors.textPrimary,
     },
     emptyState: {
         flex: 1,

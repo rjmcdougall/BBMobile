@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, ImageBackground } from "react-native";
 import PropTypes from "prop-types";
 import Constants from "./Constants";
+import { Colors } from "./StyleSheet";
 
 export default class BatteryListItem extends React.Component {
 	constructor(props) {
@@ -81,7 +82,7 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 	},
 	batteryContainer: {
-		height: 24,
+		height: 26, // 10% higher (24 * 1.1 = 26.4)
 		width: '90%',
 		flexDirection: 'row',
 		alignItems: 'center',
@@ -89,11 +90,11 @@ const styles = StyleSheet.create({
 	},
 	batteryShell: {
 		flex: 1,
-		height: 20,
-		borderWidth: 2,
-		borderColor: '#333',
+		height: 22, // 10% higher (20 * 1.1 = 22)
+		borderWidth: 1,
+		borderColor: Colors.borderSecondary,
 		borderRadius: 3,
-		backgroundColor: '#f0f0f0',
+		backgroundColor: Colors.surfaceTertiary,
 		position: 'relative',
 		overflow: 'hidden',
 	},
@@ -107,8 +108,8 @@ const styles = StyleSheet.create({
 	},
 	batteryTip: {
 		width: 3,
-		height: 12,
-		backgroundColor: '#333',
+		height: 13, // 10% higher (12 * 1.1 = 13.2)
+		backgroundColor: Colors.borderSecondary,
 		borderRadius: 2,
 		marginLeft: 2,
 	},
@@ -123,9 +124,12 @@ const styles = StyleSheet.create({
 	},
 	batteryText: {
 		backgroundColor: "transparent",
-		color: "#000",
+		color: Colors.textPrimary,
 		fontWeight: '600',
 		fontSize: 12,
 		textAlign: 'center',
+		textShadowColor: 'rgba(0,0,0,0.8)',
+		textShadowOffset: { width: 1, height: 1 },
+		textShadowRadius: 2,
 	},
 });
