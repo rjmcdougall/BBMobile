@@ -22,6 +22,7 @@ import Constants from "./Constants";
 import LeftNav from "./LeftNav";
 import MapController from "./MapController";
 import BatteryController from "./BatteryController";
+import BatteryListItem from "./BatteryListItem";
 import StyleSheet, { Colors } from "./StyleSheet";
 import DiscoverController from "./DiscoverController";
 import StatsControl from "./StatsControl";
@@ -898,44 +899,50 @@ export default class BoardManager extends Component {
 		var connectionButtonText = "";
 		var boardName = "board";
  
-		if (this.state.boardName)
-			boardName = this.state.boardName;
+	if (this.state.boardName)
+		boardName = this.state.boardName;
 
-		if (this.state.connectedPeripheral) {
-			const completion = this.completionPercentage();
-			const isConnected = this.state.connectedPeripheral.connectionStatus == Constants.CONNECTED;
+	// Check for cloud connection first
+	if (this.state.isCloudConnected && this.state.cloudConnectionStatus === Constants.CLOUD_CONNECTED) {
+		color = "green";
+		enableControls = "auto";
+		connectionButtonText = "Connected to Cloud";
+	}
+	else if (this.state.connectedPeripheral) {
+		const completion = this.completionPercentage();
+		const isConnected = this.state.connectedPeripheral.connectionStatus == Constants.CONNECTED;
 
-			if (completion == 100 && isConnected) {
-				color = "green";
-				enableControls = "auto";
-				connectionButtonText = "Loaded " + boardName;
-			}
-			else {
-				switch (this.state.connectedPeripheral.connectionStatus) {
-				case Constants.DISCONNECTED:
-					color = "#fff";
-					enableControls = "none";
-					connectionButtonText = "Connect to " + boardName;
-					break;
-				case Constants.CONNECTING:
-					color = "yellow";
-					enableControls = "none";
-					connectionButtonText = "Connecting To " + boardName;
-					break;
-				case Constants.CONNECTED:
-					color = "yellow";
-					enableControls = "none";
-					connectionButtonText = "Loading " + boardName + " " + completion + "%";
-					break;
-				}
-			}
-
+		if (completion == 100 && isConnected) {
+			color = "green";
+			enableControls = "auto";
+			connectionButtonText = "Loaded " + boardName;
 		}
 		else {
-			color = "#fff";
-			enableControls = "none";
-			connectionButtonText = "Select Board";
+			switch (this.state.connectedPeripheral.connectionStatus) {
+			case Constants.DISCONNECTED:
+				color = "#fff";
+				enableControls = "none";
+				connectionButtonText = "Connect to " + boardName;
+				break;
+			case Constants.CONNECTING:
+				color = "yellow";
+				enableControls = "none";
+				connectionButtonText = "Connecting To " + boardName;
+				break;
+			case Constants.CONNECTED:
+				color = "yellow";
+				enableControls = "none";
+				connectionButtonText = "Loading " + boardName + " " + completion + "%";
+				break;
+			}
 		}
+
+	}
+	else {
+		color = "#fff";
+		enableControls = "none";
+		connectionButtonText = "Select Board";
+	}
 
 		if (!this.state.isMonitor)
 			return (
@@ -948,8 +955,10 @@ export default class BoardManager extends Component {
 							</View>
 							: <View></View>
 						}
-						<View style={{ flex: 1, margin: 2}}>
-							<BatteryController b={this.state.boardState.b} />
+						<View style={{ flex: 1, alignItems: 'center', margin: 2 }}>
+							<View style={{ width: '88%' }}>
+								<BatteryController b={this.state.boardState.b} />
+							</View>
 						</View>
 						{(this.props.userPrefs.isDevilsHand) ?
 							<View style={{ margin: 2}}>
@@ -1037,7 +1046,7 @@ export default class BoardManager extends Component {
 				var batteryGauge = (
 					<View  key={board.board + "v6"} style={{ backgroundColor: color}}>
 						<View key={board.board + "v1"} style={{ flexDirection: "row" }}>
-							<View key={board.board + "v2"} style={{ flex: .5, justifyContent: "center", alignItems: "center"}}>
+							<View key={board.board + "v2"} style={{ flex: .25, justifyContent: "center", alignItems: "center"}}>
 								<View key={board.board + "v3"}>
 									<Text style={{ fontSize: 20, fontWeight: "bold", color: textColor }} key={board.board + "txt"} >{board.board}</Text>
 								</View>
@@ -1045,7 +1054,7 @@ export default class BoardManager extends Component {
 									<Text style={{ fontSize: 12, fontWeight: "bold", color: textColor }} key={board.board + "txt2"} >{this.lastHeardBoardDate(board)}</Text>
 								</View>
 							</View>
-							<View key={board.board + "v5"} style={{ flex: 1}}><BatteryController key={board.board + "bat"} id={board.board + "bat"} b={board.b} /></View>
+							<View key={board.board + "v5"} style={{ flex: 1.75}}><BatteryListItem key={board.board + "bat"} id={board.board + "bat"} b={board.b} /></View>
 						</View>
 					</View>
 				);

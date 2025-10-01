@@ -148,7 +148,7 @@ export default class CloudDatastoreService {
                 // Extract board data from Burner Board API format
                 const longName = item.longname || `Board ${index + 1}`;
                 const shortName = item.shortname || `BB${index.toString().padStart(2, '0')}`;
-                const boardName = `${longName} (${shortName})`;
+                const boardName = longName;  // Only use longname, no shortname
                 
                 // Get battery level - handle null values
                 let batteryLevel = item.last_known_battery_percent;
@@ -168,6 +168,12 @@ export default class CloudDatastoreService {
                 if (lastSeenStr) {
                     lastHeard = new Date(lastSeenStr).getTime();
                 }
+
+                // Log board processing for debugging
+                console.log(`Processing cloud board: ${boardName}`);
+                console.log(`  Battery: ${batteryLevel}%`);
+                console.log(`  Coordinates: ${latitude}, ${longitude}`);
+                console.log(`  Last seen: ${lastSeenStr}`);
 
                 // Create board entry
                 const board = {
@@ -195,12 +201,15 @@ export default class CloudDatastoreService {
                         board: boardName,
                         b: batteryLevel,
                         locations: [{
-                            lat: parseFloat(latitude),
-                            lng: parseFloat(longitude),
+                            a: parseFloat(latitude),   // 'a' for latitude (MapController format)
+                            o: parseFloat(longitude),  // 'o' for longitude (MapController format) 
                             d: lastHeard
                         }]
                     };
                     locations.push(location);
+                    console.log(`  ✅ Added location for ${boardName}: ${latitude}, ${longitude}`);
+                } else {
+                    console.log(`  ❌ No valid coordinates for ${boardName} (lat: ${latitude}, lng: ${longitude})`);
                 }
             });
             
@@ -265,8 +274,8 @@ export default class CloudDatastoreService {
                 board: "Cloud Alpha",
                 b: 85,
                 locations: [{
-                    lat: 40.7866 + (Math.random() - 0.5) * 0.01,
-                    lng: -119.2066 + (Math.random() - 0.5) * 0.01,
+                    a: 40.7866 + (Math.random() - 0.5) * 0.01,  // 'a' for latitude (MapController format)
+                    o: -119.2066 + (Math.random() - 0.5) * 0.01, // 'o' for longitude (MapController format)
                     d: Date.now() - 120000
                 }]
             },
@@ -274,8 +283,8 @@ export default class CloudDatastoreService {
                 board: "Cloud Beta",
                 b: 67,
                 locations: [{
-                    lat: 40.7866 + (Math.random() - 0.5) * 0.01,
-                    lng: -119.2066 + (Math.random() - 0.5) * 0.01,
+                    a: 40.7866 + (Math.random() - 0.5) * 0.01,  // 'a' for latitude (MapController format)
+                    o: -119.2066 + (Math.random() - 0.5) * 0.01, // 'o' for longitude (MapController format)
                     d: Date.now() - 300000
                 }]
             },
@@ -283,8 +292,8 @@ export default class CloudDatastoreService {
                 board: "Cloud Gamma",
                 b: 23,
                 locations: [{
-                    lat: 40.7866 + (Math.random() - 0.5) * 0.01,
-                    lng: -119.2066 + (Math.random() - 0.5) * 0.01,
+                    a: 40.7866 + (Math.random() - 0.5) * 0.01,  // 'a' for latitude (MapController format)
+                    o: -119.2066 + (Math.random() - 0.5) * 0.01, // 'o' for longitude (MapController format)
                     d: Date.now() - 600000
                 }]
             }
