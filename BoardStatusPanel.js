@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, ScrollView, Text, RefreshControl, StyleSheet as RNStyleSheet } from "react-native";
+import { View, ScrollView, Text, RefreshControl, StyleSheet as RNStyleSheet, TouchableOpacity, Modal, Alert } from "react-native";
 import PropTypes from "prop-types";
 import StyleSheet, { Colors } from "./StyleSheet";
 import BatteryController from "./BatteryController";
@@ -12,12 +12,18 @@ export default class BoardStatusPanel extends Component {
         super(props);
         this.state = {
             refreshing: false,
+            selectedBoard: null,
+            showDetailModal: false,
         };
         
         this.onRefresh = this.onRefresh.bind(this);
         this.formatLastHeard = this.formatLastHeard.bind(this);
         this.getBatteryLevel = this.getBatteryLevel.bind(this);
+        this.getVoltageLevel = this.getVoltageLevel.bind(this);
         this.renderBoardItem = this.renderBoardItem.bind(this);
+        this.onBatteryPress = this.onBatteryPress.bind(this);
+        this.closeDetailModal = this.closeDetailModal.bind(this);
+        this.renderDetailModal = this.renderDetailModal.bind(this);
     }
 
     async onRefresh() {
@@ -105,9 +111,35 @@ export default class BoardStatusPanel extends Component {
         return -1;
     }
 
+    getVoltageLevel(board) {
+        // Check various possible voltage properties
+        if (board.last_known_voltage !== undefined && board.last_known_voltage !== null) {
+            return parseFloat(board.last_known_voltage).toFixed(2);
+        }
+        if (board.lastKnownVoltage !== undefined && board.lastKnownVoltage !== null) {
+            return parseFloat(board.lastKnownVoltage).toFixed(2);
+        }
+        return null;
+    }
+
+    onBatteryPress(board) {
+        this.setState({
+            selectedBoard: board,
+            showDetailModal: true,
+        });
+    }
+
+    closeDetailModal() {
+        this.setState({
+            selectedBoard: null,
+            showDetailModal: false,
+        });
+    }
+
     renderBoardItem(board, index) {
         const boardName = board.name || board.bootName || `Board ${index + 1}`;
         const batteryLevel = this.getBatteryLevel(board);
+        const voltage = this.getVoltageLevel(board);
         const lastHeard = this.formatLastHeard(board.lastHeard || board.ah);
 
         return (
@@ -123,9 +155,18 @@ export default class BoardStatusPanel extends Component {
                 </View>
 
                 {/* Center - Battery status */}
-                <View style={styles.batteryContainer}>
+                <TouchableOpacity 
+                    style={styles.batteryContainer}
+                    onPress={() => this.onBatteryPress(board)}
+                    activeOpacity={0.7}
+                >
                     <BatteryListItem b={batteryLevel} key={`battery-${index}`} />
-                </View>
+                    {voltage && (
+                        <Text style={styles.voltageText}>
+                            {voltage}V
+                        </Text>
+                    )}
+                </TouchableOpacity>
 
                 {/* Right side - Last heard timestamp */}
                 <View style={styles.timestampContainer}>
@@ -143,17 +184,74 @@ export default class BoardStatusPanel extends Component {
     render() {
         const { 
             boardData = [], 
+            status = [],
             locations = [], 
             connectedPeripheral,
             isCloudConnected,
             cloudConnectionStatus 
         } = this.props;
         
-        // Use locations as the primary source for board status, not boardData
-        // The locations list is smaller and more current than the comprehensive boardData
         let validBoards = [];
         
-        if (locations && locations.length > 0) {
+        // Use status for cloud connections, locations for BLE connections
+        if (isCloudConnected && status && status.length > 0) {
+            console.log('BoardStatusPanel: Using cloud status data');
+            
+            // Filter and process status entries
+            validBoards = status
+                .filter(statusEntry => statusEntry && statusEntry.board && statusEntry.board !== "none")
+                .map(statusEntry => {
+                    // Find matching board data for additional info like color
+                    const matchingBoard = boardData.find(board => 
+                        (board.name === statusEntry.board || board.bootName === statusEntry.board)
+                    );
+                    
+                    // Use last_seen_battery as the primary timestamp source
+                    let bestTimestamp = statusEntry.lastHeard || statusEntry.last_seen_battery || statusEntry.last_seen;
+                    
+                    console.log(`Processing status entry: ${statusEntry.board}`);
+                    console.log(`  Battery: ${statusEntry.last_known_battery}`);
+                    console.log(`  Voltage: ${statusEntry.last_known_voltage}`);
+                    console.log(`  Timestamp: ${bestTimestamp}`);
+                    
+                    // Create a board object from status entry
+                    return {
+                        name: statusEntry.board,
+                        bootName: statusEntry.longname || statusEntry.board,
+                        b: statusEntry.b || statusEntry.last_known_battery || -1,
+                        batteryLevel: statusEntry.b || statusEntry.last_known_battery || -1,
+                        battery: statusEntry.b || statusEntry.last_known_battery || -1,
+                        lastHeard: bestTimestamp,
+                        ah: bestTimestamp,
+                        // Include battery and voltage fields for filtering
+                        last_known_battery: statusEntry.last_known_battery || 0,
+                        last_known_voltage: statusEntry.last_known_voltage || 0,
+                        last_seen_battery: statusEntry.last_seen_battery,
+                        last_seen: statusEntry.last_seen,
+                        last_seen_location: statusEntry.last_seen_location,
+                        // Include all status fields
+                        ...statusEntry,
+                        // Include matching board data if available
+                        ...(matchingBoard && {
+                            color: matchingBoard.color,
+                            type: matchingBoard.type,
+                        })
+                    };
+                })
+                .filter(board => {
+                    // Filter by battery criteria: last_known_battery > 0 OR last_known_voltage > 20
+                    const batteryLevel = board.last_known_battery || 0;
+                    const voltage = board.last_known_voltage || 0;
+                    const shouldShow = batteryLevel > 0 || voltage > 20;
+                    
+                    console.log(`BoardStatusPanel filter (cloud): ${board.name}`);
+                    console.log(`  Battery: ${batteryLevel}, Voltage: ${voltage}, Show: ${shouldShow}`);
+                    
+                    return shouldShow;
+                });
+        } else if (locations && locations.length > 0) {
+            console.log('BoardStatusPanel: Using BLE locations data');
+            
             // Filter out any invalid location entries and map them to board format
             validBoards = locations
                 .filter(location => location && location.board && location.board !== "none")
@@ -163,11 +261,13 @@ export default class BoardStatusPanel extends Component {
                         (board.name === location.board || board.bootName === location.board)
                     );
                     
-                    // Extract the best timestamp from available sources
+                    // Use last_seen_battery as the primary timestamp source
                     let bestTimestamp = null;
                     
-                    // Priority order: location data first, then board data
+                    // Priority order: last_seen_battery first, then fallback to other sources
                     const timestampSources = [
+                        location.last_seen_battery,
+                        matchingBoard?.last_seen_battery,
                         location.lastHeard,
                         location.ah, 
                         location.d, // date field sometimes used in locations
@@ -192,6 +292,10 @@ export default class BoardStatusPanel extends Component {
                         battery: location.b || matchingBoard?.battery || -1,
                         lastHeard: bestTimestamp,
                         ah: bestTimestamp,
+                        // Include battery and voltage fields for filtering
+                        last_known_battery: location.last_known_battery || matchingBoard?.last_known_battery || 0,
+                        last_known_voltage: location.last_known_voltage || matchingBoard?.last_known_voltage || 0,
+                        last_seen_battery: location.last_seen_battery || matchingBoard?.last_seen_battery,
                         // Include any other relevant fields from the location or matching board
                         ...location,
                         // Ensure board name fields are properly set
@@ -200,17 +304,103 @@ export default class BoardStatusPanel extends Component {
                             // Include any other fields from board data that might be useful
                         })
                     };
+                })
+                .filter(board => {
+                    // Filter by battery criteria: last_known_battery > 0 OR last_known_voltage > 20
+                    const batteryLevel = board.last_known_battery || 0;
+                    const voltage = board.last_known_voltage || 0;
+                    const shouldShow = batteryLevel > 0 || voltage > 20;
+                    
+                    console.log(`BoardStatusPanel filter (BLE): ${board.name}`);
+                    console.log(`  Battery: ${batteryLevel}, Voltage: ${voltage}, Show: ${shouldShow}`);
+                    
+                    return shouldShow;
                 });
         }
 
         return (
             <View style={styles.container}>
+                {this.renderDetailModal()}
+                {this.renderMainContent(validBoards)}
+            </View>
+        );
+    }
+
+    renderDetailModal() {
+        const { selectedBoard, showDetailModal } = this.state;
+        
+        if (!selectedBoard) {
+            return null;
+        }
+
+        const batteryLevel = this.getBatteryLevel(selectedBoard);
+        const voltage = this.getVoltageLevel(selectedBoard);
+        const lastHeard = this.formatLastHeard(selectedBoard.lastHeard || selectedBoard.ah);
+        const lastSeenBattery = this.formatLastHeard(selectedBoard.last_seen_battery);
+        
+        return (
+            <Modal
+                visible={showDetailModal}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={this.closeDetailModal}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContent}>
+                        <Text style={styles.modalTitle}>{selectedBoard.name} Details</Text>
+                        
+                        <View style={styles.detailRow}>
+                            <Text style={styles.detailLabel}>Battery Level:</Text>
+                            <Text style={styles.detailValue}>
+                                {batteryLevel >= 0 ? `${batteryLevel}%` : 'Unknown'}
+                            </Text>
+                        </View>
+                        
+                        <View style={styles.detailRow}>
+                            <Text style={styles.detailLabel}>Voltage:</Text>
+                            <Text style={styles.detailValue}>
+                                {voltage ? `${voltage}V` : 'Unknown'}
+                            </Text>
+                        </View>
+                        
+                        <View style={styles.detailRow}>
+                            <Text style={styles.detailLabel}>Last Seen:</Text>
+                            <Text style={styles.detailValue}>{lastHeard}</Text>
+                        </View>
+                        
+                        <View style={styles.detailRow}>
+                            <Text style={styles.detailLabel}>Last Seen Battery:</Text>
+                            <Text style={styles.detailValue}>{lastSeenBattery}</Text>
+                        </View>
+                        
+                        <View style={styles.detailRow}>
+                            <Text style={styles.detailLabel}>Board Type:</Text>
+                            <Text style={styles.detailValue}>
+                                {selectedBoard.isCloud ? 'Cloud' : 'Bluetooth'}
+                            </Text>
+                        </View>
+                        
+                        <TouchableOpacity
+                            style={styles.closeButton}
+                            onPress={this.closeDetailModal}
+                        >
+                            <Text style={styles.closeButtonText}>Close</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+        );
+    }
+
+    renderMainContent(validBoards) {
+        return (
+            <>
                 {/* Header */}
                 <View style={styles.header}>
                     <Text style={styles.headerTitle}>Board Status</Text>
                     <Text style={styles.headerSubtitle}>
                         {validBoards.length} board{validBoards.length !== 1 ? 's' : ''} found
-                        {locations && locations.length > 0 ? ' (from locations)' : ''}
+                        {this.props.locations && this.props.locations.length > 0 ? ' (from locations)' : ''}
                     </Text>
                 </View>
 
@@ -239,7 +429,7 @@ export default class BoardStatusPanel extends Component {
                         </View>
                     )}
                 </ScrollView>
-            </View>
+            </>
         );
     }
 }
@@ -311,6 +501,13 @@ const styles = RNStyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         marginHorizontal: 8,
+        paddingVertical: 4,
+    },
+    voltageText: {
+        fontSize: 10,
+        color: Colors.textSecondary,
+        marginTop: 2,
+        textAlign: 'center',
     },
     timestampContainer: {
         flex: 1,
@@ -344,10 +541,70 @@ const styles = RNStyleSheet.create({
         textAlign: 'center',
         lineHeight: 20,
     },
+    // Modal styles
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+    },
+    modalContent: {
+        backgroundColor: Colors.surfacePrimary,
+        borderRadius: 12,
+        paddingVertical: 20,
+        paddingHorizontal: 24,
+        width: '100%',
+        maxWidth: 400,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.25,
+        shadowRadius: 8,
+        elevation: 8,
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: Colors.textPrimary,
+        marginBottom: 20,
+        textAlign: 'center',
+    },
+    detailRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 8,
+        borderBottomWidth: 1,
+        borderBottomColor: Colors.borderSecondary,
+    },
+    detailLabel: {
+        fontSize: 14,
+        color: Colors.textSecondary,
+        fontWeight: '500',
+    },
+    detailValue: {
+        fontSize: 14,
+        color: Colors.textPrimary,
+        fontWeight: '600',
+    },
+    closeButton: {
+        marginTop: 20,
+        backgroundColor: Colors.accent,
+        paddingVertical: 12,
+        paddingHorizontal: 24,
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    closeButtonText: {
+        color: 'white',
+        fontSize: 14,
+        fontWeight: '600',
+    },
 });
 
 BoardStatusPanel.propTypes = {
     boardData: PropTypes.array,
+    status: PropTypes.array,
     onRefreshBoards: PropTypes.func,
     locations: PropTypes.array,
     connectedPeripheral: PropTypes.object,

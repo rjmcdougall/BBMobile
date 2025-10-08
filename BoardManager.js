@@ -61,6 +61,7 @@ export default class BoardManager extends Component {
 			map: StateBuilder.blankMap(),
 			boardData: StateBuilder.blankBoardData(),
 			locations: StateBuilder.blankLocations(),
+			status: [], // New status structure for cloud data
 			audio: StateBuilder.blankAudio(),
 			video: StateBuilder.blankVideo(),
 			devices: StateBuilder.blankDevices(),
@@ -984,9 +985,9 @@ export default class BoardManager extends Component {
 								{(this.state.showScreen == Constants.DIAGNOSTIC) ? <Diagnostic pointerEvents={enableControls} logLines={this.state.logLines} boardState={this.state.boardState} /> : <View></View>}
 								{(this.state.showScreen == Constants.ADMINISTRATION) ? <AdminManagement wifi={this.state.wifi} devices={this.state.devices} setUserPrefs={this.props.setUserPrefs} userPrefs={this.props.userPrefs} pointerEvents={enableControls} boardState={this.state.boardState} sendCommand={this.sendCommand} /> : <View></View>}
 								{(this.state.showScreen == Constants.APP_MANAGEMENT) ? <AppManagement updateMonitor={this.updateMonitor} clearCache={this.clearCache} setUserPrefs={this.props.setUserPrefs} userPrefs={this.props.userPrefs} /> : <View></View>}
-								{(this.state.showScreen == Constants.MAP) ? <MapController ref={ref => this.mapControllerRef = ref} isMonitor={this.state.isMonitor} updateMonitor = {this.updateMonitor} userPrefs={this.props.userPrefs} boardState={this.state.boardState} locations={this.state.locations} setMap={this.setMap} map={this.state.map} boardData={this.state.boardData} setUserPrefs={this.props.setUserPrefs} sendMessageToBLE={this.sendMessageToBLE.bind(this)} fetchMessages={this.fetchMessages.bind(this)} audio={this.state.audio} video={this.state.video} sendCommand={this.sendCommand} /> : <View></View>}
+								{(this.state.showScreen == Constants.MAP) ? <MapController ref={ref => this.mapControllerRef = ref} isMonitor={this.state.isMonitor} updateMonitor = {this.updateMonitor} userPrefs={this.props.userPrefs} boardState={this.state.boardState} locations={this.state.isCloudConnected ? this.state.status : this.state.locations} setMap={this.setMap} map={this.state.map} boardData={this.state.boardData} setUserPrefs={this.props.setUserPrefs} sendMessageToBLE={this.sendMessageToBLE.bind(this)} fetchMessages={this.fetchMessages.bind(this)} audio={this.state.audio} video={this.state.video} sendCommand={this.sendCommand} isCloudConnected={this.state.isCloudConnected} /> : <View></View>}
 								{(this.state.showScreen == Constants.DISCOVER) ? <DiscoverController startScan={this.startScan} boardBleDevices={this.state.boardBleDevices} scanning={this.state.scanning} boardData={this.state.boardData} onSelectPeripheral={this.onSelectPeripheral} onSelectCloudConnection={this.onSelectCloudConnection} /> : <View></View>}
-								{(this.state.showScreen == Constants.BOARD_STATUS) ? <BoardStatusPanel boardData={this.state.boardData} onRefreshBoards={this.startScan.bind(this, false)} locations={this.state.locations} connectedPeripheral={this.state.connectedPeripheral} isCloudConnected={this.state.isCloudConnected} cloudConnectionStatus={this.state.cloudConnectionStatus} /> : <View></View>}
+					{(this.state.showScreen == Constants.BOARD_STATUS) ? <BoardStatusPanel boardData={this.state.boardData} status={this.state.status} onRefreshBoards={this.startScan.bind(this, false)} locations={this.state.locations} connectedPeripheral={this.state.connectedPeripheral} isCloudConnected={this.state.isCloudConnected} cloudConnectionStatus={this.state.cloudConnectionStatus} /> : <View></View>}
 								{(this.state.showScreen == Constants.STATS_CONTROL) ? <StatsControl pointerEvents={enableControls} boardState={this.state.boardState} sendCommand={this.sendCommand} /> : <View></View>}
 							</View>
 							<View style={StyleSheet.footer}>
@@ -1020,7 +1021,7 @@ export default class BoardManager extends Component {
 			return (
 				<View style={StyleSheet.monitorContainer}>
 					<View style={StyleSheet.monitorMap}>
-						<MapController ref={ref => this.mapControllerRef = ref} isMonitor={this.state.isMonitor} updateMonitor={this.updateMonitor} userPrefs={this.props.userPrefs} setUserPrefs={this.props.setUserPrefs} boardState={this.state.boardState} locations={this.state.locations} setMap={this.setMap} map={this.state.map} boardData={this.state.boardData} sendMessageToBLE={this.sendMessageToBLE.bind(this)} fetchMessages={this.fetchMessages.bind(this)} />
+						<MapController ref={ref => this.mapControllerRef = ref} isMonitor={this.state.isMonitor} updateMonitor={this.updateMonitor} userPrefs={this.props.userPrefs} setUserPrefs={this.props.setUserPrefs} boardState={this.state.boardState} locations={this.state.isCloudConnected ? this.state.status : this.state.locations} setMap={this.setMap} map={this.state.map} boardData={this.state.boardData} sendMessageToBLE={this.sendMessageToBLE.bind(this)} fetchMessages={this.fetchMessages.bind(this)} isCloudConnected={this.state.isCloudConnected} />
 					</View>
 					<View style={StyleSheet.batteryList}>
 						<ScrollView>
@@ -1111,7 +1112,7 @@ export default class BoardManager extends Component {
 
 	handleCloudDataUpdate(cloudData) {
 		try {
-			if (cloudData.boards && cloudData.boards.length > 0) {
+			if (cloudData.boardData && cloudData.boardData.length > 0) {
 				// Merge cloud boards with existing board data
 				let mergedBoardData = [...this.state.boardData];
 				
@@ -1119,7 +1120,7 @@ export default class BoardManager extends Component {
 				mergedBoardData = mergedBoardData.filter(board => !board.isCloud);
 				
 				// Add new cloud boards
-				mergedBoardData = [...mergedBoardData, ...cloudData.boards];
+				mergedBoardData = [...mergedBoardData, ...cloudData.boardData];
 				
 				this.setState({
 					boardData: mergedBoardData,
@@ -1128,7 +1129,16 @@ export default class BoardManager extends Component {
 				// Cache the updated board data
 				Cache.set(Constants.BOARDS, mergedBoardData);
 				
-				this.l("Updated board data with " + cloudData.boards.length + " cloud boards", false, null);
+				this.l("Updated board data with " + cloudData.boardData.length + " cloud boards", false, null);
+			}
+			
+			// Handle new status structure
+			if (cloudData.status && cloudData.status.length > 0) {
+				this.setState({
+					status: cloudData.status,
+				});
+				
+				this.l("Updated status with " + cloudData.status.length + " cloud status entries", false, null);
 			}
 			
 			if (cloudData.locations && cloudData.locations.length > 0) {
@@ -1136,7 +1146,7 @@ export default class BoardManager extends Component {
 				let mergedLocations = [...this.state.locations];
 				
 				// Remove any existing cloud locations to avoid duplicates
-				const cloudBoardNames = cloudData.boards.map(b => b.name);
+				const cloudBoardNames = cloudData.boardData ? cloudData.boardData.map(b => b.name) : [];
 				mergedLocations = mergedLocations.filter(loc => !cloudBoardNames.includes(loc.board));
 				
 				// Add new cloud locations

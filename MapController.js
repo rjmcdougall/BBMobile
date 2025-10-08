@@ -755,13 +755,42 @@ export default class MapController extends Component {
 				a.push(burningManOverlay);
 			}
 
+			// Handle both cloud status data and regular location data
 			this.props.locations.map((board) => {
+				// Normalize board data structure
+				let boardName, boardLocations;
+				
+				if (this.props.isCloudConnected) {
+					// Cloud status format
+					boardName = board.board || board.longname || board.name;
+					boardLocations = board.locations || [];
+					
+					console.log('MapController: Processing cloud board:', boardName);
+					console.log('  Locations:', boardLocations);
+					console.log('  Raw board data:', board);
+				} else {
+					// Regular BLE location format
+					boardName = board.board;
+					boardLocations = board.locations || [];
+				}
+				
+				// Skip if no board name or no locations
+				if (!boardName || !boardLocations || boardLocations.length === 0) {
+					console.log('MapController: Skipping board with no name or locations:', boardName);
+					return;
+				}
+				
+				// Create a normalized board object for the map functions
+				const normalizedBoard = {
+					board: boardName,
+					locations: boardLocations
+				};
 
-				if (board.locations.length > 1) {
+				if (boardLocations.length > 1) {
 					shapeSource = (
-						<Mapbox.ShapeSource id={"SS" + board.board} key={"SS" + board.board} shape={this.makeLineCollection(board)}>
-							<Mapbox.LineLayer id={"LL" + board.board} key={"LL" + board.board} style={{
-								lineColor: StateBuilder.boardColor(board.board, this.props.boardData),
+						<Mapbox.ShapeSource id={"SS" + boardName} key={"SS" + boardName} shape={this.makeLineCollection(normalizedBoard)}>
+							<Mapbox.LineLayer id={"LL" + boardName} key={"LL" + boardName} style={{
+								lineColor: StateBuilder.boardColor(boardName, this.props.boardData),
 								lineWidth: 5,
 								lineOpacity: .7,
 								lineJoin: "round",
@@ -771,23 +800,23 @@ export default class MapController extends Component {
 
 					a.push(shapeSource);
 				}
-				if (board.locations.length > 0) {
+				if (boardLocations.length > 0) {
 
 					shapeSource = (
 						<Mapbox.ShapeSource 
-							id={"C" + board.board} 
-							key={"C" + board.board}
-							shape={this.makePoint(board)}
+							id={"C" + boardName} 
+							key={"C" + boardName}
+							shape={this.makePoint(normalizedBoard)}
 							onPress={MP.onPressCircle}
 							hitbox={{width: 50, height: 50}} // Larger hit area for Android
 							tolerance={10} // Tap tolerance
 						>
 							<Mapbox.CircleLayer 
-								id={"CL" + board.board} 
-								key={"CL" + board.board}
+								id={"CL" + boardName} 
+								key={"CL" + boardName}
 								style={{
 									circleRadius: Constants.IS_ANDROID ? 10 : 8, // Slightly larger on Android
-									circleColor: StateBuilder.boardColor(board.board, this.props.boardData),
+									circleColor: StateBuilder.boardColor(boardName, this.props.boardData),
 									circleStrokeColor: "black",
 									circleStrokeWidth: 2,
 									circleOpacity: 0.9
@@ -795,11 +824,11 @@ export default class MapController extends Component {
 							/>
 							{/* Board name text label - appears when zoomed in close */}
 							<Mapbox.SymbolLayer 
-								id={"TL" + board.board} 
-								key={"TL" + board.board}
+								id={"TL" + boardName} 
+								key={"TL" + boardName}
 								style={{
 									// Text styling
-									textField: board.board,
+									textField: boardName,
 									textFont: ['Open Sans Semibold', 'Arial Unicode MS Bold'],
 									textSize: 14,
 									textColor: '#FFFFFF',
