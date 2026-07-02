@@ -31,8 +31,9 @@ import { Buffer } from "buffer";
 import ContentResolver from "./ContentResolver";
 import CloudDatastoreService from "./CloudDatastoreService";
 import { Mutex } from "async-mutex";
+// Serializes BLE command traffic. Each command acquires the lock in its own
+// scope and releases it in a finally block, so ownership is never ambiguous.
 const mutex = new Mutex();
-var bleMutex;
 
 // eslint-disable-next-line no-unused-vars
 var cr = new ContentResolver();
@@ -67,7 +68,6 @@ export default class BoardManager extends Component {
 			devices: StateBuilder.blankDevices(),
 			wifi: StateBuilder.blankWifi(),
 			isMonitor: false,
-			currentCommandTimeout: null,
 			currentCommand: "",
 			cloudConnectionStatus: Constants.CLOUD_DISCONNECTED,
 			isCloudConnected: false,
@@ -213,10 +213,8 @@ export default class BoardManager extends Component {
 		// Release any held locks when app goes to background
 		// This prevents permanent deadlocks after suspend/resume cycles
 		if (nextAppState.match(/inactive|background/) && this.state.appState === "active") {
-			if (mutex.isLocked()) {
-				this.l("App backgrounding - releasing mutex lock to prevent deadlock (mutex locked: " + mutex.isLocked() + ")", false);
-				this.cancelCommand();
-			}
+			this.l("App backgrounding - unblocking any in-flight command to prevent deadlock", false);
+			this.resolvePending();
 		}
 		
 		this.setState({
@@ -224,24 +222,26 @@ export default class BoardManager extends Component {
 		});
 	}
 
-	cancelCommand() {
-		clearTimeout(this.state.currentCommandTimeout);
-		this.l(this.state.currentCommand + " data found, release lock (mutex locked: " + mutex.isLocked() + ")", false);
-		
-		// CRITICAL FIX: Improved mutex release safety
-		// Only release if we have the release function and mutex is actually locked
-		if (bleMutex && mutex.isLocked()) {
-			try {
-				bleMutex();
-				this.l("Mutex successfully released", false);
-			} catch (error) {
-				this.l("Error releasing mutex: " + error, true);
-			}
-			bleMutex = null;
-		} else if (bleMutex) {
-			// If we have the release function but mutex isn't locked, just clear the reference
-			this.l("Mutex not locked, clearing release function reference", false);
-			bleMutex = null;
+	// Races a promise against a timeout so a hung BLE call can never wedge the app.
+	// Rejects with a labelled error if the operation does not settle in time.
+	withTimeout(promise, ms, label) {
+		let timer;
+		const timeout = new Promise((resolve, reject) => {
+			timer = setTimeout(() => reject(new Error(label + " timed out after " + ms + "ms")), ms);
+		});
+		return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+	}
+
+	// Force-unblocks the single in-flight command (if any) that is awaiting a
+	// reply, regardless of which reply it expected. The command then releases the
+	// mutex in its own finally block. Used by the disconnect/background/error
+	// paths where no matching reply will ever arrive. Reply matching itself is
+	// done in handleNewData via the command echo; see BluetoothCommands.java.
+	resolvePending() {
+		if (this._pending) {
+			const resolve = this._pending.resolve;
+			this._pending = null;
+			resolve();
 		}
 	}
 
@@ -270,8 +270,15 @@ export default class BoardManager extends Component {
 						var newState = JSON.parse(newMessage.toString("ascii"));
 						// Setup the app-specific ble state structure
 						this.updateBLEState(newState);
-						if (mutex.isLocked()) {
-							this.cancelCommand();
+						// Only unblock the in-flight command if THIS message is its
+						// reply. The board echoes the command it is answering
+						// (BluetoothCommands.java: response.put("command", command)),
+						// so an unsolicited push can no longer satisfy the wrong
+						// command's wait.
+						if (this._pending && newState.command === this._pending.command) {
+							const resolve = this._pending.resolve;
+							this._pending = null;
+							resolve();
 						}
 					}
 					catch (error) {
@@ -299,24 +306,17 @@ export default class BoardManager extends Component {
 				}
 			}
 		} catch (error) {
-			this.l("handleNewData error: " + error, true, newMessage);
+			this.l("handleNewData error: " + error, true);
 			rxBuffers = [];
 			this.setState({ rxBuffers: rxBuffers });
-			if (mutex.isLocked()) {
-				this.l("handleNewData error - releasing mutex (locked: " + mutex.isLocked() + ")", true);
-				this.cancelCommand();
-			}
+			this.resolvePending();
 		}
 	}
 
 	componentWillUnmount() {
-		// CRITICAL FIX: Release any held locks before unmounting
-		// This prevents memory leaks and app-wide deadlocks
-		if (mutex.isLocked()) {
-			this.l("Component unmounting - releasing mutex lock to prevent memory leak (mutex locked: " + mutex.isLocked() + ")", false);
-			this.cancelCommand();
-		}
-		
+		// Unblock any in-flight command so it can release the mutex and unwind.
+		this.resolvePending();
+
 		// Clear background timer to prevent continued execution after unmount
 		if (this.state.backgroundLoop) {
 			clearInterval(this.state.backgroundLoop);
@@ -333,11 +333,10 @@ export default class BoardManager extends Component {
 		let peripheral = data.peripheral;
 
 		try {
-			if (mutex.isLocked()) {
-				this.cancelCommand();
-			}
-			
-			// Update state 
+			// A disconnect means no reply is coming; unblock any in-flight command.
+			this.resolvePending();
+
+			// Update state
 			var dev = this.state.boardBleDevices.get(peripheral);
 			if (dev != null) {
 				this.l("Disconnected from " + dev.name, false, dev);
@@ -615,60 +614,53 @@ export default class BoardManager extends Component {
  
 	async sendCommand(command, arg) {
 
-		// Send request command
-		if (this.state.connectedPeripheral.connectionStatus == Constants.CONNECTED) {
-
-			var bm = this;
-
-			try {
-
-		this.l("trying lock and request " + command + " on device " + this.state.connectedPeripheral.name + " (mutex locked: " + mutex.isLocked() + ")", false);
-		bleMutex = await mutex.acquire();
-
-		this.l("locked and request " + command + " on device " + this.state.connectedPeripheral.name + " (mutex locked: " + mutex.isLocked() + ")", false);
-
-				var commandTimeout = setTimeout( () => {
-				if (mutex.isLocked()) {
-					this.l(this.state.currentCommand + " timeout (mutex locked: " + mutex.isLocked() + ")", true);
-					if (bleMutex) {
-						bleMutex();
-						bleMutex = null;
-					}
-					return;
-				}
-				},  30000);
-
-				this.setState({currentCommandTimeout: commandTimeout,
-					currentCommand: command + " " + arg});
-	
-
-				if (mutex.isLocked()) { // last chance. if the mutex unlocks that means a timeout occured and 
-					//we should skip.
-					const data = stringToBytes("{command:\"" + command + "\", arg:\"" + arg + "\"};\n");
-					await BleManager.write(bm.state.connectedPeripheral.id,
-						Constants.UARTservice,
-						Constants.txCharacteristic,
-						data,
-						18); // MTU Size
-				}
-
-			}
-			catch (error) {
-				if (mutex.isLocked()) {
-					this.l("SendCommand error - releasing mutex (locked: " + mutex.isLocked() + ")", true);
-					this.cancelCommand();
-				}
-
-				// eslint-disable-next-line require-atomic-updates
-				bm.state.connectedPeripheral.connectionStatus = Constants.DISCONNECTED;
-				bm.l("SendCommand failed for '" + command + "' with arg '" + arg + "': " + error, true);
-			}
-			return true;
-		}
-		else {
+		if (this.state.connectedPeripheral.connectionStatus != Constants.CONNECTED) {
 			console.log("BBM: SendCommand blocked - not connected. Status:", this.state.connectedPeripheral.connectionStatus);
 			this.l("Command '" + command + "' blocked - device not connected", true);
 			return false;
+		}
+
+		const peripheral = this.state.connectedPeripheral;
+
+		this.l("waiting for lock to send " + command + " on " + peripheral.name, false);
+		const release = await mutex.acquire();
+		this.l("locked, sending " + command + " on " + peripheral.name, false);
+		this.setState({ currentCommand: command + " " + arg });
+
+		try {
+			const expectsReply = !Constants.NO_REPLY_COMMANDS.has(command);
+
+			// Arm the reply waiter BEFORE writing so we cannot miss a fast reply.
+			// mutex serialization guarantees only one command is ever in flight, so
+			// a single instance-level slot is sufficient. Tagging it with the
+			// command lets handleNewData match the board's echoed reply.
+			let replyPromise;
+			if (expectsReply) {
+				replyPromise = new Promise((resolve) => { this._pending = { command, resolve }; });
+			}
+
+			const data = stringToBytes("{command:\"" + command + "\", arg:\"" + arg + "\"};\n");
+			await this.withTimeout(
+				BleManager.write(peripheral.id, Constants.UARTservice, Constants.txCharacteristic, data, 18), // MTU Size
+				Constants.BLE_TIMEOUT,
+				"write " + command);
+
+			// Hold the lock until the board replies (resolved in handleNewData when
+			// the echoed command matches) or we hit the reply timeout. Either way
+			// the finally below frees the lock, so a silent device can never wedge
+			// the queue permanently. BTSelect/power send no reply, so skip the wait.
+			if (expectsReply) {
+				await this.withTimeout(replyPromise, Constants.BLE_REPLY_TIMEOUT, "reply to " + command);
+			}
+			return true;
+		}
+		catch (error) {
+			this.l("SendCommand failed for '" + command + "' with arg '" + arg + "': " + error, true);
+			return false;
+		}
+		finally {
+			this._pending = null;
+			release();
 		}
 	}
 	async fetchMessages() {
@@ -764,71 +756,82 @@ export default class BoardManager extends Component {
 
 	async connectToPeripheral(peripheral) {
 
-		// Update state 
+		// Guard against re-entrancy: handleDiscoverPeripheral fires many times per
+		// second while scanning (Aggressive/AllMatches), and manual selection can
+		// race with auto-connect. Only one connection attempt may run at a time.
+		if (this._connecting) {
+			this.l("Connect already in progress, ignoring request for " + peripheral.name, false);
+			return;
+		}
+
 		var boardBleDevices = this.state.boardBleDevices;
 		var boardBleDevice = boardBleDevices.get(peripheral.id);
 
+		if (!boardBleDevice || boardBleDevice.connectionStatus != Constants.DISCONNECTED) {
+			return;
+		}
+
+		this._connecting = true;
 		try {
+			this.l("Automatically Connecting To: " + peripheral.name, false, null);
 
-			if (boardBleDevice.connectionStatus == Constants.DISCONNECTED) {
-				this.l("Automatically Connecting To: " + peripheral.name, false, null);
+			// Update status
+			boardBleDevice.connectionStatus = Constants.CONNECTING;
+			boardBleDevices.set(boardBleDevice.id, boardBleDevice);
 
-				// Update status 
-				boardBleDevice.connectionStatus = Constants.CONNECTING;
+			this.setState({
+				connectedPeripheral: boardBleDevice,
+				boardBleDevices: boardBleDevices,
+			});
+
+			try {
+				// Every native BLE call is time-boxed; on Android these can hang
+				// indefinitely, which previously left the app stuck in CONNECTING.
+				await this.withTimeout(BleManager.connect(boardBleDevice.id), Constants.BLE_CONNECT_TIMEOUT, "connect");
+				await this.sleep(Constants.CONNECT_SLEEP());
+				this.l("Retreiving services", false, null);
+				await this.withTimeout(BleManager.retrieveServices(boardBleDevice.id), Constants.BLE_CONNECT_TIMEOUT, "retrieveServices");
+				await this.sleep(Constants.RETRIEVE_SERVICES_SLEEP());
+
+				// Can't await setNotification due to a bug in blemanager (missing callback)
+				this.setNotificationRx(boardBleDevice.id);
+				// Sleep until it's done (guess)
+				await this.sleep(Constants.SET_NOTIFICATIONS_SLEEP());
+
+				// Update status
+				boardBleDevice.connectionStatus = Constants.CONNECTED;
+				boardBleDevice.connectionStartTime = new Date();
+				boardBleDevices.set(boardBleDevice.id, boardBleDevice);
+
+				// Now go setup and read all the state for the first time
+				await this.refreshBLEState(boardBleDevice);
+				this.setState({
+					connectedPeripheral: boardBleDevice,
+					boardBleDevices: boardBleDevices,
+				});
+
+			} catch (error) {
+				this.l("Error connecting: " + error, true, null);
+
+				// A failure during refreshBLEState can leave a command mid-flight;
+				// unblock it so its finally releases the mutex.
+				this.resolvePending();
+
+				// Update status
+				boardBleDevice.connectionStatus = Constants.DISCONNECTED;
 				boardBleDevices.set(boardBleDevice.id, boardBleDevice);
 
 				this.setState({
 					connectedPeripheral: boardBleDevice,
 					boardBleDevices: boardBleDevices,
 				});
-
-				try {
-					await BleManager.connect(boardBleDevice.id);
-					await this.sleep(Constants.CONNECT_SLEEP());
-					this.l("Retreiving services", false, null);
-					await BleManager.retrieveServices(boardBleDevice.id);
-					await this.sleep(Constants.RETRIEVE_SERVICES_SLEEP());
-
-					// Can't await setNotificatoon due to a bug in blemanager (missing callback)
-					this.setNotificationRx(boardBleDevice.id);
-					// Sleep until it's done (guess)
-					await this.sleep(Constants.SET_NOTIFICATIONS_SLEEP());
-
-					// Update status 
-					boardBleDevice.connectionStatus = Constants.CONNECTED;
-					boardBleDevice.connectionStartTime = new Date();
-					boardBleDevices.set(boardBleDevice.id, boardBleDevice);
-
-					// Now go setup and read all the state for the first time
-					await this.refreshBLEState(boardBleDevice);
-					this.setState({
-						connectedPeripheral: boardBleDevice,
-						boardBleDevices: boardBleDevices,
-					});
-
-				} catch (error) {
-					this.l("Error connecting: " + error, true, null);
-					
-					// CRITICAL FIX: Release any held locks on connection failure
-					// Connection errors during refreshBLEState can leave locks held
-					if (mutex.isLocked()) {
-						this.l("Connection error - releasing mutex lock (locked: " + mutex.isLocked() + ")", false);
-						this.cancelCommand();
-					}
-
-					// Update status 
-					boardBleDevice.connectionStatus = Constants.DISCONNECTED;
-					boardBleDevices.set(boardBleDevice.id, boardBleDevice);
-
-					this.setState({
-						connectedPeripheral: boardBleDevice,
-						boardBleDevices: boardBleDevices,
-					});
-				}
 			}
 		}
 		catch (error) {
 			this.l(error, true, null);
+		}
+		finally {
+			this._connecting = false;
 		}
 	}
 
@@ -854,40 +857,47 @@ export default class BoardManager extends Component {
 	async readLocationLoop() {
  
 		var backgroundTimer = setInterval(async () => {
- 
-			if (this.state.isMonitor) {
-				try {
-					var boardsJSON = await cr.getLocationJSON();
-					console.log("BBM: Content Resolver JSON");
-					console.log("BBM: ", boardsJSON);
-					this.setState({ locations: JSON.parse(boardsJSON)});
-				}
-				catch (error) {
-					this.l("Attempted to get locations via ContentResolver since we are in Monitor Mode, but failed", true, error);
-				}
+
+			// Skip this tick if the previous run is still going. Under mutex
+			// contention a run can exceed the 8s interval; without this guard the
+			// async iterations stack up and pile more work behind the queue.
+			if (this._locationLoopRunning) {
+				return;
 			}
-			else {
-			if (this.state.connectedPeripheral
-					&& this.state.connectedPeripheral.connectionStatus == Constants.CONNECTED
-					&& this.completionPercentage() == 100) {
+			this._locationLoopRunning = true;
+
+			try {
+				if (this.state.isMonitor) {
 					try {
-						// CRITICAL FIX: Execute commands sequentially with proper awaiting
-						// This prevents race conditions where multiple commands compete for the mutex
+						var boardsJSON = await cr.getLocationJSON();
+						console.log("BBM: Content Resolver JSON");
+						console.log("BBM: ", boardsJSON);
+						this.setState({ locations: JSON.parse(boardsJSON)});
+					}
+					catch (error) {
+						this.l("Attempted to get locations via ContentResolver since we are in Monitor Mode, but failed", true, error);
+					}
+				}
+				else if (this.state.connectedPeripheral
+						&& this.state.connectedPeripheral.connectionStatus == Constants.CONNECTED
+						&& this.completionPercentage() == 100) {
+					try {
+						// Execute commands sequentially with proper awaiting. Each
+						// sendCommand now holds the mutex until the board replies, so
+						// the commands are already paced by the reply round-trip; no
+						// extra inter-command sleeps are needed.
 						await this.sendCommand("Location", this.props.userPrefs.locationHistoryMinutes);
-						await this.sleep(1000);  // Fixed: Now properly awaited
 						await this.sendCommand("getstate", this.props.userPrefs.locationHistoryMinutes);
-						await this.sleep(500);   // Fixed: Now properly awaited
 						await this.sendCommand("getmessages", this.props.userPrefs.locationHistoryMinutes);
 					}
 					catch (error) {
 						this.l("Location Loop Failed:" + error, true, null);
-						// Ensure any held locks are released on error
-						if (mutex.isLocked()) {
-							this.l("Location Loop error - releasing mutex lock (locked: " + mutex.isLocked() + ")", true);
-							this.cancelCommand();
-						}
+						this.resolvePending();
 					}
 				}
+			}
+			finally {
+				this._locationLoopRunning = false;
 			}
 		}, 8000);
 		this.setState({ backgroundLoop: backgroundTimer });

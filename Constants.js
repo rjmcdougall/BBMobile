@@ -111,3 +111,10 @@ exports.BLE_DATA_FETCH_TIMEOUT = function () {
 
 exports.FS_CACHE_HEADER = "BBM_";
 exports.BLE_TIMEOUT = 5000;
+// Max time to wait for connect/retrieveServices before giving up (Android can hang forever)
+exports.BLE_CONNECT_TIMEOUT = 15000;
+// Max time to wait for a command's reply from the board before releasing the lock
+exports.BLE_REPLY_TIMEOUT = 30000;
+// Commands the board intentionally does not answer (BluetoothCommands.java: these
+// handlers do no tx). sendCommand must not wait for a reply on these.
+exports.NO_REPLY_COMMANDS = new Set(["BTSelect", "power"]);
