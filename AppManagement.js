@@ -9,10 +9,10 @@ import {
 
 import Touchable from "react-native-platform-touchable";
 import PropTypes from "prop-types";
-import StyleSheet, { Colors } from "./StyleSheet";
+import StyleSheet, { Colors, Spacing, Radius, Metrics } from "./StyleSheet";
 import Mapbox from "@rnmapbox/maps";
 import Constants from "./Constants";
-import {sha256} from 'js-sha256';
+import { sha256 } from 'js-sha256';
 
 Mapbox.setAccessToken(
 	"sk.eyJ1IjoiZGFuaWVsa2VpdGh3IiwiYSI6ImNqdzhlbHUwZTJvdmUzenFramFmMTQ4bXIifQ.9EXJnBcsrsKyS-veb_dlNg"
@@ -70,313 +70,170 @@ export default class AppManagement extends Component {
 		}
 		this.setState({ bbComButton: "skyblue" });
 	}
+
+	// Full-width action button (single label). `color` overrides the surface.
+	action(label, onPress, color, pointerEvents) {
+		return (
+			<View pointerEvents={pointerEvents || "auto"}>
+				<Touchable
+					onPress={onPress}
+					style={[StyleSheet.card, {
+						marginBottom: Spacing.md,
+						alignItems: "center",
+						backgroundColor: color || Colors.surfaceSecondary,
+						borderColor: color || Colors.borderPrimary,
+					}]}
+					background={Touchable.Ripple(Colors.borderSecondary)}>
+					<Text style={StyleSheet.subheading}>{label}</Text>
+				</Touchable>
+			</View>
+		);
+	}
+
+	// Full-width toggle row with ON/OFF indicator.
+	toggle(label, active, onPress) {
+		return (
+			<Touchable
+				onPress={onPress}
+				style={[StyleSheet.card, {
+					marginBottom: Spacing.md,
+					backgroundColor: active ? Colors.accent : Colors.surfaceSecondary,
+					borderColor: active ? Colors.accent : Colors.borderPrimary,
+				}]}
+				background={Touchable.Ripple(Colors.borderSecondary)}>
+				<View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+					<Text style={StyleSheet.subheading}>{label}</Text>
+					<Text style={[StyleSheet.caption, { color: active ? Colors.textPrimary : Colors.textTertiary }]}>{active ? "ON" : "OFF"}</Text>
+				</View>
+			</Touchable>
+		);
+	}
+
+	// One segment of the Map Mode control.
+	segment(label, active, onPress) {
+		return (
+			<Touchable
+				onPress={onPress}
+				style={{
+					flex: 1,
+					minHeight: Metrics.scale(46),
+					borderRadius: Radius.md,
+					borderWidth: 1,
+					borderColor: active ? Colors.accent : Colors.borderPrimary,
+					backgroundColor: active ? Colors.accent : Colors.surfaceSecondary,
+					alignItems: "center",
+					justifyContent: "center",
+				}}
+				background={Touchable.Ripple(Colors.borderSecondary)}>
+				<Text style={[StyleSheet.body, { fontWeight: "600" }]}>{label}</Text>
+			</Touchable>
+		);
+	}
+
 	render() {
 		var downloadText;
-		var downloadBackgroundColor;
+		var downloadColor = null;
 		var pointerEvents;
 
-		if (this.props.userPrefs.offlineMapPercentage==100){
+		if (this.props.userPrefs.offlineMapPercentage == 100) {
 			downloadText = "Playa Map Downloaded";
-			downloadBackgroundColor = "green";
+			downloadColor = Colors.accentSecondary;
 			pointerEvents = "none";
 		}
-		else if (this.props.userPrefs.offlineMapPercentage > 0 && this.props.userPrefs.offlineMapPercentage<100){
+		else if (this.props.userPrefs.offlineMapPercentage > 0 && this.props.userPrefs.offlineMapPercentage < 100) {
 			downloadText = "Downloading " + Math.round(this.props.userPrefs.offlineMapPercentage) + "%";
-			downloadBackgroundColor = "yellow";
+			downloadColor = Colors.accentWarning;
 			pointerEvents = "auto";
 		}
 		else {
 			downloadText = "Download Playa Map";
-			downloadBackgroundColor = "skyblue";
+			downloadColor = null;
 			pointerEvents = "auto";
 		}
 
-		var AM = this;
+		const AM = this;
+		const prefs = this.props.userPrefs;
+		const mode = prefs.mapMode;
+
+		const inputStyle = {
+			minHeight: Metrics.scale(46),
+			borderColor: Colors.borderSecondary,
+			borderWidth: 1,
+			borderRadius: Radius.md,
+			backgroundColor: Colors.backgroundPrimary,
+			color: Colors.textPrimary,
+			paddingHorizontal: Spacing.md,
+			fontSize: Metrics.fontScale(16),
+			textAlignVertical: 'center',
+			marginTop: Spacing.sm,
+		};
 
 		return (
 			<View style={StyleSheet.container}>
-				<ScrollView style={{ backgroundColor: Colors.backgroundPrimary }}>
-					<View style={{ height: 10 }}></View>
-					<View style={[StyleSheet.button, { 
-						backgroundColor: Colors.surfaceSecondary,
-						borderRadius: 12,
-						borderWidth: 1,
-						borderColor: Colors.borderPrimary,
-						margin: 8,
-						padding: 4
-					}]}>
-						<Touchable
-							onPress={async () => {
-								await this.clearCache();
-							}}
-							style={[{ 
-								backgroundColor: this.state.cacheButton === "green" ? Colors.accentSecondary : Colors.surfaceSecondary,
-								borderRadius: 8,
-								padding: 16
-							}]}
-							background={Touchable.Ripple(Colors.accentSecondary, false)}>
-							<Text style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary }]}> Clear Cache </Text>
-						</Touchable>
-					</View>
-					<View style={{ height: 10 }}></View>
-					<View style={[StyleSheet.button, { 
-						backgroundColor: Colors.surfaceSecondary,
-						borderRadius: 12,
-						borderWidth: 1,
-						borderColor: Colors.borderPrimary,
-						margin: 8,
-						padding: 4
-					}]}>
-						<Touchable
-							onPress={async () => {
-								this.props.userPrefs.isDevilsHand = !this.props.userPrefs.isDevilsHand;
-								this.props.setUserPrefs(this.props.userPrefs);
-							}}
-							style={[{ 
-							backgroundColor: (this.props.userPrefs.isDevilsHand) ? Colors.accent : Colors.surfaceSecondary,
-								borderRadius: 8,
-								padding: 16
-							}]}
-							background={Touchable.Ripple(Colors.accentSecondary, false)}>
-							<Text style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary }]}>Left Handed</Text>
-						</Touchable>
-					</View>
-					<View style={{ height: 10 }}></View>
-					<View style={[StyleSheet.button, { 
-						backgroundColor: Colors.surfaceSecondary,
-						borderRadius: 12,
-						borderWidth: 1,
-						borderColor: Colors.borderPrimary,
-						margin: 8,
-						padding: 12
-					}]}>
-						<Text style={[StyleSheet.rowText, { color: Colors.textPrimary, textAlign: 'center' }]}>Map Mode</Text>
-					</View>
-					<View style={{ height: 5 }}></View>
-					<View style={[StyleSheet.horizontalButtonBar, {
-						backgroundColor: Colors.surfaceSecondary,
-						borderRadius: 12,
-						borderWidth: 1,
-						borderColor: Colors.borderPrimary,
-						margin: 8,
-						padding: 4
-					}]}>
-						<View style={[StyleSheet.horizonralButton, { flex: 1, margin: 2 }]}>
-							<Touchable
-								onPress={async () => {
-									this.props.userPrefs.mapMode = 'me';
-									this.props.setUserPrefs(this.props.userPrefs);
-								}}
-								style={[{ 
-								backgroundColor: (this.props.userPrefs.mapMode === 'me') ? Colors.accent : Colors.surfaceSecondary,
-									borderRadius: 8,
-									paddingVertical: 10,
-									paddingHorizontal: 8
-								}]}
-								background={Touchable.Ripple(Colors.accentSecondary, false)}>
-								<Text style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary, fontSize: 14 }]}>Me</Text>
-							</Touchable>
-						</View>
-						<View style={[StyleSheet.horizonralButton, { flex: 1, margin: 2 }]}>
-							<Touchable
-								onPress={async () => {
-									this.props.userPrefs.mapMode = 'playa';
-									this.props.setUserPrefs(this.props.userPrefs);
-								}}
-								style={[{ 
-								backgroundColor: (this.props.userPrefs.mapMode === 'playa') ? Colors.accent : Colors.surfaceSecondary,
-									borderRadius: 8,
-									paddingVertical: 10,
-									paddingHorizontal: 8
-								}]}
-								background={Touchable.Ripple(Colors.accentSecondary, false)}>
-								<Text style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary, fontSize: 14 }]}>Playa</Text>
-							</Touchable>
-						</View>
-						<View style={[StyleSheet.horizonralButton, { flex: 1, margin: 2 }]}>
-							<Touchable
-								onPress={async () => {
-									this.props.userPrefs.mapMode = 'auto';
-									this.props.setUserPrefs(this.props.userPrefs);
-								}}
-								style={[{ 
-								backgroundColor: (this.props.userPrefs.mapMode === 'auto' || !this.props.userPrefs.mapMode) ? Colors.accent : Colors.surfaceSecondary,
-									borderRadius: 8,
-									paddingVertical: 10,
-									paddingHorizontal: 8
-								}]}
-								background={Touchable.Ripple(Colors.accentSecondary, false)}>
-								<Text style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary, fontSize: 14 }]}>Auto</Text>
-							</Touchable>
-						</View>
-					</View>
-					<View style={{ height: 10 }}></View>
-					<View style={[StyleSheet.button, { 
-						backgroundColor: Colors.surfaceSecondary,
-						borderRadius: 12,
-						borderWidth: 1,
-						borderColor: Colors.borderPrimary,
-						margin: 8,
-						padding: 4
-					}]}>
-						<Touchable
-							onPress={async () => {
-								this.props.userPrefs.showMapOverlay = !this.props.userPrefs.showMapOverlay;
-								this.props.setUserPrefs(this.props.userPrefs);
-							}}
-							style={[{ 
-							backgroundColor: (this.props.userPrefs.showMapOverlay) ? Colors.accent : Colors.surfaceSecondary,
-								borderRadius: 8,
-								padding: 16
-							}]}
-							background={Touchable.Ripple(Colors.accentSecondary, false)}>
-							<Text style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary }]}>Map Overlay</Text>
-						</Touchable>
-					</View>
-					{(Constants.IS_ANDROID) ?
-						<View>
-							<View style={{ height: 10 }}></View>
-							<View style={[StyleSheet.button, { 
-								backgroundColor: Colors.surfaceSecondary,
-								borderRadius: 12,
-								borderWidth: 1,
-								borderColor: Colors.borderPrimary,
-								margin: 8,
-								padding: 4
-							}]}>
-								<Touchable
-									onPress={async () => {
-										this.props.updateMonitor(!this.props.isMonitor);
-									}}
-									style={[{ 
-										backgroundColor: (this.state.isMonitor) ? Colors.accent : Colors.surfaceSecondary,
-										borderRadius: 8,
-										padding: 16
-									}]}
-									background={Touchable.Ripple(Colors.accentSecondary, false)}>
-									<Text style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary }]}>Monitor Mode</Text>
-								</Touchable>
-							</View>
-						</View>
-						: <View />}
-					<View style={{ height: 10 }}></View>
-					<View style={[StyleSheet.button, { 
-						backgroundColor: Colors.surfaceSecondary,
-						borderRadius: 12,
-						borderWidth: 1,
-						borderColor: Colors.borderPrimary,
-						margin: 8,
-						padding: 4
-					}]} pointerEvents={pointerEvents}>
-						<Touchable
-							onPress={async () => {
+				<ScrollView contentContainerStyle={{ padding: Spacing.lg, paddingBottom: Spacing.xxl }} keyboardShouldPersistTaps="handled">
+					<Text style={[StyleSheet.title, { marginBottom: Spacing.lg }]}>Settings</Text>
 
-								await Mapbox.offlineManager.deletePack("Playa");
+					{this.action("Clear Cache", () => this.clearCache(), this.state.cacheButton === "green" ? Colors.accentSecondary : null)}
+					{this.toggle("Left Handed", prefs.isDevilsHand, () => {
+						prefs.isDevilsHand = !prefs.isDevilsHand;
+						this.props.setUserPrefs(prefs);
+					})}
 
-								await Mapbox.offlineManager.createPack({
-									name: "Playa",
-									styleURL: Mapbox.StyleURL.Street,
-									minZoom: 5,
-									maxZoom: 20,
-									bounds: Constants.PLAYA_BOUNDS()
-								}, AM.progressListener, AM.errorListener);
-							}}
-							style={[{ 
-								backgroundColor: downloadBackgroundColor === "green" ? Colors.accentSecondary : 
-												 downloadBackgroundColor === "yellow" ? Colors.accentWarning : Colors.surfaceSecondary,
-								borderRadius: 8,
-								padding: 16
-							}]}
-							background={Touchable.Ripple(Colors.accentSecondary, false)}
-						>
-							<Text style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary }]}>{downloadText}</Text>
-						</Touchable>
+					<Text style={[StyleSheet.label, { marginBottom: Spacing.sm }]}>Map Mode</Text>
+					<View style={{ flexDirection: "row", gap: Spacing.sm, marginBottom: Spacing.md }}>
+						{this.segment("Me", mode === "me", () => { prefs.mapMode = "me"; this.props.setUserPrefs(prefs); })}
+						{this.segment("Playa", mode === "playa", () => { prefs.mapMode = "playa"; this.props.setUserPrefs(prefs); })}
+						{this.segment("Auto", mode === "auto" || !mode, () => { prefs.mapMode = "auto"; this.props.setUserPrefs(prefs); })}
 					</View>
-					<View style={{ height: 10 }}></View>
-					<View style={[StyleSheet.button, { 
-						backgroundColor: Colors.surfaceSecondary,
-						borderRadius: 12,
-						borderWidth: 1,
-						borderColor: Colors.borderPrimary,
-						margin: 8,
-						padding: 4
-					}]}>
-						<Touchable
-							onPress={async () => {
-								await this.bbCom();
-							}}
-							style={[{ 
-								backgroundColor: this.state.bbComButton === "green" ? Colors.accentSecondary : Colors.surfaceSecondary,
-								borderRadius: 8,
-								padding: 16
-							}]}
-							background={Touchable.Ripple(Colors.accentSecondary, false)}>
-							<Text style={[StyleSheet.buttonTextCenter, { color: Colors.textPrimary }]}>Go To BB.Com</Text>
-						</Touchable>
-					</View>
-					<View style={{ height: 10 }}></View>
-					<View style={{
-						margin: 10,
-						padding: 15,
-						borderColor: Colors.borderPrimary,
-						borderWidth: 1,
-						borderRadius: 12,
-						backgroundColor: Colors.surfaceSecondary
-					}}>
-						<View style={{ minHeight: 50, justifyContent: 'center' }}>
-							<Text style={[StyleSheet.rowText, { color: Colors.textPrimary, fontSize: 16 }]}>Location History Minutes (max 15)</Text>
-						</View>
-						<View style={{ minHeight: 50, justifyContent: 'center' }}>
-							<TextInput keyboardType="number-pad"
-								style={{ 
-									height: 45, 
-									width: 200, 
-									borderColor: Colors.borderSecondary, 
-									borderWidth: 1,
-									borderRadius: 8,
-									backgroundColor: Colors.backgroundPrimary,
-									color: Colors.textPrimary,
-									paddingHorizontal: 12,
-									fontSize: 16,
-									textAlignVertical: 'center'
-								}}
-								onChangeText={async (p) => {
-									this.props.userPrefs.locationHistoryMinutes = p;
-									this.props.setUserPrefs(this.props.userPrefs);
 
-									this.setState({ p: p });
-								}}
-								value={this.props.userPrefs.locationHistoryMinutes}
-							/>
-						</View>
-						<View style={{ minHeight: 50, justifyContent: 'center' }}>
-							<Text style={[StyleSheet.rowText, { color: Colors.textPrimary, fontSize: 16 }]}>Other Input</Text>
-						</View>
-						<View style={{ minHeight: 50, justifyContent: 'center' }}>
-							<TextInput keyboardType="default"
-								style={{ 
-									height: 45, 
-									width: 200, 
-									borderColor: Colors.borderSecondary, 
-									borderWidth: 1,
-									borderRadius: 8,
-									backgroundColor: Colors.backgroundPrimary,
-									color: Colors.textPrimary,
-									paddingHorizontal: 12,
-									fontSize: 16,
-									textAlignVertical: 'center'
-								}}
-								onChangeText={async (visibleUnlockCode) => {
-									this.props.userPrefs.unlockCode = sha256(visibleUnlockCode);
-									this.props.userPrefs.visibleUnlockCode = visibleUnlockCode;
-											
-									this.props.setUserPrefs(this.props.userPrefs);
-								}}
-								value={this.props.userPrefs.visibleUnlockCode}
-							/>
-						</View>
+					{this.toggle("Map Overlay", prefs.showMapOverlay, () => {
+						prefs.showMapOverlay = !prefs.showMapOverlay;
+						this.props.setUserPrefs(prefs);
+					})}
+
+					{Constants.IS_ANDROID &&
+						this.toggle("Monitor Mode", this.props.isMonitor, () => this.props.updateMonitor(!this.props.isMonitor))}
+
+					{this.action(downloadText, async () => {
+						await Mapbox.offlineManager.deletePack("Playa");
+						await Mapbox.offlineManager.createPack({
+							name: "Playa",
+							styleURL: Mapbox.StyleURL.Street,
+							minZoom: 5,
+							maxZoom: 20,
+							bounds: Constants.PLAYA_BOUNDS()
+						}, AM.progressListener, AM.errorListener);
+					}, downloadColor, pointerEvents)}
+
+					{this.action("Go to burnerboard.com", () => this.bbCom(), this.state.bbComButton === "green" ? Colors.accentSecondary : null)}
+
+					<View style={[StyleSheet.card, { marginTop: Spacing.sm }]}>
+						<Text style={StyleSheet.subheading}>Location History (minutes, max 15)</Text>
+						<TextInput
+							keyboardType="number-pad"
+							style={inputStyle}
+							placeholderTextColor={Colors.textTertiary}
+							onChangeText={(p) => {
+								prefs.locationHistoryMinutes = p;
+								this.props.setUserPrefs(prefs);
+								this.setState({ p: p });
+							}}
+							value={prefs.locationHistoryMinutes}
+						/>
+
+						<Text style={[StyleSheet.subheading, { marginTop: Spacing.lg }]}>Unlock Code</Text>
+						<TextInput
+							keyboardType="default"
+							style={inputStyle}
+							placeholderTextColor={Colors.textTertiary}
+							onChangeText={(visibleUnlockCode) => {
+								prefs.unlockCode = sha256(visibleUnlockCode);
+								prefs.visibleUnlockCode = visibleUnlockCode;
+								this.props.setUserPrefs(prefs);
+							}}
+							value={prefs.visibleUnlockCode}
+						/>
 					</View>
-					<View style={{ height: 10 }}></View>
 				</ScrollView>
 			</View>
 		);
@@ -390,4 +247,3 @@ AppManagement.propTypes = {
 	updateMonitor: PropTypes.func,
 	isMonitor: PropTypes.bool,
 };
-
