@@ -1,55 +1,68 @@
-import React, { Component} from "react";
-import { View, ScrollView, Text,} from "react-native";
+import React, { Component } from "react";
+import { View, ScrollView, Text } from "react-native";
 import StateBuilder from "./StateBuilder";
 import PropTypes from "prop-types";
-import StyleSheet, { Colors } from "./StyleSheet";
+import StyleSheet, { Colors, Spacing, Radius, Metrics } from "./StyleSheet";
+
 export default class Diagnostic extends Component {
 	constructor(props) {
 		super(props);
 	}
 
-	render() {
+	infoRow(label, value, last) {
 		return (
-			<View style={StyleSheet.container}  >
+			<View style={{
+				flexDirection: "row",
+				justifyContent: "space-between",
+				alignItems: "center",
+				paddingVertical: Spacing.sm,
+				borderBottomWidth: last ? 0 : 1,
+				borderBottomColor: Colors.borderPrimary,
+			}}>
+				<Text style={[StyleSheet.body, { color: Colors.textSecondary }]}>{label}</Text>
+				<Text style={[StyleSheet.body, { flexShrink: 1, textAlign: "right", marginLeft: Spacing.md }]} numberOfLines={1}>{value}</Text>
+			</View>
+		);
+	}
 
-				<ScrollView style={{ margin: 10 }}>
-					<Text style={{ color: Colors.textPrimary, fontSize: 16, lineHeight: 24 }}>APK Version: {this.props.boardState.apkv} {"\n"}
-						Last Updated: {new Date(this.props.boardState.apkd).toDateString()} {"\n"}
-						SSID: {this.props.boardState.s} {"\n"}
-						IP Address: {this.props.boardState.ip} {"\n"}
-					</Text>
-					{
-						this.props.logLines.map((line) => {
-							var textColor = Colors.textSecondary;
-							var backgroundColor = Colors.surfaceSecondary;
-							if (line.isError) {
-								textColor = Colors.accentError;
-								backgroundColor = Colors.surfaceTertiary;
-							}
+	render() {
+		const bs = this.props.boardState;
+		return (
+			<View style={StyleSheet.container}>
+				<ScrollView contentContainerStyle={{ padding: Spacing.lg, paddingBottom: Spacing.xxl }}>
+					<Text style={[StyleSheet.title, { marginBottom: Spacing.lg }]}>Diagnostics</Text>
 
-							return (
-								<Text 
-									key={Math.random()} 
-									style={{ 
-										color: textColor, 
-										backgroundColor: backgroundColor,
-										padding: 4,
-										marginBottom: 2,
-										borderRadius: 4,
-										fontFamily: 'monospace',
-										fontSize: 12
-									}}
-								>
-									{line.logLine}
-								</Text>
-							);
-						})
-					}
+					<View style={[StyleSheet.card, { marginBottom: Spacing.lg }]}>
+						{this.infoRow("APK Version", String(bs.apkv))}
+						{this.infoRow("Last Updated", new Date(bs.apkd).toDateString())}
+						{this.infoRow("SSID", bs.s)}
+						{this.infoRow("IP Address", bs.ip, true)}
+					</View>
+
+					<Text style={[StyleSheet.label, { marginBottom: Spacing.sm }]}>Log</Text>
+					{this.props.logLines.map((line) => (
+						<Text
+							key={Math.random()}
+							style={{
+								color: line.isError ? Colors.accentError : Colors.textSecondary,
+								backgroundColor: line.isError ? (Colors.accentError + "22") : Colors.surfaceSecondary,
+								paddingVertical: Spacing.xs,
+								paddingHorizontal: Spacing.sm,
+								marginBottom: 3,
+								borderRadius: Radius.sm,
+								fontFamily: "monospace",
+								fontSize: Metrics.fontScale(12),
+							}}
+						>
+							{line.logLine}
+						</Text>
+					))}
 				</ScrollView>
 			</View>
 		);
 	}
 }
+
 Diagnostic.propTypes = {
 	boardState: PropTypes.object,
 	logLines: PropTypes.array,
@@ -59,4 +72,3 @@ Diagnostic.defaultProps = {
 	boardState: StateBuilder.blankBoardState(),
 	logLines: StateBuilder.blankLogLines(),
 };
-

@@ -440,16 +440,14 @@ const styles = RNStyleSheet.create({
         backgroundColor: Colors.primary,
     },
     header: {
-        backgroundColor: Colors.surfacePrimary,
-        paddingHorizontal: 20,
-        paddingVertical: 16,
-        borderBottomWidth: 1,
-        borderBottomColor: Colors.borderPrimary,
+        paddingHorizontal: 16,
+        paddingTop: 16,
+        paddingBottom: 8,
     },
     headerTitle: {
         color: Colors.textPrimary,
-        fontSize: 24,
-        fontWeight: 'bold',
+        fontSize: 22,
+        fontWeight: '700',
         marginBottom: 4,
     },
     headerSubtitle: {
