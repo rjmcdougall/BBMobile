@@ -19,11 +19,11 @@ export default class BatteryController extends React.Component {
 			barColor = "green";
 
 		var b = 0;
-		var displayText = "battery level unknown";
+		var displayText = "unknown level";
 		
 		if (this.props.b === -1) {
 			b = 0;
-			displayText = "battery level unknown";
+			displayText = "unknown level";
 			barColor = "gray";
 		} else if (this.props.b <= 100) {
 			b = this.props.b;
@@ -53,7 +53,7 @@ export default class BatteryController extends React.Component {
 						</View>
 						{/* Battery text overlay */}
 						<View style={[styles.row, styles.center, styles.textOverlay]}>
-							<Text key={this.props.id + "t"} style={[styles.barText, { fontSize: displayText.includes('battery level') ? 12 : 16 }]}>
+							<Text key={this.props.id + "t"} numberOfLines={1} style={[styles.barText, { fontSize: displayText.includes('unknown') ? 10 : 16 }]}>
 								{displayText}
 							</Text>
 						</View>
@@ -85,8 +85,8 @@ const styles = StyleSheet.create({
 		backgroundColor: 'transparent', // Transparent background
 	},
 	batteryContainer: {
-		height: 47, // Additional 10% higher (43 * 1.1 = 47.3)
-		width: '76.5%', // 10% narrower (85% * 0.9 = 76.5%)
+		height: 28, // sized to align with the header status chip
+		width: '100%', // fill the header slot so the label has room (was 76.5%)
 		flexDirection: 'row',
 		alignItems: 'center',
 		alignSelf: 'center',
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
 	},
 	batteryShell: {
 		flex: 1,
-		height: 37, // Additional 10% higher (34 * 1.1 = 37.4)
+		height: 26,
 		borderWidth: 2,
 		borderColor: Colors.borderPrimary,
 		borderRadius: 4,
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
 	},
 	batteryTerminal: {
 		width: 4,
-		height: 21, // Additional 10% higher (19 * 1.1 = 20.9)
+		height: 12,
 		backgroundColor: Colors.borderPrimary,
 		borderRadius: 2,
 		marginLeft: 2,

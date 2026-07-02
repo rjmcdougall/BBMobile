@@ -23,7 +23,7 @@ import LeftNav from "./LeftNav";
 import MapController from "./MapController";
 import BatteryController from "./BatteryController";
 import BatteryListItem from "./BatteryListItem";
-import StyleSheet, { Colors } from "./StyleSheet";
+import StyleSheet, { Colors, Spacing, Radius, Metrics } from "./StyleSheet";
 import DiscoverController from "./DiscoverController";
 import StatsControl from "./StatsControl";
 import PropTypes from "prop-types";
@@ -965,28 +965,58 @@ export default class BoardManager extends Component {
 		connectionButtonText = "Select Board";
 	}
 
+	// Header status chip: colour + label derived from the connection state. The
+	// chip is the single connection control — tapping it when disconnected starts
+	// a scan/connect, so the label doubles as the affordance ("Tap to connect").
+	let statusDotColor = Colors.textTertiary;
+	let statusLabel = "Tap to connect";
+	if (color === "green") {
+		statusDotColor = Colors.accentSecondary;
+		statusLabel = this.state.isCloudConnected ? "Cloud connected" : "Connected";
+	}
+	else if (color === "yellow") {
+		statusDotColor = Colors.accentWarning;
+		statusLabel = (this.state.connectedPeripheral && this.state.connectedPeripheral.connectionStatus === Constants.CONNECTING)
+			? "Connecting…"
+			: ("Loading " + this.completionPercentage() + "%");
+	}
+	if (this.state.scanning) {
+		statusDotColor = Colors.accent;
+		statusLabel = "Searching…";
+	}
+	const isConnectedOrBusy = (color === "green" || color === "yellow" || this.state.scanning);
+	const headerTitle = this.state.boardName || "Burner Board";
+
 		if (!this.state.isMonitor)
 			return (
 				<View style={{ flex: 1, backgroundColor: Colors.primary }}>
-					<View style={{ backgroundColor: Colors.surfacePrimary, height: 60, borderBottomWidth: 1, borderBottomColor: Colors.borderPrimary }}></View>
-					<View style={{ flexDirection: "row", backgroundColor: Colors.primary }}>
-						{(!this.props.userPrefs.isDevilsHand) ?
-							<View style={{ margin: 2 }}>
-							<Image style={{ width: 50, height: 51 }} source={require("./images/BurnerBoardIcon-1026-dark.png")} />
-							</View>
-							: <View></View>
-						}
-						<View style={{ flex: 1, alignItems: 'center', margin: 2 }}>
-							<View style={{ width: '88%' }}>
-								<BatteryController b={this.state.boardState.b} />
+					{/* Header: logo + board title + status chip */}
+					<View style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: Spacing.lg, paddingTop: Spacing.sm, paddingBottom: Spacing.md }}>
+						<Image style={{ width: Metrics.scale(38), height: Metrics.scale(39), marginRight: Spacing.md }} source={require("./images/BurnerBoardIcon-1026-dark.png")} />
+						<View style={{ flex: 1 }}>
+							<Text style={StyleSheet.title} numberOfLines={1}>{headerTitle}</Text>
+							{/* Status chip + battery on one row */}
+							<View style={{ flexDirection: "row", alignItems: "center", marginTop: Metrics.scale(6) }}>
+								<TouchableOpacity
+									activeOpacity={0.7}
+									disabled={isConnectedOrBusy}
+									onPress={async () => {
+										try {
+											await this.startScan(true);
+										}
+										catch (error) {
+											this.l("Failed to connect: " + error, true);
+										}
+									}}
+									style={StyleSheet.chip}>
+									<View style={[StyleSheet.chipDot, { backgroundColor: statusDotColor }]} />
+									<Text style={StyleSheet.chipText}>{statusLabel}</Text>
+								</TouchableOpacity>
+								<View style={{ flex: 1, marginLeft: Spacing.md }}>
+									<BatteryController b={this.state.boardState.b} />
+								</View>
 							</View>
 						</View>
-						{(this.props.userPrefs.isDevilsHand) ?
-							<View style={{ margin: 2}}>
-								<Image style={{ width: 50, height: 51, }} source={require("./images/BurnerBoardIcon-1026-dark.png")} />
-							</View>
-							: <View></View>
-						}
 					</View>
 					<View style={{ flex: 1, flexDirection: "row" }}>
 						{(!this.props.userPrefs.isDevilsHand) ? <LeftNav onNavigate={this.onNavigate} showScreen={this.state.showScreen} onPressSearchForBoards={this.onPressSearchForBoards} /> : <View></View>}
@@ -999,27 +1029,6 @@ export default class BoardManager extends Component {
 								{(this.state.showScreen == Constants.DISCOVER) ? <DiscoverController startScan={this.startScan} boardBleDevices={this.state.boardBleDevices} scanning={this.state.scanning} boardData={this.state.boardData} onSelectPeripheral={this.onSelectPeripheral} onSelectCloudConnection={this.onSelectCloudConnection} /> : <View></View>}
 					{(this.state.showScreen == Constants.BOARD_STATUS) ? <BoardStatusPanel boardData={this.state.boardData} status={this.state.status} onRefreshBoards={this.startScan.bind(this, false)} locations={this.state.locations} connectedPeripheral={this.state.connectedPeripheral} isCloudConnected={this.state.isCloudConnected} cloudConnectionStatus={this.state.cloudConnectionStatus} /> : <View></View>}
 								{(this.state.showScreen == Constants.STATS_CONTROL) ? <StatsControl pointerEvents={enableControls} boardState={this.state.boardState} sendCommand={this.sendCommand} /> : <View></View>}
-							</View>
-							<View style={StyleSheet.footer}>
-								<TouchableOpacity
-									onPress={async () => {
-										try {
-											await this.startScan(true);
-										}
-										catch (error) {
-											this.l("Failed to Connext " + error);
-										}
-									}
-									}
-									style={{
-									backgroundColor: color === "green" ? Colors.accentSecondary : color === "yellow" ? Colors.accentWarning : Colors.surfaceSecondary,
-									flex: 1,
-									borderRadius: 12,
-									borderWidth: 1,
-									borderColor: Colors.borderPrimary,
-								}}>
-									<Text style={StyleSheet.connectButtonTextCenter}>{connectionButtonText} {this.state.scanning ? "(s)" : ""}</Text>
-								</TouchableOpacity>
 							</View>
 						</View>
 						{(this.props.userPrefs.isDevilsHand) ? <LeftNav onNavigate={this.onNavigate} showScreen={this.state.showScreen} onPressSearchForBoards={this.onPressSearchForBoards} /> : <View></View>}

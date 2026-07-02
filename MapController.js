@@ -4,7 +4,7 @@ import Mapbox from "@rnmapbox/maps";
 import StateBuilder from "./StateBuilder";
 import PropTypes from "prop-types";
 import Touchable from "react-native-platform-touchable";
-import StyleSheet, { Colors } from "./StyleSheet";
+import StyleSheet, { Colors, Spacing, Radius, Metrics } from "./StyleSheet";
 import Constants from "./Constants";
 import Bubble from "./Bubble";
 import Cache from "./Cache";
@@ -881,17 +881,29 @@ export default class MapController extends Component {
 	const audioPickerItems = this.getAudioPickerItems();
 	const videoPickerItems = this.getVideoPickerItems();
 
+	// Height for the bottom message overlay. The map is flex:1 minus this, so
+	// keeping it small maximizes the map. When there are no messages we collapse
+	// to just the input bar; once a conversation exists we expand to a modest,
+	// screen-proportional height (clamped so it never dominates a small phone).
+	const inputBarHeight = Metrics.scale(64);
+	const hasMessages = this.state.messages.length > 0;
+	// Even with no messages, keep a compact messages panel visible (room for the
+	// empty-state hint) so the received-messages box always exists; expand it a
+	// bit once a conversation starts. Either way the map keeps most of the space.
+	const overlayHeight = hasMessages
+		? Math.round(Math.min(230, Math.max(160, this.state.screenHeight * 0.22)))
+		: inputBarHeight + Metrics.scale(56);
+
 	return (
 			<View style={StyleSheet.container}>
 				{/* Volume Control at top */}
 				{this.props.boardState && (
 					<View style={{
-						backgroundColor: Colors.primary + 'CC', // 80% opacity
-						paddingHorizontal: 10,
-						paddingTop: 10,
-						paddingBottom: 5
+						paddingHorizontal: Spacing.lg,
+						paddingTop: Spacing.sm,
+						paddingBottom: Spacing.xs
 					}}>
-						<VolumeController 
+						<VolumeController
 							boardState={this.props.boardState}
 							sendCommand={this.props.sendCommand}
 						/>
@@ -899,77 +911,70 @@ export default class MapController extends Component {
 				)}
 				
 				{/* Audio and Video Controls */}
-				<View style={{ 
-					flexDirection: 'row', 
-					padding: 10, 
-					backgroundColor: Colors.primary + 'CC', // 80% opacity
-					justifyContent: 'space-around' 
+				<View style={{
+					flexDirection: 'row',
+					gap: Spacing.sm,
+					paddingHorizontal: Spacing.lg,
+					paddingBottom: Spacing.sm
 				}}>
 					{/* Audio Dropdown */}
-					<View style={{ flex: 1, marginRight: 5 }}>
-						<TouchableOpacity
-							style={{
-								height: 40,
-								borderWidth: 1,
-								borderColor: Colors.borderPrimary,
-								borderRadius: 8,
-								backgroundColor: Colors.surfaceSecondary,
-								justifyContent: 'center',
-								paddingHorizontal: 10,
-								flexDirection: 'row',
-								alignItems: 'center'
-							}}
-							onPress={() => this.setState({ audioModalVisible: true })}
-						>
-							<Text style={{
-								flex: 1,
-								fontSize: 12,
-								color: Colors.textPrimary
-							}}>
-								{audioPickerItems.length > 0 ? audioPickerItems[this.getSelectedAudioIndex()]?.label || 'None' : 'None'}
-							</Text>
-							<Text style={{
-								fontSize: 14,
-								color: Colors.accent
-							}}>▼</Text>
-						</TouchableOpacity>
-					</View>
-
-					{/* Video Dropdown */}
-					<View style={{ flex: 1, marginLeft: 5 }}>
-						<TouchableOpacity
+					<TouchableOpacity
 						style={{
-							height: 40,
+							flex: 1,
+							minHeight: Metrics.scale(48),
 							borderWidth: 1,
 							borderColor: Colors.borderPrimary,
-							borderRadius: 8,
+							borderRadius: Radius.md,
 							backgroundColor: Colors.surfaceSecondary,
 							justifyContent: 'center',
-							paddingHorizontal: 10,
+							paddingHorizontal: Spacing.md,
 							flexDirection: 'row',
 							alignItems: 'center'
 						}}
-							onPress={() => this.setState({ videoModalVisible: true })}
-						>
-							<Text style={{
-								flex: 1,
-								fontSize: 12,
-								color: Colors.textPrimary
-							}}>
+						onPress={() => this.setState({ audioModalVisible: true })}
+					>
+						<View style={{ flex: 1 }}>
+							<Text style={StyleSheet.caption}>AUDIO</Text>
+							<Text style={{ fontSize: Metrics.fontScale(14), color: Colors.textPrimary, fontWeight: '600' }} numberOfLines={1}>
+								{audioPickerItems.length > 0 ? audioPickerItems[this.getSelectedAudioIndex()]?.label || 'None' : 'None'}
+							</Text>
+						</View>
+						<Text style={{ fontSize: Metrics.fontScale(12), color: Colors.accent, marginLeft: Spacing.sm }}>▼</Text>
+					</TouchableOpacity>
+
+					{/* Video Dropdown */}
+					<TouchableOpacity
+						style={{
+							flex: 1,
+							minHeight: Metrics.scale(48),
+							borderWidth: 1,
+							borderColor: Colors.borderPrimary,
+							borderRadius: Radius.md,
+							backgroundColor: Colors.surfaceSecondary,
+							justifyContent: 'center',
+							paddingHorizontal: Spacing.md,
+							flexDirection: 'row',
+							alignItems: 'center'
+						}}
+						onPress={() => this.setState({ videoModalVisible: true })}
+					>
+						<View style={{ flex: 1 }}>
+							<Text style={StyleSheet.caption}>VIDEO</Text>
+							<Text style={{ fontSize: Metrics.fontScale(14), color: Colors.textPrimary, fontWeight: '600' }} numberOfLines={1}>
 								{videoPickerItems.length > 0 ? videoPickerItems[this.getSelectedVideoIndex()]?.label || 'None' : 'None'}
 							</Text>
-							<Text style={{
-								fontSize: 14,
-								color: Colors.accent
-							}}>▼</Text>
-						</TouchableOpacity>
-					</View>
+						</View>
+						<Text style={{ fontSize: Metrics.fontScale(12), color: Colors.accent, marginLeft: Spacing.sm }}>▼</Text>
+					</TouchableOpacity>
 				</View>
-				
-				<View style={{ 
-					flex: 1, 
+
+				<View style={{
+					flex: 1,
 					flexDirection: 'row',
-					marginBottom: this.state.keyboardVisible ? 0 : 270 // Space for message overlay (206 + 64 footer)
+					marginHorizontal: Spacing.lg,
+					marginBottom: this.state.keyboardVisible ? 0 : overlayHeight,
+					borderRadius: Radius.lg,
+					overflow: 'hidden'
 				}}>
 					{/* Map Container - completely hidden when keyboard is visible */}
 					{!this.state.keyboardVisible && (
@@ -1221,18 +1226,18 @@ export default class MapController extends Component {
 				{/* Normal overlay mode when keyboard is hidden */}
 				{!this.state.keyboardVisible && (
 					<View style={{
-						backgroundColor: Colors.primary + 'F0', 
-						position: "absolute", 
+						backgroundColor: Colors.primary + 'F0',
+						position: "absolute",
 						bottom: 0, // Extend to bottom
-						left: 0, 
+						left: 0,
 						right: 0,
-						height: 270, // 206 for content + 64 for footer button area
+						height: overlayHeight,
 						zIndex: 100,
-						borderTopLeftRadius: 12,
-						borderTopRightRadius: 12
+						borderTopLeftRadius: Radius.lg,
+						borderTopRightRadius: Radius.lg
 					}}>
-						<ScrollView 
-						style={{ flex: 1, padding: 5, marginBottom: 64 }} // Use flex with margin to avoid text input
+						<ScrollView
+						style={{ flex: 1, paddingHorizontal: Spacing.sm, marginBottom: inputBarHeight }} // Use flex with margin to avoid text input
 							contentContainerStyle={{ paddingVertical: 5 }}
 							showsVerticalScrollIndicator={true}
 							ref={ref => this.overlayMessageScrollView = ref}
@@ -1252,16 +1257,16 @@ export default class MapController extends Component {
 								</Text>
 							)}
 						</ScrollView>
-						<View style={{ 
-							borderTopWidth: 1, 
-							borderTopColor: Colors.borderSecondary, 
+						<View style={{
+							borderTopWidth: 1,
+							borderTopColor: Colors.borderSecondary,
 							paddingTop: 5,
 							paddingBottom: 5,
 							position: 'absolute',
 							bottom: 0, // Position at bottom of overlay (above footer in screen)
 							left: 0,
 							right: 0,
-							height: 64 // Match footer height
+							height: inputBarHeight // Match footer height
 						}}>
 							<TextInput
 								ref={ref => this.overlayTextInputRef = ref}
