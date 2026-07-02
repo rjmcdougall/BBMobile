@@ -372,12 +372,11 @@ export default class MapController extends Component {
 		return new Date(lastLocation.d).toLocaleString();
 	}
 
-	async addMessage(message, boardName = 'Me') {
+	// Build a structured message object (no state change).
+	buildMessageObj(message, boardName = 'Me') {
 		const timestamp = new Date();
 		const timeString = timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-		
-		// Create structured message object
-		const messageObj = {
+		return {
 			id: Date.now() + Math.random(), // Unique ID
 			boardName: boardName,
 			text: message,
@@ -385,23 +384,31 @@ export default class MapController extends Component {
 			timeDisplay: timeString,
 			boardColor: boardName === 'Me' ? Colors.accent : this.getBoardColor(boardName)
 		};
-		
-		const newMessages = [...this.state.messages, messageObj];
-		
-		// Keep only last 8 messages
-		if (newMessages.length > 8) {
-			newMessages.shift();
+	}
+
+	// Append one or more message objects in a single functional update. Using the
+	// updater form (prev => …) is essential: a single BLE poll can deliver several
+	// messages at once, and React batches the setStates — reading this.state
+	// directly per message would drop all but the last.
+	appendMessages(newObjs) {
+		if (!newObjs || newObjs.length === 0) {
+			return;
 		}
-		
-		this.setState({ messages: newMessages });
-		
-		// Save messages to cache
-		try {
-			await Cache.set(Constants.MESSAGES, newMessages);
-			console.log('Messages saved to cache');
-		} catch (error) {
-			console.log('Error saving messages to cache:', error);
-		}
+		this.setState(
+			(prev) => {
+				const merged = [...prev.messages, ...newObjs];
+				return { messages: merged.length > 8 ? merged.slice(merged.length - 8) : merged };
+			},
+			() => {
+				// Persist after the state has actually been applied.
+				Cache.set(Constants.MESSAGES, this.state.messages).catch((error) =>
+					console.log('Error saving messages to cache:', error));
+			}
+		);
+	}
+
+	async addMessage(message, boardName = 'Me') {
+		this.appendMessages([this.buildMessageObj(message, boardName)]);
 	}
 
 	// Helper method to get board color
@@ -611,38 +618,33 @@ export default class MapController extends Component {
 		}
 	}
 
-	// Method to be called from BoardManager when BLE messages are received
+	// Method to be called from BoardManager when BLE messages are received. A
+	// single poll can carry several new messages, so parse them all and append in
+	// one batch (see appendMessages for why per-message setState drops messages).
 	addReceivedMessages(messages) {
+		let objs = [];
 		if (Array.isArray(messages)) {
-			// Add each message from the BLE response
-			messages.forEach(message => {
-				this.parseAndAddMessage(message);
-			});
+			objs = messages.map((m) => this.parseMessage(m));
 		} else if (typeof messages === 'string') {
-			// Single message
-			this.parseAndAddMessage(messages);
+			objs = [this.parseMessage(messages)];
 		}
+		this.appendMessages(objs);
 	}
 
-	// Helper method to parse board name from message format "BoardName: message text"
-	parseAndAddMessage(messageText) {
+	// Parse "BoardName: message text" into a message object.
+	parseMessage(messageText) {
 		if (typeof messageText === 'string') {
 			const colonIndex = messageText.indexOf(':');
 			if (colonIndex > 0) {
-				// Extract board name (everything before the first colon)
 				const boardName = messageText.substring(0, colonIndex).trim();
-				// Extract message text (everything after the first colon and space)
 				const messageContent = messageText.substring(colonIndex + 1).trim();
-				
 				if (boardName && messageContent) {
-					this.addMessage(messageContent, boardName);
-					return;
+					return this.buildMessageObj(messageContent, boardName);
 				}
 			}
 		}
-		
-		// Fallback: if parsing fails, treat as a regular message from "Me"
-		this.addMessage(messageText, 'Me');
+		// Fallback: treat as a regular message from "Me"
+		return this.buildMessageObj(messageText, 'Me');
 	}
 
 	async handleSubmitMessage(event) {
