@@ -105,7 +105,7 @@ const StatsControl = ({ boardState, sendCommand }) => {
         {powerToggle('Amp', ampOn, toggleAmp)}
 
         <Text style={[StyleSheet.label, { marginTop: Spacing.lg, marginBottom: Spacing.sm }]}>Actions</Text>
-        {momentaryBtn('Restart Board App (FUD)', () => sendCommand('power', '', 'fud'))}
+        {momentaryBtn('Reset Brain', () => sendCommand('power', '', 'fud'))}
       </ScrollView>
     </View>
   );
