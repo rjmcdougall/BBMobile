@@ -612,7 +612,7 @@ export default class BoardManager extends Component {
 		}
 	}
  
-	async sendCommand(command, arg) {
+	async sendCommand(command, arg, subcmd) {
 
 		if (this.state.connectedPeripheral.connectionStatus != Constants.CONNECTED) {
 			console.log("BBM: SendCommand blocked - not connected. Status:", this.state.connectedPeripheral.connectionStatus);
@@ -639,7 +639,12 @@ export default class BoardManager extends Component {
 				replyPromise = new Promise((resolve) => { this._pending = { command, resolve }; });
 			}
 
-			const data = stringToBytes("{command:\"" + command + "\", arg:\"" + arg + "\"};\n");
+			// Some board commands (e.g. power: leds/amp/fud) take a subcmd field in
+			// addition to arg; include it only when provided. See BluetoothCommands.java.
+			let payload = "{command:\"" + command + "\", arg:\"" + arg + "\"";
+			if (subcmd) payload += ", subcmd:\"" + subcmd + "\"";
+			payload += "};\n";
+			const data = stringToBytes(payload);
 			await this.withTimeout(
 				BleManager.write(peripheral.id, Constants.UARTservice, Constants.txCharacteristic, data, 18), // MTU Size
 				Constants.BLE_TIMEOUT,

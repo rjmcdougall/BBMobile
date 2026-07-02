@@ -10,15 +10,15 @@ const StatsControl = ({ pointerEvents, boardState, sendCommand }) => {
   const toggleLeds = () => {
     const newState = !ledsOn;
     setLedsOn(newState);
-    // Send command in the format: {"command": "leds", "arg": "on/off"}
-    sendCommand('leds', newState ? 'on' : 'off');
+    // Board expects: {command:"power", subcmd:"leds", arg:<bool>} (BluetoothCommands.java)
+    sendCommand('power', newState ? 'true' : 'false', 'leds');
   };
 
   const toggleAmp = () => {
     const newState = !ampOn;
     setAmpOn(newState);
-    // Send command in the format: {"command": "amp", "arg": "on/off"}
-    sendCommand('amp', newState ? 'on' : 'off');
+    // Board expects: {command:"power", subcmd:"amp", arg:<bool>}
+    sendCommand('power', newState ? 'true' : 'false', 'amp');
   };
 
   return (
@@ -119,7 +119,7 @@ const StatsControl = ({ pointerEvents, boardState, sendCommand }) => {
             padding: 2
           }]}>
             <Touchable
-              onPress={() => sendCommand('fud')}
+              onPress={() => sendCommand('power', '', 'fud')}
               style={[{ 
                 backgroundColor: Colors.surfaceSecondary,
                 borderRadius: 8,
